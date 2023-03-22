@@ -1,0 +1,10 @@
+// Copyright (c) ZeroC, Inc.
+
+encoding = 1
+
+[cs::namespace("IceRpc.Interop.Generated")]
+module Interop
+
+interface Operations {
+    op()
+}

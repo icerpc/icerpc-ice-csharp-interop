@@ -31,6 +31,7 @@ function Test($config, $coverage) {
     $arguments = @('test', '--no-build', '--configuration', $dotnetConfiguration)
     RunCommand "dotnet" $arguments
 }
+
 function RunCommand($command, $arguments) {
     Write-Host $command $arguments
     & $command $arguments
@@ -60,8 +61,6 @@ function Get-Help() {
     Write-Host "  -iceRpcVersion            Build tests using the given IceRPC vresion default is (0.1.0-preview1)"
     Write-Host "  -help                     Print help and exit."
 }
-Write-Host "Ice version $iceVersion"
-Write-Host "Config $config"
 
 $configs = "debug","release"
 if ( $configs -notcontains $config ) {
