@@ -18,8 +18,6 @@ public class IceObjectTests
         using Ice.Communicator communicator = Ice.Util.initialize();
         Ice.ObjectPrx proxy = communicator.stringToProxy($"hello:tcp -h 127.0.0.1 -p {serverAddress.Port}");
 
-        Console.WriteLine(proxy.ToString());
-
-        proxy.ice_ping();
+        Assert.That(() => proxy.ice_ping(), Throws.Nothing);
     }
 }
