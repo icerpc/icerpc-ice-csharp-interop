@@ -12,7 +12,7 @@ public class IceObjectTests
     [Test]
     public async Task Ice_ping_on_IceRPC_service()
     {
-        await using var server = new Server(new Service(), new Uri("icerpc://127.0.0.1:0"));
+        await using var server = new Server(new Service(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Ice.Communicator communicator = Ice.Util.initialize();
