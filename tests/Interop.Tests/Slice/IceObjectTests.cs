@@ -1,9 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
+using IceRpc;
 using IceRpc.Slice;
 using NUnit.Framework;
 
-namespace IceRpc.Tests.FooInterop; // TODO: fix namespace!
+namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
 public class IceObjectTests
@@ -16,8 +17,27 @@ public class IceObjectTests
         ServerAddress serverAddress = server.Listen();
 
         using Ice.Communicator communicator = Ice.Util.initialize();
-        Ice.ObjectPrx proxy = communicator.stringToProxy($"hello:tcp -h 127.0.0.1 -p {serverAddress.Port}");
+        Ice.ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
-        Assert.That(() => proxy.ice_ping(), Throws.Nothing);
+        Assert.That(async () => await proxy.ice_pingAsync(), Throws.Nothing);
+    }
+
+    /// <summary>An IceRPC client sends ice_ping to an Ice object.</summary>
+    [Test]
+    public async Task Ice_ping_on_Ice_object()
+    {
+        using Ice.Communicator communicator = Ice.Util.initialize();
+        var adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
+        adapter.add(new IceObject(), new Ice.Identity("hello", ""));
+        adapter.activate();
+
+        await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
+        var proxy = new IceObjectProxy(clientConnection, new Uri("ice:/hello"));
+
+        Assert.That(async () => await proxy.IcePingAsync(), Throws.Nothing);
+    }
+
+    private class IceObject : Ice.ObjectImpl
+    {
     }
 }
