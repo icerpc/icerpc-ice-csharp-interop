@@ -26,6 +26,15 @@ jobs:
       uses: actions/setup-dotnet@v3
       with:
         dotnet-version: "7.0.x"
+    - name: Setup Ice 3.7
+      run: |
+        sudo mkdir -p /etc/apt/keyrings
+        sudo curl -fsSL https://download.zeroc.com/GPG-KEY-zeroc-release-B6391CB2CFBA643D | sudo gpg --dearmor -o /etc/apt/keyrings/zeroc.gpg
+        echo \
+          "deb [signed-by=/etc/apt/keyrings/zeroc.gpg] https://download.zeroc.com/ice/3.7/ubuntu22.04 stable main" \
+          | sudo tee /etc/apt/sources.list.d/zeroc-ice-3.7.list
+        sudo apt-get update
+        sudo apt-get install zeroc-ice-slice zeroc-ice-compilers
     - name: 🔗 Add GitHub NuGet repository
       run: dotnet nuget add source "https://nuget.pkg.github.com/zeroc-ice/index.json" -n GitHub -u ci --store-password-in-clear-text -p ${{ secrets.NUGET_API_TOKEN }}
     - name: 🔗 Restore dependencies
