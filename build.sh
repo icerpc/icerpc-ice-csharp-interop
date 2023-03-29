@@ -3,7 +3,7 @@
 set -ue
 
 iceVersion="3.7.9"
-iceRpcVersion="0.1.0-preview1"
+iceRpcVersion="0.1.0-preview2"
 
 usage()
 {
@@ -16,7 +16,7 @@ usage()
     echo "Arguments:"
     echo "  --config | -c             Build configuration: debug or release, the default is debug."
     echo "  --ice-version             Build tests using the given Ice version default is (3.7.9)."
-    echo "  --ice-rpc-version        Build tests using the given IceRPC version default is (0.1.0-preview1)."
+    echo "  --icerpc-version          Build tests using the given IceRPC version default is (0.1.0-preview2)."
     echo "  --help   | -h             Print help and exit."
 }
 
@@ -72,7 +72,7 @@ while [[ $# -gt 0 ]]; do
             shift
             shift
             ;;
-        --ice-rpc-version)
+        --icerpc-version)
             iceRpcVersion=$2
             shift
             shift
