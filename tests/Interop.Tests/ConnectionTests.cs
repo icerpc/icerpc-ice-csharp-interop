@@ -1,37 +1,24 @@
 // Copyright (c) ZeroC, Inc.
 
+using Ice;
+using IceRpc;
 using NUnit.Framework;
-using System.Diagnostics;
 
-namespace IceRpc.Tests.Slice.Identifiers;
+namespace Interop.Tests;
 
 [Parallelizable(scope: ParallelScope.All)]
 public class ConnectionTests
 {
+    // TODO: what's the point of this test??
     [Test]
     public async Task IceRPC_client_ice_server()
     {
-        using Ice.Communicator communicator = Ice.Util.initialize();
-        var adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
+        using Communicator communicator = Util.initialize();
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.activate();
-        var endpointInfo = GetTCPEndpointInfo(adapter.getEndpoints()[0].getInfo());
-        Debug.Assert(endpointInfo is not null);
-
-        await using var clientConnection = new ClientConnection(new Uri($"ice://127.0.0.1:{endpointInfo.port}"));
+        await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
 
         // Act/Assert
-        Assert.That(async () => await clientConnection.ConnectAsync(default), Throws.Nothing);
-    }
-
-    private static Ice.TCPEndpointInfo? GetTCPEndpointInfo(Ice.EndpointInfo info)
-    {
-        for (; info != null; info = info.underlying)
-        {
-            if (info is Ice.TCPEndpointInfo)
-            {
-                return info as Ice.TCPEndpointInfo;
-            }
-        }
-        return null;
+        Assert.That(async () => await clientConnection.ConnectAsync(), Throws.Nothing);
     }
 }
