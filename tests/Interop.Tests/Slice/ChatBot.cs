@@ -6,7 +6,7 @@ using IceRpc.Slice;
 
 namespace Interop.Tests.Slice;
 
-/// <summary>A basic, reusable implementation of INewHelloService.</summary>
+/// <summary>A basic, reusable implementation of IHelloService.</summary>
 public class ChatBot : Service, IHelloService
 {
     public ValueTask<string> SayHelloAsync(
