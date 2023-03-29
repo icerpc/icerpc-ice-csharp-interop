@@ -21,18 +21,27 @@
 
   <!-- IceRPC Packages -->
   <ItemGroup>
+    <PackageReference Include="IceRpc.Builder.MSBuild" Version="$(IceRpcBuilderVersion)" PrivateAssets="All" />
     <PackageReference Include="IceRpc" Version="$(IceRpcVersion)" />
     <PackageReference Include="IceRpc.Coloc" Version="$(IceRpcVersion)" />
   </ItemGroup>
 
   <!-- Ice Packages -->
   <ItemGroup>
+    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.7" PrivateAssets="All" />
     <PackageReference Include="zeroc.ice.net" Version="$(IceVersion)" PrivateAssets="All" />
   </ItemGroup>
 
-  <ItemGroup>
-    <ProjectReference Include="..\IceRpc.Interop.Generated\IceRpc.Interop.Generated.csproj" />
-    <ProjectReference Include="..\Ice.Interop.Generated\Ice.Interop.Generated.csproj" />
-  </ItemGroup>
+   <ItemDefinitionGroup>
+      <SliceC>
+        <OutputDir>$(MSBuildProjectDirectory)\generated\slice</OutputDir>
+      </SliceC>
+    </ItemDefinitionGroup>
+
+    <ItemDefinitionGroup>
+      <SliceCompile>
+        <OutputDir>$(MSBuildProjectDirectory)\generated\ice</OutputDir>
+      </SliceCompile>
+    </ItemDefinitionGroup>
 
 </Project>
