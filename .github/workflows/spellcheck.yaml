@@ -14,4 +14,4 @@ jobs:
       - uses: streetsidesoftware/cspell-action@v2
         with:
           files: |
-            **/*.{cs,md,json,csproj,slice}
+            **/*.{cs,md,json,csproj,ice,slice}
