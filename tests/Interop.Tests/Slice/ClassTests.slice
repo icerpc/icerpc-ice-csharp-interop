@@ -1,0 +1,20 @@
+// Copyright (c) ZeroC, Inc.
+
+encoding = Slice1
+
+module Interop::Tests::Slice
+
+[cs::identifier("VehicleTwin")]
+class Vehicle {
+    name: string
+}
+
+[cs::identifier("BicycleTwin")]
+class Bicycle : Vehicle {
+    hasBasket: bool
+}
+
+[cs::identifier("TruckTwin")]
+class Truck : Vehicle {
+    cargo: sequence<Vehicle>
+}
