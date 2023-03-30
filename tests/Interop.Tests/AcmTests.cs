@@ -15,7 +15,7 @@ public class AcmTests
     [Test]
     public async Task Idle_connection_to_Ice_server_remains_alive([Values] bool enableIdleCheck)
     {
-        using Communicator communicator = CreateCommunicator(3, enableIdleCheck);
+        using Communicator communicator = CreateCommunicator(acmTimeout: 3, enableIdleCheck);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.activate();
 
@@ -52,16 +52,16 @@ public class AcmTests
 
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = CreateCommunicator(3, enableIdleCheck);
+        using Communicator communicator = CreateCommunicator(acmTimeout: 3, enableIdleCheck);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
-        bool connectionLost = false;
+        bool connectionClosed = false;
         Connection connection = await proxy.ice_getConnectionAsync();
-        connection.setCloseCallback(_ => connectionLost = true);
+        connection.setCloseCallback(_ => connectionClosed = true);
 
         // Act/Assert
         await Task.Delay(TimeSpan.FromSeconds(5));
-        Assert.That(connectionLost, Is.False);
+        Assert.That(connectionClosed, Is.False);
     }
 
     /// <summary>Verifies an IceRPC->Ice connection is shut down when inactive. That's because the InactivityTimeout
@@ -69,7 +69,7 @@ public class AcmTests
     [Test]
     public async Task Inactive_connection_to_Ice_is_shutdown([Values] bool enableIdleCheck)
     {
-        using Communicator communicator = CreateCommunicator(2, enableIdleCheck);
+        using Communicator communicator = CreateCommunicator(acmTimeout: 2, enableIdleCheck);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.activate();
 
@@ -111,24 +111,25 @@ public class AcmTests
 
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = CreateCommunicator(2, enableIdleCheck);
+        using Communicator communicator = CreateCommunicator(acmTimeout: 2, enableIdleCheck);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
-        bool connectionLost = false;
+        bool connectionClosed = false;
         Connection connection = await proxy.ice_getConnectionAsync();
-        connection.setCloseCallback(_ => connectionLost = true);
+        connection.setCloseCallback(_ => connectionClosed = true);
 
         // Act/Assert
         await Task.Delay(TimeSpan.FromSeconds(5));
-        Assert.That(connectionLost, Is.True);
+        Assert.That(connectionClosed, Is.True);
     }
 
-    private static Communicator CreateCommunicator(int acmTimeout, bool enableIdleCheck)
+    private static Communicator CreateCommunicator(int acmTimeout, bool sendHeartbeats)
     {
         string[] args = new string[]
         {
             $"--Ice.ACM.Timeout={acmTimeout}",
-            $"--Ice.ACM.Heartbeat={(enableIdleCheck ? 3 : 1)}"
+            // 3 = HeartbeatAlways while 1 = HeartbeatOnDispatch (the default)
+            $"--Ice.ACM.Heartbeat={(sendHeartbeats ? 3 : 1)}"
         };
 
         return Util.initialize(ref args);
