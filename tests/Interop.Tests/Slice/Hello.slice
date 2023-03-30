@@ -1,0 +1,9 @@
+// Copyright (c) ZeroC, Inc.
+
+encoding = Slice1
+
+module Interop::Tests::Slice
+
+interface Hello {
+    sayHello(name: string) -> string
+}
