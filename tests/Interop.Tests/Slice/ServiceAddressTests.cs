@@ -15,6 +15,7 @@ public class ServiceAddressTests
     /// <summary>Encodes a proxy with Ice, then decodes it as a service address, then encodes this service address with
     /// IceRpc and decodes it with Ice, then verifies only proxy options are lost.</summary>
     [TestCase("hello:tcp -h 127.0.0.1 -p 10000 -z -t 10000")]
+    [TestCase("hello:tcp -h \"::1\" -p 4061")]
     [TestCase("hello -s -o:tcp -h 127.0.0.1 -p 10000")]
     [TestCase("hello -D -e 1.0:udp -h 127.0.0.1 -p 10000")]
     [TestCase("hello -o -s:udp -h 127.0.0.1 -p 10000:ws -h foo -p 10000 -t 10000:tcp -h bar -p 10000 -z")]
@@ -28,6 +29,7 @@ public class ServiceAddressTests
     [TestCase("cat/hello -p 2.0")]
     public void Proxy_to_service_address_and_back(string iceString)
     {
+        // TODO: should we load IceSSL to parse ssl endpoints?
         using Communicator communicator = Util.initialize();
         ObjectPrx iceProxy = communicator.stringToProxy(iceString);
 
@@ -67,7 +69,8 @@ public class ServiceAddressTests
     /// <remarks>Transports unknown to IceRpc such as udp, ws, xyz are encoded with transport code 0 (Uri); they are
     /// opaque for Ice.</remarks>
     [TestCase("ice://127.0.0.1:10000/hello?transport=tcp")]
-    [TestCase("ice://127.0.0.1:10000/hello?transport=ssl&z&t=10000")] // any t value except 60000 should work
+    [TestCase("ice://[::1]/hello?transport=tcp")]
+    [TestCase("ice://127.0.0.1:10000/hello?transport=tcp&z&t=10000")] // any t value except 60000 should work
     [TestCase("ice://127.0.0.1:10000/hello?transport=udp&foo=bar")] // opaque for Ice
     [TestCase("ice://127.0.0.1:10000/hello?transport=tcp&alt-server=foo?transport=ws&alt-server=bar?transport=xyz")]
     [TestCase("ice:/hello?adapter-id=foo#facet")]
