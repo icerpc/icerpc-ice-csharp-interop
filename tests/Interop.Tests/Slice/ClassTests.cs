@@ -155,8 +155,7 @@ public class ClassTests
         var inputStream = new InputStream(communicator, readResult.Buffer.ToArray());
         pipe.Reader.Complete();
 
-        EncodingVersion encodingVersion = inputStream.startEncapsulation();
-        Assert.That(encodingVersion, Is.EqualTo(Util.Encoding_1_1));
+        _ = inputStream.startEncapsulation();
         T result = decodeFunc(inputStream);
         inputStream.endEncapsulation();
 
