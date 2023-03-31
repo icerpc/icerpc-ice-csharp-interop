@@ -49,10 +49,10 @@ public class ClassTests
         Assert.That(decodedValue.hasBasket, Is.EqualTo(value.HasBasket));
     }
 
-    /// <summary>Encodes a truck with the .ice-generated code and decodes this truck with the .slice-generated code.
-    /// </summary>
+    /// <summary>Encodes a fairly complex class graph with the .ice-generated code and decodes this graph with the
+    /// .slice-generated code. This verifies the "reference semantics" of class instances.</summary>
     [Test]
-    public void Ice_truck_to_slice_truck([Values] bool slicedFormat)
+    public void Ice_class_graph_to_slice_class_graph([Values] bool slicedFormat)
     {
         var truck = new Truck();
 
@@ -60,7 +60,8 @@ public class ClassTests
         var bicycle2 = new Bicycle("b2", hasBasket: false);
         var bicycle3 = new Bicycle("b3", hasBasket: true);
 
-        truck.cargo = new Vehicle[] { bicycle1, bicycle2, bicycle3, bicycle1, truck }; // not really possible
+        // Here the truck's cargo includes itself.
+        truck.cargo = new Vehicle[] { bicycle1, bicycle2, bicycle3, bicycle1, truck };
 
         TruckTwin truckTwin = IceToSlice(
             slicedFormat,
@@ -69,14 +70,16 @@ public class ClassTests
 
         Assert.That(truckTwin.Cargo, Has.Count.EqualTo(truck.cargo.Length));
         Assert.That(truckTwin.Cargo[0], Is.InstanceOf<BicycleTwin>());
+        Assert.That(truckTwin.Cargo[1], Is.InstanceOf<BicycleTwin>());
+        Assert.That(truckTwin.Cargo[2], Is.InstanceOf<BicycleTwin>());
         Assert.That(truckTwin.Cargo[3], Is.SameAs(truckTwin.Cargo[0]));
         Assert.That(truckTwin.Cargo[4], Is.SameAs(truckTwin));
     }
 
-    /// <summary>Encodes a truck with the .slice-generated code and decodes this truck with the .ice-generated code.
-    /// </summary>
+    /// <summary>Encodes a fairly complex class graph with the .slice-generated code and decodes this graph with the
+    /// .ice-generated code. This verifies the "reference semantics" of class instances.</summary>
     [Test]
-    public void Slice_truck_to_ice_truck([Values] bool slicedFormat)
+    public void Slice_class_graph_to_ice_class_Gra([Values] bool slicedFormat)
     {
         var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
 
@@ -85,7 +88,8 @@ public class ClassTests
         truckTwin.Cargo.Add(new BicycleTwin("b2", hasBasket: false));
         truckTwin.Cargo.Add(new BicycleTwin("b3", hasBasket: true));
         truckTwin.Cargo.Add(bicycleTwin1);
-        truckTwin.Cargo.Add(truckTwin); // not really possible
+        // The truck's cargo includes itself:
+        truckTwin.Cargo.Add(truckTwin);
 
         Truck truck = SliceToIce(
             slicedFormat,
@@ -99,6 +103,8 @@ public class ClassTests
 
         Assert.That(truck.cargo, Has.Length.EqualTo(truckTwin.Cargo.Count));
         Assert.That(truck.cargo[0], Is.InstanceOf<Bicycle>());
+        Assert.That(truck.cargo[1], Is.InstanceOf<Bicycle>());
+        Assert.That(truck.cargo[2], Is.InstanceOf<Bicycle>());
         Assert.That(truck.cargo[3], Is.SameAs(truck.cargo[0]));
         Assert.That(truck.cargo[4], Is.SameAs(truck));
     }
