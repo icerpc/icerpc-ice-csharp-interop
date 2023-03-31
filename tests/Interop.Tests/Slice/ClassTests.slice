@@ -18,3 +18,8 @@ class Bicycle : Vehicle {
 class Truck : Vehicle {
     cargo: sequence<Vehicle>
 }
+
+// Only in .slice file
+class RacingBicycle : Bicycle {
+    maxSpeed: float64
+}

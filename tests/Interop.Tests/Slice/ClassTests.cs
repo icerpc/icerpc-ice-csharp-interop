@@ -109,6 +109,125 @@ public class ClassTests
         Assert.That(truck.cargo[4], Is.SameAs(truck));
     }
 
+    /// <summary>Verifies that a class encoded with the .ice generated code in sliced format can be successfully sliced
+    /// when decoded with the .slice generated code.</summary>
+    [Test]
+    public void Ice_class_to_slice_class_with_slicing()
+    {
+        var truck = new Truck();
+
+        var bicycle1 = new MountainBike("mtb", hasBasket: false, suspensionType: "full suspension");
+        var bicycle2 = new Bicycle("plain", hasBasket: true);
+
+        truck.cargo = new Vehicle[] { bicycle1, bicycle2, bicycle1 };
+
+        TruckTwin truckTwin = IceToSlice(
+            slicedFormat: true,
+            outputStream => outputStream.writeValue(truck),
+            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+
+        Assert.That(truckTwin.Cargo, Has.Count.EqualTo(truck.cargo.Length));
+        Assert.That(truckTwin.Cargo[0], Is.InstanceOf<BicycleTwin>());
+        Assert.That(truckTwin.Cargo[1], Is.InstanceOf<BicycleTwin>());
+        Assert.That(truckTwin.Cargo[2], Is.SameAs(truckTwin.Cargo[0]));
+    }
+
+    /// <summary>Verifies that a class encoded with the .slice generated code in sliced format can be successfully
+    /// sliced when decoded with the .ice generated code.</summary>
+    [Test]
+    public void Slice_class_to_ice_class_with_slicing()
+    {
+        var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
+
+        var bicycleTwin1 = new RacingBicycle("b1", hasBasket: false, maxSpeed: 60.0);
+        truckTwin.Cargo.Add(bicycleTwin1);
+        truckTwin.Cargo.Add(new BicycleTwin("b2", hasBasket: false));
+        truckTwin.Cargo.Add(bicycleTwin1);
+
+        Truck truck = SliceToIce(
+            slicedFormat: true,
+            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            inputStream =>
+            {
+                var truck = new Truck();
+                inputStream.readValue<Truck>(v => truck = v);
+                return truck;
+            });
+
+        Assert.That(truck.cargo, Has.Length.EqualTo(truckTwin.Cargo.Count));
+        Assert.That(truck.cargo[0], Is.InstanceOf<Bicycle>());
+        Assert.That(truck.cargo[1], Is.InstanceOf<Bicycle>());
+        Assert.That(truck.cargo[2], Is.SameAs(truck.cargo[0]));
+    }
+
+    /// <summary>Verifies that a class encoded with the .ice generated code in sliced format is preserved when encoded
+    /// and then re-encoded with the .slice generated code.</summary>
+    [Test]
+    public void Ice_class_preserved_by_slice()
+    {
+        var truck = new Truck();
+
+        var bicycle1 = new MountainBike("mtb", hasBasket: false, suspensionType: "full suspension");
+        var bicycle2 = new Bicycle("plain", hasBasket: true);
+
+        truck.cargo = new Vehicle[] { bicycle1, bicycle2, bicycle1 };
+
+        TruckTwin truckTwin = IceToSlice(
+            slicedFormat: true,
+            outputStream => outputStream.writeValue(truck),
+            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+
+        Truck newTruck = SliceToIce(
+            slicedFormat: true,
+            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            inputStream =>
+            {
+                var truck = new Truck();
+                inputStream.readValue<Truck>(v => truck = v);
+                return truck;
+            });
+
+        Assert.That(newTruck.cargo, Has.Length.EqualTo(truck.cargo.Length));
+        Assert.That(newTruck.cargo[0], Is.InstanceOf<MountainBike>());
+        Assert.That(newTruck.cargo[1], Is.InstanceOf<Bicycle>());
+        Assert.That(newTruck.cargo[2], Is.SameAs(newTruck.cargo[0]));
+        Assert.That(((MountainBike)newTruck.cargo[0]).suspensionType, Is.EqualTo(bicycle1.suspensionType));
+    }
+
+    /// <summary>Verifies that a class encoded with the .ice generated code in sliced format is preserved when encoded
+    /// and then re-encoded with the .ice generated code.</summary>
+    [Test]
+    public void Slice_class_preserved_by_ice()
+    {
+        var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
+
+        var bicycleTwin1 = new RacingBicycle("b1", hasBasket: false, maxSpeed: 60.0);
+        truckTwin.Cargo.Add(bicycleTwin1);
+        truckTwin.Cargo.Add(new BicycleTwin("b2", hasBasket: false));
+        truckTwin.Cargo.Add(bicycleTwin1);
+
+        Truck truck = SliceToIce(
+            slicedFormat: true,
+            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            inputStream =>
+            {
+                var truck = new Truck();
+                inputStream.readValue<Truck>(v => truck = v);
+                return truck;
+            });
+
+        TruckTwin newTruckTwin = IceToSlice(
+            slicedFormat: true,
+            outputStream => outputStream.writeValue(truck),
+            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+
+        Assert.That(newTruckTwin.Cargo, Has.Count.EqualTo(truckTwin.Cargo.Count));
+        Assert.That(newTruckTwin.Cargo[0], Is.InstanceOf<RacingBicycle>());
+        Assert.That(newTruckTwin.Cargo[1], Is.InstanceOf<BicycleTwin>());
+        Assert.That(newTruckTwin.Cargo[2], Is.SameAs(newTruckTwin.Cargo[0]));
+        Assert.That(((RacingBicycle)newTruckTwin.Cargo[0]).MaxSpeed, Is.EqualTo(bicycleTwin1.MaxSpeed));
+    }
+
     private static T IceToSlice<T>(bool slicedFormat, Action<OutputStream> encodeAction, DecodeFunc<T> decodeFunc)
     {
         using Communicator communicator = Util.initialize();
