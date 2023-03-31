@@ -29,31 +29,21 @@ public class ServiceAddressTests
     [TestCase("cat/hello -p 2.0")]
     public void Proxy_to_service_address_and_back(string iceString)
     {
-        // TODO: should we load IceSSL to parse ssl endpoints?
+        // Arrange
         using Communicator communicator = Util.initialize();
         ObjectPrx iceProxy = communicator.stringToProxy(iceString);
 
-        var outputStream = new OutputStream(communicator);
-        outputStream.writeProxy(iceProxy);
-        byte[] buffer = outputStream.finished();
-
+        byte[] buffer = EncodeIceProxy(iceProxy);
         var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
         ServiceAddress serviceAddress = decoder.DecodeServiceAddress();
-        Assert.That(decoder.Consumed, Is.EqualTo(buffer.Length));
 
-        var pipe = new Pipe();
-        var encoder = new SliceEncoder(pipe.Writer, SliceEncoding.Slice1);
-        encoder.EncodeServiceAddress(serviceAddress);
-        pipe.Writer.Complete();
-        pipe.Reader.TryRead(out ReadResult readResult);
-
-        var inputStream = new InputStream(communicator, readResult.Buffer.ToArray());
-        pipe.Reader.Complete();
+        var inputStream = new InputStream(communicator, EncodeServiceAddress(serviceAddress));
 
         // Act
         ObjectPrx newIceProxy = inputStream.readProxy();
 
         // Assert
+        Assert.That(decoder.Consumed, Is.EqualTo(buffer.Length));
         Assert.That(newIceProxy.ice_getIdentity(), Is.EqualTo(iceProxy.ice_getIdentity()));
         Assert.That(newIceProxy.ice_getFacet(), Is.EqualTo(iceProxy.ice_getFacet()));
         Assert.That(newIceProxy.ice_getEndpoints(), Is.EqualTo(iceProxy.ice_getEndpoints()));
@@ -78,27 +68,39 @@ public class ServiceAddressTests
     [TestCase("icerpc:/cat/hello?adapter-id=foo")]
     public void Service_address_to_proxy_and_back(ServiceAddress serviceAddress)
     {
+        // Arrange
+        using Communicator communicator = Util.initialize();
+        var inputStream = new InputStream(communicator, EncodeServiceAddress(serviceAddress));
+        ObjectPrx iceProxy = inputStream.readProxy();
+
+        byte[] buffer = EncodeIceProxy(iceProxy);
+        var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
+
+        // Act
+        ServiceAddress newServiceAddress = decoder.DecodeServiceAddress();
+
+        // Assert
+        Assert.That(decoder.Consumed, Is.EqualTo(buffer.Length));
+        Assert.That(newServiceAddress, Is.EqualTo(serviceAddress));
+    }
+
+    private static byte[] EncodeIceProxy(ObjectPrx iceProxy)
+    {
+        var outputStream = new OutputStream(iceProxy.ice_getCommunicator());
+        outputStream.writeProxy(iceProxy);
+        return outputStream.finished();
+    }
+
+    private static byte[] EncodeServiceAddress(ServiceAddress serviceAddress)
+    {
         var pipe = new Pipe();
         var encoder = new SliceEncoder(pipe.Writer, SliceEncoding.Slice1);
         encoder.EncodeServiceAddress(serviceAddress);
         pipe.Writer.Complete();
         pipe.Reader.TryRead(out ReadResult readResult);
 
-        using Communicator communicator = Util.initialize();
-        var inputStream = new InputStream(communicator, readResult.Buffer.ToArray());
+        byte[] result = readResult.Buffer.ToArray();
         pipe.Reader.Complete();
-        pipe.Reset();
-
-        ObjectPrx iceProxy = inputStream.readProxy();
-
-        var outputStream = new OutputStream(communicator);
-        outputStream.writeProxy(iceProxy);
-        byte[] buffer = outputStream.finished();
-
-        var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
-        ServiceAddress newServiceAddress = decoder.DecodeServiceAddress();
-
-        Assert.That(decoder.Consumed, Is.EqualTo(buffer.Length));
-        Assert.That(newServiceAddress, Is.EqualTo(serviceAddress));
+        return result;
     }
 }
