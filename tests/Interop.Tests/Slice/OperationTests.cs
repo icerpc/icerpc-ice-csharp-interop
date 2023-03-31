@@ -10,30 +10,30 @@ namespace Interop.Tests.Slice;
 public class OperationTests
 {
     [Test]
-    public async Task SayHello_from_icerpc_client()
+    public async Task Request_from_icerpc_client()
     {
         using Communicator communicator = Util.initialize();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(new IceChatBot(), Util.stringToIdentity("hello"));
+        _ = adapter.add(new ChatBot(), Util.stringToIdentity("hello"));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
-        var proxy = new HelloProxy(clientConnection, new Uri("ice:/hello"));
+        var proxy = new GreeterProxy(clientConnection, new Uri("ice:/hello"));
 
         // Act/Assert
-        Assert.That(async () => await proxy.SayHelloAsync("Alice"), Throws.Nothing);
+        Assert.That(async () => await proxy.GreetAsync("Alice"), Throws.Nothing);
     }
 
     [Test]
-    public async Task SayHello_from_ice_client()
+    public async Task Request_from_ice_client()
     {
-        await using var server = new Server(new ChatBot(), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new ChatBotTwin(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Communicator communicator = Util.initialize();
-        HelloPrx proxy = HelloPrxHelper.uncheckedCast(communicator.CreateObjectPrx("hello", serverAddress));
+        GreeterPrx proxy = GreeterPrxHelper.uncheckedCast(communicator.CreateObjectPrx("hello", serverAddress));
 
         // Act/Assert
-        Assert.That(async () => await proxy.sayHelloAsync("Alice"), Throws.Nothing);
+        Assert.That(async () => await proxy.greetAsync("Alice"), Throws.Nothing);
     }
 }

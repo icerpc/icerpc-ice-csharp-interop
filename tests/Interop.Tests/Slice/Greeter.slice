@@ -4,6 +4,6 @@ encoding = Slice1
 
 module Interop::Tests::Slice
 
-interface Hello {
-    sayHello(name: string) -> string
+interface Greeter {
+    greet(name: string) -> string
 }

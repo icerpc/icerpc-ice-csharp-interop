@@ -6,9 +6,9 @@ module Interop
     {
         module Slice
         {
-            interface Hello
+            interface Greeter
             {
-                string sayHello(string name);
+                string greet(string name);
             }
         }
     }
