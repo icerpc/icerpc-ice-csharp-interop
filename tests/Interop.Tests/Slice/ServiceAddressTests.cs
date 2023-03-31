@@ -67,7 +67,8 @@ public class ServiceAddressTests
     /// <remarks>Transports unknown to IceRpc such as udp, ws, xyz are encoded with transport code 0 (Uri); they are
     /// opaque for Ice.</remarks>
     [TestCase("ice://127.0.0.1:10000/hello?transport=tcp")]
-    [TestCase("ice://127.0.0.1:10000/hello?transport=udp")]
+    [TestCase("ice://127.0.0.1:10000/hello?transport=ssl&z&t=10000")] // any t value except 60000 should work
+    [TestCase("ice://127.0.0.1:10000/hello?transport=udp&foo=bar")] // opaque for Ice
     [TestCase("ice://127.0.0.1:10000/hello?transport=tcp&alt-server=foo?transport=ws&alt-server=bar?transport=xyz")]
     [TestCase("ice:/hello?adapter-id=foo#facet")]
     [TestCase("icerpc://127.0.0.1:10000/hello?transport=tcp")]
