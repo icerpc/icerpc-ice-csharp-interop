@@ -11,6 +11,33 @@ namespace Interop.Tests;
 [Parallelizable(scope: ParallelScope.All)]
 public class ConnectionTests
 {
+    private static IEnumerable<TestCaseData> SystemExceptionToStatusCode
+    {
+        get
+        {
+            string errorMessage = "super custom error message";
+
+            yield return new TestCaseData(new ObjectNotExistException(), StatusCode.ServiceNotFound, null);
+            yield return new TestCaseData(new FacetNotExistException(), StatusCode.ServiceNotFound, null);
+            yield return new TestCaseData(new OperationNotExistException(), StatusCode.OperationNotFound, null);
+
+            yield return new TestCaseData(
+                new UnknownException(errorMessage),
+                StatusCode.UnhandledException,
+                errorMessage);
+
+            yield return new TestCaseData(
+                new UnknownLocalException(errorMessage),
+                StatusCode.UnhandledException,
+                errorMessage);
+
+            yield return new TestCaseData(
+                new UnknownUserException(errorMessage),
+                StatusCode.UnhandledException,
+                errorMessage);
+        }
+    }
+
     [Test]
     public async Task Establish_connection_from_IceRpc_to_Ice()
     {
@@ -59,18 +86,21 @@ public class ConnectionTests
         Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
     }
 
-    /// <summary>Sends a response from IceRPC to Ice.</summary>
+    /// <summary>Sends a response from IceRPC to Ice. It can be either a success or an application error aka user
+    /// exception.</summary>
     [Test]
-    public async Task Send_response_from_IceRPC_to_Ice()
+    public async Task Send_response_from_IceRPC_to_Ice([Values] bool success)
     {
         // Arrange
         byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
         var dispatcher = new InlineDispatcher((request, cancellationToken) =>
-            new(
-                new OutgoingResponse(request)
-                {
-                    Payload = PipeReader.Create(new ReadOnlySequence<byte>(expectedPayload))
-                }));
+        {
+            var payload = PipeReader.Create(new ReadOnlySequence<byte>(expectedPayload));
+            return new(success ?
+                new OutgoingResponse(request) { Payload = payload } :
+                new OutgoingResponse(request, StatusCode.ApplicationError, "") { Payload = payload });
+        });
+
         await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
@@ -85,6 +115,32 @@ public class ConnectionTests
 
         // Assert
         Assert.That(result.outEncaps[6..], Is.EqualTo(expectedPayload));
+        Assert.That(result.returnValue, Is.EqualTo(success));
+    }
+
+    /// <summary>Sends a failure from IceRPC to Ice.</summary>
+    [TestCase(StatusCode.ServiceNotFound, typeof(ObjectNotExistException))]
+    [TestCase(StatusCode.OperationNotFound, typeof(OperationNotExistException))]
+    [TestCase(StatusCode.UnhandledException, typeof(UnknownException))]
+    [TestCase(StatusCode.DeadlineExpired, typeof(UnknownException))]
+    [TestCase((StatusCode)999, typeof(UnknownException))]
+    public async Task Send_failure_from_IceRPC_to_Ice(StatusCode statusCode, Type exceptionType)
+    {
+        var dispatcher = new InlineDispatcher((request, cancellationToken) =>
+            new(new OutgoingResponse(request, statusCode, "error message")));
+        await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
+        ServerAddress serverAddress = server.Listen();
+
+        using Communicator communicator = Util.initialize();
+        ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
+
+        // Act/Assert
+        Assert.That(
+            async() => await proxy.ice_invokeAsync(
+                operation: "op",
+                mode: OperationMode.Normal,
+                CreateEncapsulation(Array.Empty<byte>())),
+            Throws.InstanceOf(exceptionType));
     }
 
     /// <summary>Sends a request from IceRPC to Ice.</summary>
@@ -121,9 +177,10 @@ public class ConnectionTests
         Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
     }
 
-    /// <summary>Sends a response from Ice to IceRPC.</summary>
+    /// <summary>Sends a response from Ice to IceRPC. It can be either a success or an application error aka user
+    /// exception.</summary>
     [Test]
-    public async Task Send_response_from_Ice_to_IceRPC()
+    public async Task Send_response_from_Ice_to_IceRPC([Values] bool success)
     {
         // Arrange
         byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
@@ -131,7 +188,7 @@ public class ConnectionTests
         using Communicator communicator = Util.initialize();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(
-            new InlineBlobject((inParams, current) => (true, CreateEncapsulation(expectedPayload))),
+            new InlineBlobject((inParams, current) => (success, CreateEncapsulation(expectedPayload))),
             "");
         adapter.activate();
 
@@ -144,6 +201,37 @@ public class ConnectionTests
 
         // Assert
         Assert.That(readResult.Buffer.ToArray(), Is.EqualTo(expectedPayload));
+        Assert.That(response.StatusCode, Is.EqualTo(success ? StatusCode.Success : StatusCode.ApplicationError));
+    }
+
+    /// <summary>Sends a failure from Ice to IceRPC.</summary>
+    [Test, TestCaseSource(nameof(SystemExceptionToStatusCode))]
+    public async Task Send_failure_from_Ice_to_IceRPC(
+        Ice.Exception systemException,
+        StatusCode statusCode,
+        string? errorMessage)
+    {
+        // Arrange
+        string[] args = new string[] { "--Ice.Warn.Dispatch=0" };
+        using Communicator communicator = Util.initialize(ref args);
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
+        adapter.addDefaultServant(
+            new InlineBlobject((inParams, current) => throw systemException),
+            "");
+        adapter.activate();
+
+        await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
+        using var request = new OutgoingRequest(new ServiceAddress(new Uri("ice:/hello")));
+
+        // Act
+        IncomingResponse response = await clientConnection.InvokeAsync(request);
+
+        // Assert
+        Assert.That(response.StatusCode, Is.EqualTo(statusCode));
+        if (errorMessage is not null)
+        {
+            Assert.That(response.ErrorMessage, Is.EqualTo(errorMessage));
+        }
     }
 
     private static byte[] CreateEncapsulation(byte[] payload)
