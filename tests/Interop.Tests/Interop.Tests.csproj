@@ -21,7 +21,7 @@
 
   <!-- IceRPC Packages -->
   <ItemGroup>
-    <PackageReference Include="IceRpc.Builder.MSBuild" Version="$(IceRpcBuilderVersion)" PrivateAssets="All" />
+    <PackageReference Include="IceRpc.Slice.Tools" Version="$(IceRpcVersion)" PrivateAssets="All" />
     <PackageReference Include="IceRpc" Version="$(IceRpcVersion)" />
     <PackageReference Include="IceRpc.Coloc" Version="$(IceRpcVersion)" />
   </ItemGroup>
