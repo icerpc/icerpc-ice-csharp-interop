@@ -4,7 +4,7 @@ param (
     $action="build",
     $config="debug",
     $iceVersion = "3.7.9",
-    $icerpcVersion = "0.1.0-preview2",
+    $icerpcVersion = "0.1.0-preview3",
     [switch]$examples,
     [switch]$srcdist,
     [switch]$coverage,
@@ -58,7 +58,7 @@ function Get-Help() {
     Write-Host "Arguments:"
     Write-Host "  -config                   Build configuration: debug or release, the default is debug."
     Write-Host "  -iceVersion               Build tests using the given Ice version default is (3.7.9)."
-    Write-Host "  -icerpcVersion            Build tests using the given IceRPC vresion default is (0.1.0-preview2)"
+    Write-Host "  -icerpcVersion            Build tests using the given IceRPC vresion default is (0.1.0-preview3)"
     Write-Host "  -help                     Print help and exit."
 }
 
