@@ -158,7 +158,7 @@ public class ConnectionTests
                 (inParams, current) =>
                 {
                     tcs.SetResult(inParams[6..]);
-                    return (true,  CreateEncapsulation(Array.Empty<byte>()));
+                    return (true, CreateEncapsulation(Array.Empty<byte>()));
                 }),
             "");
         adapter.activate();
