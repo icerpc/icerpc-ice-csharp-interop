@@ -63,8 +63,10 @@ public class ServiceAddressTests
     /// opaque for Ice.</remarks>
     [TestCase("ice://127.0.0.1:10000/hello?transport=tcp")]
     [TestCase("ice://[::1]/hello?transport=ssl")]
-    [TestCase("ice://127.0.0.1:10000/hello?transport=ssl&z&t=10000")] // any t value except 60000 should work
-    [TestCase("ice://127.0.0.1:10000/hello?transport=udp&foo=bar")] // opaque for Ice
+    // Any t value except 60000 should work; since 60000 is the default, it's equivalent (and gets replaced by) no
+    // "t=value" at all.
+    [TestCase("ice://127.0.0.1:10000/hello?transport=ssl&z&t=10000")]
+    [TestCase("ice://127.0.0.1:10000/hello?transport=udp&foo=bar")]
     [TestCase("ice://127.0.0.1:10000/hello?transport=tcp&alt-server=foo?transport=wss&alt-server=bar?transport=xyz")]
     [TestCase("ice:/hello?adapter-id=foo#facet")]
     [TestCase("icerpc://127.0.0.1:10000/hello?transport=tcp")]
