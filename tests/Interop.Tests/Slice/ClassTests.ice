@@ -13,7 +13,8 @@ module Interop
 
             sequence<Vehicle> VehicleSeq;
 
-            class Bicycle extends Vehicle
+            // preserve-slice for Slice-preservation test.
+            ["preserve-slice"] class Bicycle extends Vehicle
             {
                 bool hasBasket;
             }
@@ -21,6 +22,12 @@ module Interop
             class Truck extends Vehicle
             {
                 VehicleSeq cargo;
+            }
+
+            // Only in .ice file.
+            class MountainBike extends Bicycle
+            {
+                string suspensionType;
             }
         }
     }
