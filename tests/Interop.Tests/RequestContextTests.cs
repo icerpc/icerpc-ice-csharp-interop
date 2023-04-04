@@ -44,7 +44,7 @@ public class RequestContextTests
         // Act
         await proxy.greetAsync("Bob", context);
 
-        // Asert
+        // Assert
         Assert.That(async () => await chatBoot.RequestContext, Is.EqualTo(context));
     }
 
