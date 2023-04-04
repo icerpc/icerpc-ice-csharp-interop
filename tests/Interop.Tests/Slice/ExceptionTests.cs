@@ -111,7 +111,7 @@ public class ExceptionTests
         string[] args = new string[] { $"--Ice.Default.SlicedFormat={(slicedFormat ? 1 : 0)}" };
         using Communicator communicator = Util.initialize(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(new ProtoX(userException), Util.stringToIdentity("protoX"));
+        _ = adapter.add(new TestEngine(userException), Util.stringToIdentity("protoX"));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -122,7 +122,7 @@ public class ExceptionTests
 
     private static async Task SliceToIceAsync(SliceException sliceException)
     {
-        await using var server = new Server(new ProtoXTwin(sliceException), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new TestEngineTwin(sliceException), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Communicator communicator = Util.initialize();
@@ -130,22 +130,22 @@ public class ExceptionTests
         await proxy.startAsync();
     }
 
-    private class ProtoX : EngineDisp_
+    private class TestEngine : EngineDisp_
     {
         private readonly UserException _userException;
 
         public override void start(Current? current = null) => throw _userException;
 
-        internal ProtoX(UserException userException) => _userException = userException;
+        internal TestEngine(UserException userException) => _userException = userException;
     }
 
-    private class ProtoXTwin : Service, IEngineService
+    private class TestEngineTwin : Service, IEngineService
     {
         private readonly SliceException _sliceException;
 
         public ValueTask StartAsync(IFeatureCollection features, CancellationToken cancellationToken) =>
             throw _sliceException;
 
-        internal ProtoXTwin(SliceException sliceException) => _sliceException = sliceException;
+        internal TestEngineTwin(SliceException sliceException) => _sliceException = sliceException;
     }
 }
