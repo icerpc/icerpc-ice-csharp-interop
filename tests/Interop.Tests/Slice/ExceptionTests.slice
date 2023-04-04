@@ -1,0 +1,29 @@
+// Copyright (c) ZeroC, Inc.
+
+encoding = Slice1
+
+module Interop::Tests::Slice
+
+[cs::identifier("EngineExceptionTwin")]
+exception EngineException {
+    errorCode: string
+ }
+
+[cs::identifier("CylinderExceptionTwin")]
+exception CylinderException : EngineException {
+    cylinder: int32
+}
+
+// Only defined in .slice file.
+exception BatteryException : EngineException {
+    voltage: float32
+}
+
+[cs::identifier("TirePressureExceptionTwin")]
+exception TirePressureException {
+    tireId: string
+}
+
+interface Engine {
+    start() throws EngineException
+}
