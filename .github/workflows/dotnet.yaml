@@ -22,6 +22,18 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
+     - name: 📦 Cargo Cache
+       uses: actions/cache@v3
+       with:
+         path: |
+           ~/.cargo/bin/
+           ~/.cargo/registry/index/
+           ~/.cargo/registry/cache/
+           ~/.cargo/git/db/
+           tools/slicec-cs/target/
+         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+         restore-keys: |
+           ${{ runner.os }}-cargo-
     - name: 🔗 Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -50,13 +62,10 @@ jobs:
       with:
         command: build
         args: --manifest-path icerpc-csharp/tools/slicec-cs/Cargo.toml ${{ inputs.cargo-build-args }}
-    - name: 🔨 Build IceRPC Slice Tools
-      working-directory: icerpc-csharp/tools/IceRpc.Slice.Tools
-      run: dotnet build ${{ inputs.dotnet-build-args }}
     - name: 🔨 Build and Deploy IceRPC NuGet packages
       working-directory: icerpc-csharp
       run:  ./build.sh push
     - name: 🔨 Build
-      run: dotnet build
+      run: dotnet build /v:d
     - name: 🧪 Test
       run: dotnet test --no-build --verbosity normal
