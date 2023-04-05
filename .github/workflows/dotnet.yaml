@@ -22,18 +22,18 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
-     - name: 📦 Cargo Cache
-       uses: actions/cache@v3
-       with:
-         path: |
-           ~/.cargo/bin/
-           ~/.cargo/registry/index/
-           ~/.cargo/registry/cache/
-           ~/.cargo/git/db/
-           tools/slicec-cs/target/
-         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
-         restore-keys: |
-           ${{ runner.os }}-cargo-
+    - name: 📦 Cargo Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          tools/slicec-cs/target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
     - name: 🔗 Setup .NET
       uses: actions/setup-dotnet@v3
       with:
