@@ -11,13 +11,13 @@ public static class ObjectAdapterExtensions
     public static ServerAddress GetFirstServerAddress(this Ice.ObjectAdapter adapter)
     {
         Ice.EndpointInfo info = adapter.getEndpoints()[0].getInfo();
-
-        if (info is Ice.TCPEndpointInfo tcpInfo)
+        Ice.IPEndpointInfo? ipInfo = info as Ice.IPEndpointInfo ?? info.underlying as Ice.IPEndpointInfo;
+        if (ipInfo is not null)
         {
             return new ServerAddress(Protocol.Ice)
             {
-                Host = tcpInfo.host,
-                Port = (ushort)tcpInfo.port
+                Host = ipInfo.host,
+                Port = (ushort)ipInfo.port
             };
         }
         else

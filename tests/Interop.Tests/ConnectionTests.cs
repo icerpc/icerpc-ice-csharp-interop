@@ -80,7 +80,7 @@ public class ConnectionTests
         _ = await proxy.ice_invokeAsync(
             operation: "op",
             mode: OperationMode.Normal,
-            CreateEncapsulation(expectedPayload));
+            expectedPayload.CreateEncapsulation());
 
         // Assert
         Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
@@ -111,7 +111,7 @@ public class ConnectionTests
         Object_Ice_invokeResult result = await proxy.ice_invokeAsync(
             operation: "op",
             mode: OperationMode.Normal,
-            CreateEncapsulation(Array.Empty<byte>()));
+            Array.Empty<byte>().CreateEncapsulation());
 
         // Assert
         Assert.That(result.outEncaps[6..], Is.EqualTo(expectedPayload));
@@ -139,7 +139,7 @@ public class ConnectionTests
             async() => await proxy.ice_invokeAsync(
                 operation: "op",
                 mode: OperationMode.Normal,
-                CreateEncapsulation(Array.Empty<byte>())),
+                Array.Empty<byte>().CreateEncapsulation()),
             Throws.InstanceOf(exceptionType));
     }
 
@@ -158,7 +158,7 @@ public class ConnectionTests
                 (inParams, current) =>
                 {
                     tcs.SetResult(inParams[6..]);
-                    return (true, CreateEncapsulation(Array.Empty<byte>()));
+                    return (true, Array.Empty<byte>().CreateEncapsulation());
                 }),
             "");
         adapter.activate();
@@ -188,7 +188,7 @@ public class ConnectionTests
         using Communicator communicator = Util.initialize();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(
-            new InlineBlobject((inParams, current) => (success, CreateEncapsulation(expectedPayload))),
+            new InlineBlobject((inParams, current) => (success, expectedPayload.CreateEncapsulation())),
             "");
         adapter.activate();
 
@@ -232,27 +232,5 @@ public class ConnectionTests
         {
             Assert.That(response.ErrorMessage, Is.EqualTo(errorMessage));
         }
-    }
-
-    private static byte[] CreateEncapsulation(byte[] payload)
-    {
-        var outputStream = new OutputStream();
-        outputStream.startEncapsulation();
-        outputStream.writeBlob(payload);
-        outputStream.endEncapsulation();
-        return outputStream.finished();
-    }
-
-    private class InlineBlobject : Blobject
-    {
-        private readonly Func<byte[], Current, (bool Ok, byte[] OutParams)> _func;
-
-        public override bool ice_invoke(byte[] inParams, out byte[] outParams, Current current)
-        {
-            (bool ok, outParams) = _func(inParams, current);
-            return ok;
-        }
-
-        internal InlineBlobject(Func<byte[], Current, (bool Ok, byte[] OutParams)> func) => _func = func;
     }
 }
