@@ -78,7 +78,7 @@ public class RequestContextTests
 
         public override string greet(string name, Current? current)
         {
-            RequestContext = current?.ctx ?? ImmutableDictionary<string, string>.Empty;
+            RequestContext = current?.ctx as IDictionary<string, string> ?? ImmutableDictionary<string, string>.Empty;
             return $"Hello, {name}!";
         }
     }
