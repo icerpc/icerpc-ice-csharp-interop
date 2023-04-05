@@ -53,14 +53,10 @@ jobs:
     - name: 🔨 Build IceRPC Slice Tools
       working-directory: icerpc-csharp/tools/IceRpc.Slice.Tools
       run: dotnet build ${{ inputs.dotnet-build-args }}
-    - name: 🔨 Build IceRPC
+    - name: 🔨 Build and Deploy IceRPC NuGet packages
       working-directory: icerpc-csharp
-      run:  |
-        ./build.sh
-        ./build.sh push
-    - name: 🔗 Restore dependencies
-      run: dotnet restore
+      run:  ./build.sh push
     - name: 🔨 Build
-      run: dotnet build --no-restore ${{ inputs.dotnet-build-args }}
+      run: dotnet build
     - name: 🧪 Test
       run: dotnet test --no-build --verbosity normal
