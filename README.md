@@ -16,7 +16,7 @@ You need to install the Slice compilers for Ice. See https://zeroc.com/downloads
 
 ### Using pre-built IceRPC preview packages on Linux
 
-On Linux, you can use pre-built IceRPC preview packages by creating a `NuGet.config` file in this project directory with
+On Linux, you can use pre-built IceRPC preview packages by creating a `nuget.config` file in this project directory with
 the following contents:
 
 ```xml
@@ -34,7 +34,7 @@ the following contents:
 </configuration>
 ```
 
-This `NuGet.config` adds a new package source with the private preview packages for IceRPC C#.
+This `nuget.config` adds a new package source with the private preview packages for IceRPC C#.
 
 ### Using the IceRPC packages from the source distribution
 
