@@ -57,15 +57,10 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: ${{ secrets.ICERPC_DEPLOY_KEY }}
-    - name: 🔨 Build IceRPC Slice Compiler
-      uses: actions-rs/cargo@v1
-      with:
-        command: build
-        args: --manifest-path icerpc-csharp/tools/slicec-cs/Cargo.toml ${{ inputs.cargo-build-args }}
     - name: 🔨 Build and Deploy IceRPC NuGet packages
       working-directory: icerpc-csharp
       run:  ./build.sh push
     - name: 🔨 Build
-      run: dotnet build /v:d
+      run: dotnet build
     - name: 🧪 Test
       run: dotnet test --no-build --verbosity normal
