@@ -40,8 +40,24 @@ jobs:
       with:
         repository: zeroc-ice/icerpc-csharp
         token: ${{ secrets.ICERPC_CSHARP_READ_TOKEN }}
-    - name: 🔗 Add GitHub NuGet repository
-      run: dotnet nuget add source "https://nuget.pkg.github.com/zeroc-ice/index.json" -n GitHub -u ci --store-password-in-clear-text -p ${{ secrets.NUGET_API_TOKEN }}
+        path: 'icerpc-csharp'
+    - name: 🔗 Start SSH Agent
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ env.ICERPC_DEPLOY_KEY }}
+    - name: 🔨 Build IceRPC Slice Compiler
+      uses: actions-rs/cargo@v1
+      with:
+        command: build
+        args: --manifest-path icerpc-csharp/tools/slicec-cs/Cargo.toml ${{ inputs.cargo-build-args }}
+    - name: 🔨 Build IceRPC Slice Tools
+      working-directory: icerpc-csharp/tools/IceRpc.Slice.Tools
+      run: dotnet build ${{ inputs.dotnet-build-args }}
+    - name: 🔨 Build IceRPC
+      working-directory: icerpc-csharp
+      run:  |
+        ./build.sh
+        ./build.sh push
     - name: 🔗 Restore dependencies
       run: dotnet restore
     - name: 🔨 Build
