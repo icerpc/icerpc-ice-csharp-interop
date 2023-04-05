@@ -22,6 +22,18 @@ jobs:
         key: ${{ runner.os }}-nuget-${{ hashFiles('**/packages.lock.json') }}
         restore-keys: |
           ${{ runner.os }}-nuget-
+    - name: 📦 Cargo Cache
+      uses: actions/cache@v3
+      with:
+        path: |
+          ~/.cargo/bin/
+          ~/.cargo/registry/index/
+          ~/.cargo/registry/cache/
+          ~/.cargo/git/db/
+          tools/slicec-cs/target/
+        key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
+        restore-keys: |
+          ${{ runner.os }}-cargo-
     - name: 🔗 Setup .NET
       uses: actions/setup-dotnet@v3
       with:
@@ -35,11 +47,20 @@ jobs:
           | sudo tee /etc/apt/sources.list.d/zeroc-ice-3.7.list
         sudo apt-get update
         sudo apt-get install zeroc-ice-slice zeroc-ice-compilers
-    - name: 🔗 Add GitHub NuGet repository
-      run: dotnet nuget add source "https://nuget.pkg.github.com/zeroc-ice/index.json" -n GitHub -u ci --store-password-in-clear-text -p ${{ secrets.NUGET_API_TOKEN }}
-    - name: 🔗 Restore dependencies
-      run: dotnet restore
-    - name: 🔨 Build
-      run: dotnet build --no-restore ${{ inputs.dotnet-build-args }}
-    - name: 🧪 Test
+    - name: Check out IceRPC for C# repository
+      uses: actions/checkout@master
+      with:
+        repository: zeroc-ice/icerpc-csharp
+        token: ${{ secrets.ICERPC_CSHARP_READ_TOKEN }}
+        path: 'icerpc-csharp'
+    - name: 🔗 Start SSH Agent
+      uses: webfactory/ssh-agent@v0.5.4
+      with:
+        ssh-private-key: ${{ secrets.ICERPC_DEPLOY_KEY }}
+    - name: 🔨 Build and Push IceRPC NuGet packages
+      working-directory: icerpc-csharp
+      run:  ./build.sh push
+    - name: 🔨 Build Tests
+      run: dotnet build
+    - name: 🧪 Run Tests
       run: dotnet test --no-build --verbosity normal
