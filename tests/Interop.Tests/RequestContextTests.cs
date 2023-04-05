@@ -23,6 +23,7 @@ public class RequestContextTests
             {
                 ["Foo"] = "Bar",
                 ["Empty"] = "",
+                [""] = "",
             };
         }
     }
@@ -77,7 +78,7 @@ public class RequestContextTests
 
         public override string greet(string name, Current? current)
         {
-            RequestContext = current?.ctx ?? new Dictionary<string, string>();
+            RequestContext = current?.ctx ?? ImmutableDictionary<string, string>.Empty;
             return $"Hello, {name}!";
         }
     }
@@ -87,15 +88,12 @@ public class RequestContextTests
         public IDictionary<string, string> RequestContext { get; private set; } =
             ImmutableDictionary<string, string>.Empty;
 
-
         public ValueTask<string> GreetAsync(
             string name,
             IFeatureCollection features,
             CancellationToken cancellationToken)
         {
-
-            RequestContext =
-                features.Get<IRequestContextFeature>()?.Value ?? new Dictionary<string, string>();
+            RequestContext = features.Get<IRequestContextFeature>()?.Value ?? ImmutableDictionary<string, string>.Empty;
             return new($"Hello, {name}!");
         }
     }
