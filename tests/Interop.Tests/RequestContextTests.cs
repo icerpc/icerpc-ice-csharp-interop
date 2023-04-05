@@ -43,7 +43,7 @@ public class RequestContextTests
         await proxy.greetAsync("Bob", new Dictionary<string, string>(context));
 
         // Assert
-        Assert.That(async () => await chatBot.RequestContext, Is.EqualTo(context));
+        Assert.That(chatBot.RequestContext, Is.EqualTo(context));
     }
 
     /// <summary>Sends a request with a request context from IceRPC to Ice.</summary>
@@ -67,27 +67,25 @@ public class RequestContextTests
         await proxy.GreetAsync("Bob", features);
 
         // Assert
-        Assert.That(async () => await chatBot.RequestContext, Is.EqualTo(context));
+        Assert.That(chatBot.RequestContext, Is.EqualTo(context));
     }
 
     private class ChatBot : GreeterDisp_
     {
-        public Task<IDictionary<string, string>> RequestContext => _requestContextTcs.Task;
-
-        private readonly TaskCompletionSource<IDictionary<string, string>> _requestContextTcs = new();
+        public IDictionary<string, string> RequestContext { get; private set; } =
+            ImmutableDictionary<string, string>.Empty;
 
         public override string greet(string name, Current? current)
         {
-            _requestContextTcs.SetResult(current?.ctx ?? new Dictionary<string, string>());
+            RequestContext = current?.ctx ?? new Dictionary<string, string>();
             return $"Hello, {name}!";
         }
     }
 
     private class ChatBotTwin : Service, IGreeterService
     {
-        public Task<IDictionary<string, string>> RequestContext => _requestContextTcs.Task;
-
-        private readonly TaskCompletionSource<IDictionary<string, string>> _requestContextTcs = new();
+        public IDictionary<string, string> RequestContext { get; private set; } =
+            ImmutableDictionary<string, string>.Empty;
 
 
         public ValueTask<string> GreetAsync(
@@ -96,8 +94,8 @@ public class RequestContextTests
             CancellationToken cancellationToken)
         {
 
-            _requestContextTcs.SetResult(
-                features.Get<IRequestContextFeature>()?.Value ?? new Dictionary<string, string>());
+            RequestContext =
+                features.Get<IRequestContextFeature>()?.Value ?? new Dictionary<string, string>();
             return new($"Hello, {name}!");
         }
     }
