@@ -1,22 +1,23 @@
-# IceRPC Interop Tests
+# IceRPC Ice C# Interop Tests
 
 [![Continuous Integration](https://github.com/zeroc-ice/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml/badge.svg)](https://github.com/zeroc-ice/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml)
 
 - [Build Requirements](#build-requirements)
-- [Building](#building)
-- [Testing](#testing)
+- [Building the tests](#building-the-tests)
+- [Running the tests](#running-the-tests)
 
-This repository contains C# tests for [IceRPC](1) interoperability with [Ice](2)
+This repository provides a test suite to verify that [IceRPC for C#](1) interoperates with [Ice for C#](2).
 
 ## Build Requirements
 
-On non Windows platforms you need to install the Slice to C# compiler as documented in
-https://zeroc.com/downloads/ice/3.7/csharp.
+### Linux and macOS
 
-### Using pre-built IceRPC preview packages
+You need to install the Slice compilers for Ice. See https://zeroc.com/downloads/ice/3.7/csharp.
 
-For testing with the pre-built IceRPC preview packages, you must create a `nuget.config` file, in the project directory
-or in one of its parent directories, with the following contents:
+### Using pre-built IceRPC preview packages on Linux
+
+On Linux, you can use pre-built IceRPC preview packages by creating a `NuGet.config` file in this project directory with
+the following contents:
 
 ```xml
 <?xml version="1.0" encoding="utf-8"?>
@@ -33,38 +34,36 @@ or in one of its parent directories, with the following contents:
 </configuration>
 ```
 
-This adds the NuGet source containing the private preview packages to the available sources for the build.
-
-*the packages only include the slicec-cs Linux compiler, and will not work in other platforms*
+This `NuGet.config` adds a new package source with the private preview packages for IceRPC C#.
 
 ### Using the IceRPC packages from the source distribution
 
-Follow the instructions in `icerpc-csharp` repository for packaging and pushing the `IceRPC` NuGet packages.
-
+Follow the instructions in the `icerpc-csharp` repository for packaging and pushing the `IceRPC` NuGet packages:
 https://github.com/zeroc-ice/icerpc-csharp#packaging
 
-## Building
+## Building the tests
 
-You can build the interop tests from a regular command prompt, using the following command
-
-For Linux and macOS
+### Linux or macOS
 
 ```shell
 ./build.sh
 ```
 
-For Windows
+### Windows
 
 ```shell
 build.cmd
 ```
 
-## Testing
+## Running the tests
 
-You can run the test suite from the command line by running `dotnet test` command in the repository's top-level
-directory, this command builds `Interop.Tests.sln` solution an executes all tests from the solution.
+```shell
+dotnet test
+```
 
-For additional options see <https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test>.
+This command builds the `Interop.Tests.sln` solution and executes all tests.
+
+See <https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test> for additional options.
 
 [1]: https://github.com:zeroc-ice/icerpc-csharp
 [1]: https://github.com:zeroc-ice/ice
