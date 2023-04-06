@@ -4,7 +4,7 @@ using Ice;
 
 namespace Interop.Tests;
 
-/// <summary>Provide extension methods for byte buffers.</summary>
+/// <summary>Provides extension methods for byte buffers.</summary>
 public static class BufferExtensions
 {
     /// <summary>Wraps a buffer inside a "1.1" encapsulation.</summary>
