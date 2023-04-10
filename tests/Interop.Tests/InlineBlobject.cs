@@ -4,15 +4,26 @@ using Ice;
 
 namespace Interop.Tests;
 
-internal class InlineBlobject : Blobject
+/// <summary>Implements <see cref="Blobject" /> inline with a function.</summary>
+public class InlineBlobject : Blobject
 {
-    private readonly Func<byte[], Current, (bool Ok, byte[] OutParams)> _func;
+    private readonly Func<byte[], Current?, (bool Ok, byte[] ResponsePayload)> _func;
 
-    public override bool ice_invoke(byte[] inParams, out byte[] outParams, Current current)
+    /// <summary>Dispatches an incoming request.</summary>
+    /// <param name="inParams">The request payload wrapped in an encapsulation.</param>
+    /// <param name="outParams">The response payload wrapped in an encapsulation.</param>
+    /// <param name="current">The Current object.</param>
+    /// <returns><see langword="true" /> if <paramref name="outParams" /> carries a return value; otherwise,
+    /// <paramref name="outParams" /> carries a <see cref="UserException" />.</returns>
+    public override bool ice_invoke(byte[] inParams, out byte[] outParams, Current? current)
     {
-        (bool ok, outParams) = _func(inParams, current);
+        (bool ok, byte[] payload) = _func(inParams[6..], current);
+        outParams = payload.ToEncapsulation();
         return ok;
     }
 
-    internal InlineBlobject(Func<byte[], Current, (bool Ok, byte[] OutParams)> func) => _func = func;
+    /// <summary>Constructs an inline blobject.</summary>
+    /// <param name="func">The function that implements the dispatch. It accepts an un-encapsulated payload and returns
+    /// an un-encapsulated payload.</param>
+    public InlineBlobject(Func<byte[], Current?, (bool Ok, byte[] Payload)> func) => _func = func;
 }

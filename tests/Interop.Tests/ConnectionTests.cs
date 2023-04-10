@@ -77,10 +77,7 @@ public class ConnectionTests
         }
 
         // Act
-        _ = await proxy.ice_invokeAsync(
-            operation: "op",
-            mode: OperationMode.Normal,
-            expectedPayload.CreateEncapsulation());
+        _ = await proxy.IceInvokeAsync(operation: "op", mode: OperationMode.Normal, expectedPayload);
 
         // Assert
         Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
@@ -108,10 +105,10 @@ public class ConnectionTests
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
         // Act
-        Object_Ice_invokeResult result = await proxy.ice_invokeAsync(
+        Object_Ice_invokeResult result = await proxy.IceInvokeAsync(
             operation: "op",
             mode: OperationMode.Normal,
-            Array.Empty<byte>().CreateEncapsulation());
+            Array.Empty<byte>());
 
         // Assert
         Assert.That(result.outEncaps[6..], Is.EqualTo(expectedPayload));
@@ -136,10 +133,7 @@ public class ConnectionTests
 
         // Act/Assert
         Assert.That(
-            async() => await proxy.ice_invokeAsync(
-                operation: "op",
-                mode: OperationMode.Normal,
-                Array.Empty<byte>().CreateEncapsulation()),
+            async () => await proxy.IceInvokeAsync(operation: "op", mode: OperationMode.Normal, Array.Empty<byte>()),
             Throws.InstanceOf(exceptionType));
     }
 
@@ -155,10 +149,10 @@ public class ConnectionTests
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(
             new InlineBlobject(
-                (inParams, current) =>
+                (payload, current) =>
                 {
-                    tcs.SetResult(inParams[6..]);
-                    return (true, Array.Empty<byte>().CreateEncapsulation());
+                    tcs.SetResult(payload);
+                    return (true, Array.Empty<byte>());
                 }),
             "");
         adapter.activate();
@@ -187,9 +181,7 @@ public class ConnectionTests
 
         using Communicator communicator = Util.initialize();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        adapter.addDefaultServant(
-            new InlineBlobject((inParams, current) => (success, expectedPayload.CreateEncapsulation())),
-            "");
+        adapter.addDefaultServant(new InlineBlobject((payload, current) => (success, expectedPayload)), "");
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -215,9 +207,7 @@ public class ConnectionTests
         string[] args = new string[] { "--Ice.Warn.Dispatch=0" };
         using Communicator communicator = Util.initialize(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        adapter.addDefaultServant(
-            new InlineBlobject((inParams, current) => throw systemException),
-            "");
+        adapter.addDefaultServant(new InlineBlobject((payload, current) => throw systemException), "");
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
