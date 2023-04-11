@@ -50,7 +50,7 @@ jobs:
     - name: Check out IceRPC for C# repository
       uses: actions/checkout@master
       with:
-        repository: zeroc-ice/icerpc-csharp
+        repository: icerpc/icerpc-csharp
         token: ${{ secrets.ICERPC_CSHARP_READ_TOKEN }}
         path: 'icerpc-csharp'
     - name: 🔗 Start SSH Agent
