@@ -2,6 +2,7 @@
 
 using Ice;
 using IceRpc;
+using IceRpc.Ice;
 using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
@@ -17,31 +18,27 @@ public class SslTransportTests
     public async Task Send_request_over_ssl_from_IceRpc_to_Ice()
     {
         // Arrange
-
-        byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
-        byte[] receivedPayload = Array.Empty<byte>();
-        var dispatcher = new InlineDispatcher(async (request, cancellationToken) =>
-        {
-            ReadResult readResult = await request.Payload.ReadAtLeastAsync(
-                expectedPayload.Length + 1,
-                cancellationToken);
-            receivedPayload = readResult.Buffer.ToArray();
-            request.Payload.AdvanceTo(readResult.Buffer.End);
-            return new OutgoingResponse(request);
-        });
-#pragma warning disable CA5359 // Do Not Disable Certificate Validation
+        using var caCertitifcate = new X509Certificate2("../../../../../certs/cacert.der");
+        using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
+        using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
+        var dispatcher = new IceRpc.Slice.Service();
+        X509Certificate2? peerCertificate = null;
         await using var server = new Server(
             dispatcher,
             new Uri("ice://127.0.0.1:0"),
             serverAuthenticationOptions: new SslServerAuthenticationOptions
             {
-                ServerCertificate = new X509Certificate2("../../../../../certs/server.p12", "password"),
-                RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => true,
+                ServerCertificate = serverCertificate,
+                RemoteCertificateValidationCallback =
+                    (sender, certificate, chain, errors) =>
+                    {
+                        peerCertificate = certificate as X509Certificate2;
+                        return certificate?.Issuer == clientCertificate.Issuer;
+                    },
                 ClientCertificateRequired = true
             });
-#pragma warning restore CA5359 // Do Not Disable Certificate Validation
-        ServerAddress serverAddress = server.Listen();
 
+        ServerAddress serverAddress = server.Listen();
         // Load and configure the IceSSL plugin.
         string[] args = new string[] 
         { 
@@ -55,18 +52,25 @@ public class SslTransportTests
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress with { Transport = "ssl" });
 
         // Act
-        _ = await proxy.IceInvokeAsync(operation: "op", mode: OperationMode.Normal, expectedPayload);
+        Connection connection = await proxy.ice_getConnectionAsync();
 
         // Assert
-        Assert.That(receivedPayload, Is.EqualTo(expectedPayload));
+        var info = connection.getInfo() as IceSSL.ConnectionInfo;
+        Assert.That(info, Is.Not.Null);
+        Assert.That(info.verified, Is.True);
+        Assert.That(info.certs[0], Is.EqualTo(serverCertificate));
+        Assert.That(info.certs[1], Is.EqualTo(caCertitifcate));
+
+        Assert.That(peerCertificate, Is.EqualTo(clientCertificate));
     }
 
     [Test]
     public async Task Send_request_from_IceRPC_to_Ice()
     {
         // Arrange
-        byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
-        byte[] receivedPayload = Array.Empty<byte>();
+        using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
+        using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
+        using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
 
         // Load and configure the IceSSL plugin.
         string[] args = new string[]
@@ -77,40 +81,47 @@ public class SslTransportTests
             "--IceSSL.CAs=cacert.der",
             "--IceSSL.Password=password",
         };
+
+        Connection? peerConnection = null;
+        X509Certificate2? peerCertificate = null;
         using Communicator communicator = Util.initialize(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "ssl -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(
             new InlineBlobject(
-                (inParams, current) =>
+                (payload, current) =>
                 {
-                    receivedPayload = inParams;
+                    peerConnection = current?.con;
                     return (true, Array.Empty<byte>());
-                }),
-            "");
+                }), "");
         adapter.activate();
 
-#pragma warning disable CA5359 // Do Not Disable Certificate Validation
         await using var clientConnection = new ClientConnection(
             adapter.GetFirstServerAddress(),
             clientAuthenticationOptions: new SslClientAuthenticationOptions
             {
                 ClientCertificates = new X509CertificateCollection
                 {
-                    new X509Certificate2("../../../../../certs/client.p12", "password")
+                    clientCertificate
                 },
-                RemoteCertificateValidationCallback = (sender, certificate, chain, errors) => true,
+                RemoteCertificateValidationCallback =
+                    (sender, certificate, chain, errors) =>
+                    {
+                        peerCertificate = certificate as X509Certificate2;
+                        return certificate?.Issuer == serverCertificate.Issuer;
+                    }
             });
-#pragma warning restore CA5359 // Do Not Disable Certificate Validation
 
-        using var request = new OutgoingRequest(new ServiceAddress(new Uri("ice:/hello")))
-        {
-            Payload = PipeReader.Create(new ReadOnlySequence<byte>(expectedPayload))
-        };
-
+        var objectProxy = new IceObjectProxy(clientConnection, new ServiceAddress(new Uri("ice:///hello")));
         // Act
-        _ = await clientConnection.InvokeAsync(request);
+        await objectProxy.IcePingAsync();
 
         // Assert
-        Assert.That(receivedPayload, Is.EqualTo(expectedPayload));
+        var info = peerConnection?.getInfo() as IceSSL.ConnectionInfo;
+        Assert.That(info, Is.Not.Null);
+        Assert.That(info.verified, Is.True);
+        Assert.That(info.certs[0], Is.EqualTo(clientCertificate));
+        Assert.That(info.certs[1], Is.EqualTo(caCertificate));
+
+        Assert.That(peerCertificate, Is.EqualTo(serverCertificate));
     }
 }
