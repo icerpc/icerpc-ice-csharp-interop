@@ -19,10 +19,9 @@ public class SslTransportTests
         using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
         using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
         using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
-        var dispatcher = new IceRpc.Slice.Service();
         X509Certificate2? peerCertificate = null;
         await using var server = new Server(
-            dispatcher,
+            new InlineDispatcher((request, cancellationToken) => throw new NotImplementedException()),
             new Uri("ice://127.0.0.1:0"),
             serverAuthenticationOptions: new SslServerAuthenticationOptions
             {
