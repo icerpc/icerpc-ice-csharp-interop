@@ -19,13 +19,13 @@ public class SslTransportTests
         // Arrange
 
         byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
-        var tcs = new TaskCompletionSource<byte[]>();
+        byte[] receivedPayload = Array.Empty<byte>();
         var dispatcher = new InlineDispatcher(async (request, cancellationToken) =>
         {
             ReadResult readResult = await request.Payload.ReadAtLeastAsync(
                 expectedPayload.Length + 1,
                 cancellationToken);
-            tcs.SetResult(readResult.Buffer.ToArray());
+            receivedPayload = readResult.Buffer.ToArray();
             request.Payload.AdvanceTo(readResult.Buffer.End);
             return new OutgoingResponse(request);
         });
@@ -48,20 +48,17 @@ public class SslTransportTests
             "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory",
             "--IceSSL.DefaultDir=../../../../../certs/",
             "--IceSSL.CertFile=client.p12",
-            "--IceSSL.CAs=cacert.pem",
+            "--IceSSL.CAs=cacert.der",
             "--IceSSL.Password=password",
         };
         using Communicator communicator = Util.initialize(ref args);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress with { Transport = "ssl" });
 
         // Act
-        _ = await proxy.ice_invokeAsync(
-            operation: "op",
-            mode: OperationMode.Normal,
-            expectedPayload.CreateEncapsulation());
+        _ = await proxy.IceInvokeAsync(operation: "op", mode: OperationMode.Normal, expectedPayload);
 
         // Assert
-        Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
+        Assert.That(receivedPayload, Is.EqualTo(expectedPayload));
     }
 
     [Test]
@@ -69,7 +66,7 @@ public class SslTransportTests
     {
         // Arrange
         byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
-        var tcs = new TaskCompletionSource<byte[]>();
+        byte[] receivedPayload = Array.Empty<byte>();
 
         // Load and configure the IceSSL plugin.
         string[] args = new string[]
@@ -77,7 +74,7 @@ public class SslTransportTests
             "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory",
             "--IceSSL.DefaultDir=../../../../../certs/",
             "--IceSSL.CertFile=server.p12",
-            "--IceSSL.CAs=cacert.pem",
+            "--IceSSL.CAs=cacert.der",
             "--IceSSL.Password=password",
         };
         using Communicator communicator = Util.initialize(ref args);
@@ -86,8 +83,8 @@ public class SslTransportTests
             new InlineBlobject(
                 (inParams, current) =>
                 {
-                    tcs.SetResult(inParams[6..]);
-                    return (true, Array.Empty<byte>().CreateEncapsulation());
+                    receivedPayload = inParams;
+                    return (true, Array.Empty<byte>());
                 }),
             "");
         adapter.activate();
@@ -114,6 +111,6 @@ public class SslTransportTests
         _ = await clientConnection.InvokeAsync(request);
 
         // Assert
-        Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
+        Assert.That(receivedPayload, Is.EqualTo(expectedPayload));
     }
 }
