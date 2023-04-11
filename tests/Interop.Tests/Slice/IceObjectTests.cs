@@ -29,7 +29,7 @@ public class IceObjectTests
     {
         using Ice.Communicator communicator = Ice.Util.initialize();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(new ChatBot(), new Ice.Identity("hello", ""));
+        _ = adapter.add(new Chatbot(), new Ice.Identity("hello", ""));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -42,7 +42,7 @@ public class IceObjectTests
     [Test]
     public async Task Ice_isA_on_IceRPC_service()
     {
-        await using var server = new Server(new ChatBotTwin(), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new ChatbotTwin(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Ice.Communicator communicator = Ice.Util.initialize();
@@ -57,7 +57,7 @@ public class IceObjectTests
     {
         using Ice.Communicator communicator = Ice.Util.initialize();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(new ChatBot(), new Ice.Identity("hello", ""));
+        _ = adapter.add(new Chatbot(), new Ice.Identity("hello", ""));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -72,13 +72,13 @@ public class IceObjectTests
     {
         using Ice.Communicator communicator = Ice.Util.initialize();
         Ice.ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(new ChatBot(), new Ice.Identity("hello", ""));
+        _ = adapter.add(new Chatbot(), new Ice.Identity("hello", ""));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
         var proxy1 = new IceObjectProxy(clientConnection, new Uri("ice:/hello"));
 
-        await using var server = new Server(new ChatBotTwin(), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new ChatbotTwin(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
         Ice.ObjectPrx proxy2 = communicator.CreateObjectPrx("hello", serverAddress);
 
