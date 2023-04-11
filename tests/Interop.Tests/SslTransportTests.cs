@@ -4,8 +4,6 @@ using Ice;
 using IceRpc;
 using IceRpc.Ice;
 using NUnit.Framework;
-using System.Buffers;
-using System.IO.Pipelines;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
 
@@ -18,7 +16,7 @@ public class SslTransportTests
     public async Task Send_request_over_ssl_from_IceRpc_to_Ice()
     {
         // Arrange
-        using var caCertitifcate = new X509Certificate2("../../../../../certs/cacert.der");
+        using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
         using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
         using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
         var dispatcher = new IceRpc.Slice.Service();
@@ -59,7 +57,7 @@ public class SslTransportTests
         Assert.That(info, Is.Not.Null);
         Assert.That(info.verified, Is.True);
         Assert.That(info.certs[0], Is.EqualTo(serverCertificate));
-        Assert.That(info.certs[1], Is.EqualTo(caCertitifcate));
+        Assert.That(info.certs[1], Is.EqualTo(caCertificate));
 
         Assert.That(peerCertificate, Is.EqualTo(clientCertificate));
     }
