@@ -33,8 +33,8 @@ public class RequestContextTests
     public async Task Send_request_with_context_from_Ice_to_IceRpc(IDictionary<string, string> context)
     {
         // Arrange
-        var chatBot = new ChatBotTwin();
-        await using var server = new Server(new RequestContextMiddleware(chatBot), new Uri("ice://127.0.0.1:0"));
+        var chatbot = new ChatbotTwin();
+        await using var server = new Server(new RequestContextMiddleware(chatbot), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Communicator communicator = Util.initialize();
@@ -44,7 +44,7 @@ public class RequestContextTests
         await proxy.greetAsync("Bob", new Dictionary<string, string>(context));
 
         // Assert
-        Assert.That(chatBot.RequestContext, Is.EqualTo(context));
+        Assert.That(chatbot.RequestContext, Is.EqualTo(context));
     }
 
     /// <summary>Sends a request with a request context from IceRPC to Ice.</summary>
@@ -52,10 +52,10 @@ public class RequestContextTests
     public async Task Send_request_with_context_from_IceRpc_to_Ice(IDictionary<string, string> context)
     {
         // Arrange
-        var chatBot = new ChatBot();
+        var chatbot = new Chatbot();
         using Communicator communicator = Util.initialize();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(chatBot, Util.stringToIdentity("greeter"));
+        _ = adapter.add(chatbot, Util.stringToIdentity("greeter"));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -68,10 +68,10 @@ public class RequestContextTests
         await proxy.GreetAsync("Bob", features);
 
         // Assert
-        Assert.That(chatBot.RequestContext, Is.EqualTo(context));
+        Assert.That(chatbot.RequestContext, Is.EqualTo(context));
     }
 
-    private class ChatBot : GreeterDisp_
+    private class Chatbot : GreeterDisp_
     {
         public IDictionary<string, string> RequestContext { get; private set; } =
             ImmutableDictionary<string, string>.Empty;
@@ -83,7 +83,7 @@ public class RequestContextTests
         }
     }
 
-    private class ChatBotTwin : Service, IGreeterService
+    private class ChatbotTwin : Service, IGreeterService
     {
         public IDictionary<string, string> RequestContext { get; private set; } =
             ImmutableDictionary<string, string>.Empty;

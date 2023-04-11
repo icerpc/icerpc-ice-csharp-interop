@@ -14,7 +14,7 @@ public class OperationTests
     {
         using Communicator communicator = Util.initialize();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(new ChatBot(), Util.stringToIdentity("hello"));
+        _ = adapter.add(new Chatbot(), Util.stringToIdentity("hello"));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -27,7 +27,7 @@ public class OperationTests
     [Test]
     public async Task Request_from_ice_client()
     {
-        await using var server = new Server(new ChatBotTwin(), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new ChatbotTwin(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Communicator communicator = Util.initialize();
