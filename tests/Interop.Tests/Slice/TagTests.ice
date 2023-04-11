@@ -48,9 +48,8 @@ module Interop
                 void opServiceAddress(optional(1) Object* serviceAddress); // tag type = FSize
 
                 void opStruct(
-                    optional(1) OneByte oneByte,  // tag type = VSize
-                    optional(5) Point point,      // tag type = VSize
-                    optional(10) Person person);  // tag type = FSize
+                    optional(1) Point point,      // tag type = VSize
+                    optional(5) Person person);   // tag type = FSize
 
                 void opSequence(
                     optional(0) string str,              // tag type = VSize (+ optimization)

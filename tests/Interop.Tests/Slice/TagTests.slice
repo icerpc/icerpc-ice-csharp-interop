@@ -18,9 +18,8 @@ interface TagTest {
     opServiceAddress(tag(1) serviceAddress: TagTest?) // TODO: replace by ServiceAddress?
 
     opStruct(
-        tag(1) oneByte: OneByte?
-        tag(5) point: Point?
-        tag(10) person: Person?
+        tag(1) point: Point?
+        tag(5) person: Person?
     )
 
     opSequence(

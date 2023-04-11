@@ -11,5 +11,5 @@ public static class NullableExtensions
         nullable.HasValue ? nullable.Value : Util.None;
 
     public static Optional<T> ToOptionalReference<T>(this T? nullable) where T : class =>
-        nullable is not null ? new Optional<T>(nullable) : Util.None;
+        nullable is null ? Util.None : new Optional<T>(nullable);
 }

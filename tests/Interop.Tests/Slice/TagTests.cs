@@ -64,14 +64,9 @@ public class TagTests
     {
         get
         {
-            yield return new TestCaseData(null, null, null);
-
-            yield return new TestCaseData(null, new Point(100, -200), null);
-
-            yield return new TestCaseData(
-                new OneByte(5),
-                new Point(100, -200),
-                new Person("Bob", Fruit.Apple));
+            yield return new TestCaseData(null, null);
+            yield return new TestCaseData(new Point(100, -200), null);
+            yield return new TestCaseData(new Point(100, -200), new Person("Bob", Fruit.Apple));
         }
     }
 
@@ -79,28 +74,23 @@ public class TagTests
     {
         get
         {
-            yield return new TestCaseData(null, null, null);
-
-            yield return new TestCaseData(null, new PointTwin(100, -200), null);
-
-            yield return new TestCaseData(
-                new OneByteTwin(5),
-                new PointTwin(100, -200),
-                new PersonTwin("Bob", FruitTwin.Apple));
+            yield return new TestCaseData(null, null);
+            yield return new TestCaseData(new PointTwin(100, -200), null);
+            yield return new TestCaseData(new PointTwin(100, -200), new PersonTwin("Bob", FruitTwin.Apple));
         }
     }
 
-    [TestCase(null, null, null, null)]
-    [TestCase(null, null, null, 123.456)]
-    [TestCase(true, 30_000, -5, -121_212.3434)]
-    public async Task Ice_optional_numeric_to_slice_tagged_numeric(
-        bool? f1,
-        short? f2,
-        int? f4,
-        double? f8)
+    [TestCase(null, null, null, null)]               // all null
+    [TestCase(null, null, null, 123.456)]            // mix of null and non-null
+    [TestCase(true, 30_000, -5, -121_212.3434)]      // all non-null
+    public async Task Ice_optional_numeric_to_slice_tagged_numeric(bool? f1, short? f2, int? f4, double? f8)
     {
         TagTestServiceTwin service = await IceToSliceAsync(
-            proxy => proxy.opFixedAsync(f1.ToOptionalValue(), f2.ToOptionalValue(), f4.ToOptionalValue(), f8.ToOptionalValue()));
+            proxy => proxy.opFixedAsync(
+                f1.ToOptionalValue(),
+                f2.ToOptionalValue(),
+                f4.ToOptionalValue(),
+                f8.ToOptionalValue()));
 
         Assert.That(service.F1, Is.EqualTo(f1));
         Assert.That(service.F2, Is.EqualTo(f2));
@@ -108,14 +98,10 @@ public class TagTests
         Assert.That(service.F8, Is.EqualTo(f8));
     }
 
-    [TestCase(null, null, null, null)]
-    [TestCase(null, null, null, 123.456)]
-    [TestCase(true, 30_000, -5, -121_212.3434)]
-    public async Task Slice_tagged_numeric_to_ice_optional_numeric(
-        bool? f1,
-        short? f2,
-        int? f4,
-        double? f8)
+    [TestCase(null, null, null, null)]           // all null
+    [TestCase(null, null, null, 123.456)]        // mix of null and non-null
+    [TestCase(true, 30_000, -5, -121_212.3434)]  // all non-null
+    public async Task Slice_tagged_numeric_to_ice_optional_numeric(bool? f1, short? f2, int? f4, double? f8)
     {
         TagTestService service = await SliceToIceAsync(proxy => proxy.OpFixedAsync(f1, f2, f4, f8));
 
@@ -177,15 +163,13 @@ public class TagTests
     }
 
     [Test, TestCaseSource(nameof(IceStructSource))]
-    public async Task Ice_optional_struct_to_slice_tagged_struct(OneByte? oneByte, Point? point, Person? person)
+    public async Task Ice_optional_struct_to_slice_tagged_struct(Point? point, Person? person)
     {
         TagTestServiceTwin service = await IceToSliceAsync(
             proxy => proxy.opStructAsync(
-                oneByte.ToOptionalValue(),
                 point.ToOptionalValue(),
                 person.ToOptionalReference()));
 
-        Assert.That(service.OneByte?.Value, Is.EqualTo(oneByte?.value));
         Assert.That(service.Point?.X, Is.EqualTo(point?.x));
         Assert.That(service.Point?.Y, Is.EqualTo(point?.y));
         Assert.That(service.Person?.Name, Is.EqualTo(person?.name));
@@ -193,14 +177,10 @@ public class TagTests
     }
 
     [Test, TestCaseSource(nameof(SliceStructSource))]
-    public async Task Slice_tagged_struct_to_ice_optional_struct(
-        OneByteTwin? oneByte,
-        PointTwin? point,
-        PersonTwin? person)
+    public async Task Slice_tagged_struct_to_ice_optional_struct(PointTwin? point, PersonTwin? person)
     {
-        TagTestService service = await SliceToIceAsync(proxy => proxy.OpStructAsync(oneByte, point, person));
+        TagTestService service = await SliceToIceAsync(proxy => proxy.OpStructAsync(point, person));
 
-        Assert.That(service.OneByte?.value, Is.EqualTo(oneByte?.Value));
         Assert.That(service.Point?.x, Is.EqualTo(point?.X));
         Assert.That(service.Point?.y, Is.EqualTo(point?.Y));
         Assert.That(service.Person?.name, Is.EqualTo(person?.Name));
@@ -351,12 +331,10 @@ public class TagTests
             ServiceAddress = serviceAddress.ToNullableReference();
 
         public override void opStruct(
-            Optional<OneByte> oneByte,
             Optional<Point> point,
             Optional<Person> person,
             Current? current = null)
         {
-            OneByte = oneByte.ToNullableValue();
             Point = point.ToNullableValue();
             Person = person.ToNullableReference();
         }
@@ -438,13 +416,11 @@ public class TagTests
         }
 
         public ValueTask OpStructAsync(
-            OneByteTwin? oneByte,
             PointTwin? point,
             PersonTwin? person,
             IFeatureCollection features,
             CancellationToken cancellationToken)
         {
-            OneByte = oneByte;
             Point = point;
             Person = person;
             return default;
