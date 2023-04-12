@@ -1,0 +1,46 @@
+// Copyright (c) ZeroC, Inc.
+
+encoding = Slice1
+
+module Interop::Tests::Slice
+
+interface TagTest {
+
+    opFixed(
+        tag(1) f1: bool?
+        tag(2) f2: int16?
+        tag(4) f4: int32?
+        tag(8) f8: float64?
+    )
+
+    opEnum(tag(1) fruit: Fruit?)
+
+    opServiceAddress(tag(1) serviceAddress: TagTest?) // TODO: replace by ServiceAddress?
+
+    opStruct(
+        tag(1) point: Point?
+        tag(5) person: Person?
+    )
+
+    opSequence(
+        tag(0) str: string?
+        tag(1) oneByteSeq: sequence<OneByte>?
+        tag(5) pointSeq: sequence<Point>?
+        tag(10) stringSeq: sequence<string>?
+    )
+
+    // slicec does not accept tagged parameters with a class type.
+    opClass()
+}
+
+[cs::identifier("OneByteTwin")]
+compact struct OneByte { value: uint8 }
+
+[cs::identifier("PointTwin")]
+compact struct Point { x: int32, y: int32 }
+
+[cs::identifier("PersonTwin")]
+compact struct Person { name: string, favoriteFruit: Fruit }
+
+[cs::identifier("FruitTwin")]
+enum Fruit { Apple, Pineapple, Orange, Raspberry }
