@@ -12,7 +12,7 @@ namespace Interop.Tests;
 public class SslTransportTests
 {
     [Test]
-    public async Task Create_ssl_conection_from_Ice_to_IceRPC()
+    public async Task Create_ssl_connection_from_Ice_to_IceRPC()
     {
         // Arrange
         using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
@@ -61,7 +61,7 @@ public class SslTransportTests
     }
 
     [Test]
-    public async Task Create_ssl_conection_from_IceRPC_to_Ice()
+    public async Task Create_ssl_connection_from_IceRPC_to_Ice()
     {
         // Arrange
         // Load and configure the IceSSL plugin.
