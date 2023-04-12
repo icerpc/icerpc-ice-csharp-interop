@@ -2,7 +2,6 @@
 
 using Ice;
 using IceRpc;
-using IceRpc.Ice;
 using NUnit.Framework;
 using System.Net.Security;
 using System.Security.Cryptography.X509Certificates;
@@ -13,7 +12,7 @@ namespace Interop.Tests;
 public class SslTransportTests
 {
     [Test]
-    public async Task Send_request_over_ssl_from_IceRpc_to_Ice()
+    public async Task Create_ssl_conection_from_Ice_to_IceRPC()
     {
         // Arrange
         using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
@@ -62,13 +61,9 @@ public class SslTransportTests
     }
 
     [Test]
-    public async Task Send_request_from_IceRPC_to_Ice()
+    public async Task Create_ssl_conection_from_IceRPC_to_Ice()
     {
         // Arrange
-        using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
-        using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
-        using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
-
         // Load and configure the IceSSL plugin.
         string[] args = new string[]
         {
@@ -79,27 +74,22 @@ public class SslTransportTests
             "--IceSSL.Password=password",
         };
 
-        Connection? peerConnection = null;
-        X509Certificate2? peerCertificate = null;
         using Communicator communicator = Util.initialize(ref args);
+        var plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
+        var verifier = new Verifier();
+        plugin.setCertificateVerifier(verifier);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "ssl -h 127.0.0.1 -p 0");
-        adapter.addDefaultServant(
-            new InlineBlobject(
-                (payload, current) =>
-                {
-                    peerConnection = current?.con;
-                    return (true, Array.Empty<byte>());
-                }), "");
         adapter.activate();
 
+        using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
+        using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
+        using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
+        X509Certificate2? peerCertificate = null;
         await using var clientConnection = new ClientConnection(
             adapter.GetFirstServerAddress(),
             clientAuthenticationOptions: new SslClientAuthenticationOptions
             {
-                ClientCertificates = new X509CertificateCollection
-                {
-                    clientCertificate
-                },
+                ClientCertificates = new X509CertificateCollection { clientCertificate },
                 RemoteCertificateValidationCallback =
                     (sender, certificate, chain, errors) =>
                     {
@@ -108,17 +98,29 @@ public class SslTransportTests
                     }
             });
 
-        var objectProxy = new IceObjectProxy(clientConnection, new ServiceAddress(new Uri("ice:///hello")));
         // Act
-        await objectProxy.IcePingAsync();
+        await clientConnection.ConnectAsync();
 
         // Assert
-        var info = peerConnection?.getInfo() as IceSSL.ConnectionInfo;
+        IceSSL.ConnectionInfo info = verifier.ConnectionInfo;
         Assert.That(info, Is.Not.Null);
         Assert.That(info.verified, Is.True);
         Assert.That(info.certs[0], Is.EqualTo(clientCertificate));
         Assert.That(info.certs[1], Is.EqualTo(caCertificate));
 
         Assert.That(peerCertificate, Is.EqualTo(serverCertificate));
+    }
+
+
+    /// <summary>A certificate verifier used by the tests to capture the peer connection info.</summary>
+    private class Verifier : IceSSL.CertificateVerifier
+    {
+        public IceSSL.ConnectionInfo ConnectionInfo { get; private set; } = null!;
+
+        public bool verify(IceSSL.ConnectionInfo info)
+        {
+            ConnectionInfo = info;
+            return true;
+        }
     }
 }
