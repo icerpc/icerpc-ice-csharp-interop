@@ -115,7 +115,7 @@ public class SslTransportTests
     /// <summary>A certificate verifier used by the tests to capture the peer connection info.</summary>
     private class Verifier : IceSSL.CertificateVerifier
     {
-        public IceSSL.ConnectionInfo ConnectionInfo { get; private set; } = null!;
+        internal IceSSL.ConnectionInfo ConnectionInfo { get; private set; } = null!;
 
         public bool verify(IceSSL.ConnectionInfo info)
         {
