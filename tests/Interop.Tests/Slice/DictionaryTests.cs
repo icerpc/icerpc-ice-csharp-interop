@@ -1,0 +1,49 @@
+// Copyright (c) ZeroC, Inc.
+
+using IceRpc.Slice;
+using NUnit.Framework;
+
+namespace Interop.Tests.Slice;
+
+[Parallelizable(scope: ParallelScope.All)]
+public class DictionaryTests
+{
+    public static IEnumerable<Dictionary<short, short>> DictionarySource
+    {
+        get
+        {
+            yield return new Dictionary<short, short>();
+            yield return new Dictionary<short, short>()
+                {
+                    [10] = 56,
+                    [30] = 3
+                };
+        }
+    }
+
+    [TestCaseSource(nameof(DictionarySource))]
+    public void Dictionary_ice_encode_and_icerpc_decode(Dictionary<short, short> value)
+    {
+        Dictionary<short, short> decodedValue = value.IceEncodeAndIceRpcDecode(
+            ShortShortDictHelper.write,
+            (ref SliceDecoder decoder) => decoder.DecodeDictionary(
+                count => new Dictionary<short, short>(count),
+                (ref SliceDecoder decoder) => decoder.DecodeInt16(),
+                (ref SliceDecoder decoder) => decoder.DecodeInt16()));
+
+        Assert.That(decodedValue, Is.EqualTo(value));
+    }
+
+    [TestCaseSource(nameof(DictionarySource))]
+    public void Dictionary_icerpc_encode_and_ice_decode(Dictionary<short, short> value)
+    {
+        Dictionary<short, short> decodedValue = value.IceRpcEncodeAndIceDecode(
+            (ref SliceEncoder encoder, Dictionary<short, short> value) => encoder.EncodeDictionary(
+                value,
+                (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
+                (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value)),
+            ShortShortDictHelper.read);
+
+        Assert.That(decodedValue, Is.EqualTo(value));
+    }
+}
