@@ -76,7 +76,9 @@ public class EnumTests
     }
 
     private static TIceEnum SliceToIce<TSliceEnum, TIceEnum>(
-        TSliceEnum value, EncodeAction<TSliceEnum> encodeAction, Func<InputStream, TIceEnum> decodeFunc)
+        TSliceEnum value,
+        EncodeAction<TSliceEnum> encodeAction,
+        Func<InputStream, TIceEnum> decodeFunc)
     {
         var pipe = new Pipe();
         var encoder = new SliceEncoder(pipe.Writer, SliceEncoding.Slice1);
