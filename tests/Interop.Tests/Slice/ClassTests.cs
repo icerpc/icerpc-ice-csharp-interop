@@ -5,7 +5,6 @@ using IceRpc.Slice;
 using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
-using System.Runtime.InteropServices;
 
 namespace Interop.Tests.Slice;
 
@@ -265,7 +264,7 @@ public class ClassTests
         encoder.EncodeUInt8(1);
         encodeAction(ref encoder);
         int size = encoder.EncodedByteCount;
-        MemoryMarshal.Write(sizePlaceholder, ref size); // TODO: make SliceEncoder.EncodeIn32 public
+        SliceEncoder.EncodeInt32(size, sizePlaceholder);
 
         pipe.Writer.Complete();
         pipe.Reader.TryRead(out ReadResult readResult);
