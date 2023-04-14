@@ -18,9 +18,9 @@ public class SequenceTests
     }
 
     [TestCaseSource(nameof(SequenceSource))]
-    public void Sequence_ice_encode_and_icerpc_decode(short[] value)
+    public void Ice_sequence_to_slice_sequence(short[] value)
     {
-        short[] decodedValue = value.IceEncodeAndIceRpcDecode(
+        short[] decodedValue = value.IceToSlice(
             ShortSeqHelper.write,
             (ref SliceDecoder decoder) => decoder.DecodeSequence<short>());
 
@@ -28,9 +28,9 @@ public class SequenceTests
     }
 
     [TestCaseSource(nameof(SequenceSource))]
-    public void Sequence_icerpc_encode_and_ice_decode(short[] value)
+    public void Slice_sequence_to_ice_sequence(short[] value)
     {
-        short[] decodedValue = value.IceRpcEncodeAndIceDecode(
+        short[] decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, short[] value) => encoder.EncodeSequence(value),
             ShortSeqHelper.read);
 

@@ -7,17 +7,19 @@ using System.IO.Pipelines;
 
 namespace Interop.Tests;
 
-/// <summary>Provides extension methods to encode a value with Ice encoder and decode it with the IceRPC decoder or
-/// vice-versa.</summary>
+/// <summary>Provides extension methods to encode or decode a value with an Ice encoding or decoding function (possibly
+/// generated from a .ice file) and decode or encode it with an IceRPC decoding or encoding function (possibly generated
+/// from a .slice file).</summary>
 public static class ValueEncodingExtensions
 {
     /// <summary>Encodes a value with <see cref="SliceEncoder" /> and decodes it with <see cref="InputStream" />.
+    /// Depending on the value type, the encoding or decoding functions can be .ice or .slice generated function.
     /// </summary>
     /// <param name="value">The value to encode with the Slice encoder.</param>
     /// <param name="encodeAction">The function to encode the value with the IceRPC encoder.</param>
     /// <param name="decodeFunc">The function to decode the value with the Ice decoder.</param>
     /// <returns>The decoded value.</returns>
-    public static T IceRpcEncodeAndIceDecode<T>(
+    public static T SliceToIce<T>(
         this T value,
         EncodeAction<T> encodeAction,
         Func<InputStream, T> decodeFunc)
@@ -36,12 +38,13 @@ public static class ValueEncodingExtensions
     }
 
     /// <summary>Encodes a value with <see cref="OutputStream" /> and decodes it with <see cref="SliceDecoder" />.
+    /// Depending on the value type, the encoding or decoding functions can be .ice or .slice generated function.
     /// </summary>
     /// <param name="value">The value to encode with the Slice encoder.</param>
     /// <param name="encodeAction">The function to encode the value with the Ice encoder.</param>
     /// <param name="decodeFunc">The function to decode the value with the IceRpc decoder.</param>
     /// <returns>The decoded value.</returns>
-    public static T IceEncodeAndIceRpcDecode<T>(
+    public static T IceToSlice<T>(
         this T value,
         Action<OutputStream, T> encodeAction,
         DecodeFunc<T> decodeFunc)
