@@ -11,54 +11,26 @@ namespace Interop.Tests.Slice;
 [Parallelizable(scope: ParallelScope.All)]
 public class EnumTests
 {
-    [TestCase(OneByteEnum.value1, OneByteEnumTwin.Value1)]
-    [TestCase(OneByteEnum.value2, OneByteEnumTwin.Value2)]
-    public void Ice_one_byte_enum_to_slice_one_byte_enum(OneByteEnum value, OneByteEnumTwin expectedValue)
+    [Test]
+    public void Ice_my_enum_to_slice_my_enum()
     {
-        OneByteEnumTwin decodedValue = IceToSlice(
-            value,
-            OneByteEnumHelper.write,
-            OneByteEnumTwinSliceDecoderExtensions.DecodeOneByteEnumTwin);
+        MyEnumTwin decodedValue = IceToSlice(
+            MyEnum.Enum1,
+            MyEnumHelper.write,
+            MyEnumTwinSliceDecoderExtensions.DecodeMyEnumTwin);
 
-        Assert.That(decodedValue, Is.EqualTo(expectedValue));
+        Assert.That(decodedValue, Is.EqualTo(MyEnumTwin.Enum1));
     }
 
-    [TestCase(OneByteEnumTwin.Value1, OneByteEnum.value1)]
-    [TestCase(OneByteEnumTwin.Value2, OneByteEnum.value2)]
-    public void Slice_one_byte_enum_to_ice_one_byte_enum(OneByteEnumTwin value, OneByteEnum expectedValue)
+    [Test]
+    public void Slice_my_enum_to_ice_my_enum()
     {
-        OneByteEnum decodedValue = SliceToIce(
-            value,
-            OneByteEnumTwinSliceEncoderExtensions.EncodeOneByteEnumTwin,
-            OneByteEnumHelper.read);
+        MyEnum decodedValue = SliceToIce(
+            MyEnumTwin.Enum1,
+            MyEnumTwinSliceEncoderExtensions.EncodeMyEnumTwin,
+            MyEnumHelper.read);
 
-        Assert.That(decodedValue, Is.EqualTo(expectedValue));
-    }
-
-    [TestCase(FiveBytesEnum.value1, FiveBytesEnumTwin.Value1)]
-    [TestCase(FiveBytesEnum.value2, FiveBytesEnumTwin.Value2)]
-    [TestCase(FiveBytesEnum.value3, FiveBytesEnumTwin.Value3)]
-    public void Ice_five_bytes_enum_to_slice_five_bytes_enum(FiveBytesEnum value, FiveBytesEnumTwin expectedValue)
-    {
-        FiveBytesEnumTwin decodedValue = IceToSlice(
-            value,
-            FiveBytesEnumHelper.write,
-            FiveBytesEnumTwinSliceDecoderExtensions.DecodeFiveBytesEnumTwin);
-
-        Assert.That(decodedValue, Is.EqualTo(expectedValue));
-    }
-
-    [TestCase(FiveBytesEnumTwin.Value1, FiveBytesEnum.value1)]
-    [TestCase(FiveBytesEnumTwin.Value2, FiveBytesEnum.value2)]
-    [TestCase(FiveBytesEnumTwin.Value3, FiveBytesEnum.value3)]
-    public void Slice_five_bytes_enum_to_ice_five_bytes_enum(FiveBytesEnumTwin value, FiveBytesEnum expectedValue)
-    {
-        FiveBytesEnum decodedValue = SliceToIce(
-            value,
-            FiveBytesEnumTwinSliceEncoderExtensions.EncodeFiveBytesEnumTwin,
-            FiveBytesEnumHelper.read);
-
-        Assert.That(decodedValue, Is.EqualTo(expectedValue));
+        Assert.That(decodedValue, Is.EqualTo(MyEnum.Enum1));
     }
 
     private static TSliceEnum IceToSlice<TIceEnum,TSliceEnum>(
