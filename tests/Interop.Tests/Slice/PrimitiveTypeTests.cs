@@ -1,10 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
-using Ice;
 using IceRpc.Slice;
 using NUnit.Framework;
-using System.Buffers;
-using System.IO.Pipelines;
 
 namespace Interop.Tests.Slice;
 
@@ -12,9 +9,8 @@ namespace Interop.Tests.Slice;
 public class PrimitiveTypeTests
 {
     /// <summary>Encodes an ice bool then decodes a slice bool.</summary>
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Ice_bool_to_slice_bool(bool value)
+    [Test]
+    public void Ice_bool_to_slice_bool([Values] bool value)
     {
         bool decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeBool(value),
@@ -24,9 +20,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes a slice bool then decodes an ice bool.</summary>
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Slice_bool_to_ice_bool(bool value)
+    [Test]
+    public void Slice_bool_to_ice_bool([Values] bool value)
     {
         bool decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, bool value) => encoder.EncodeBool(value),
@@ -36,9 +31,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes an ice short then decodes a slice int16.</summary>
-    [TestCase(-30_000)]
-    [TestCase(30_000)]
-    public void Ice_short_to_slice_int16(short value)
+    [Test]
+    public void Ice_short_to_slice_int16([Values(-30_000, 30_000)] short value)
     {
         short decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeShort(value),
@@ -48,9 +42,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes a slice int16 then decodes an ice short.</summary>
-    [TestCase(-30_000)]
-    [TestCase(30_000)]
-    public void Slice_int16_to_ice_short(short value)
+    [Test]
+    public void Slice_int16_to_ice_short([Values(-30_000, 30_000)] short value)
     {
         short decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
@@ -85,11 +78,33 @@ public class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
+    /// <summary>Encodes an ice size then decodes a slice size.</summary>
+    [Test]
+    public void Ice_size_to_slice_size([Values(0, 7, 254, 350)] int value)
+    {
+        int decodedValue = value.IceToSlice(
+            (outputStream, value) => outputStream.writeSize(value),
+            (ref SliceDecoder decoder) => decoder.DecodeSize());
+
+        Assert.That(decodedValue, Is.EqualTo(value));
+    }
+
+    /// <summary>Encodes a slice size then decodes an ice size.</summary>
+    [Test]
+    public void Slice_size_to_ice_size([Values(0, 7, 254, 350)] int value)
+    {
+        int decodedValue = value.SliceToIce(
+            (ref SliceEncoder encoder, int value) => encoder.EncodeSize(value),
+            inputStream => inputStream.readSize());
+
+        Assert.That(decodedValue, Is.EqualTo(value));
+    }
+
     /// <summary>Encodes an ice string then decodes a slice string.</summary>
     [TestCase("abcd")]
     [TestCase("")]
-    [TestCase("국민경제의 발전을 위한 중요정책의 수립에 관하여 대통령의 자문에 응하기 위하여 국민경제자문회의를 둘 수 있다")] // Korean
-    [TestCase("旅ロ京青利セムレ弱改フヨス波府かばぼ意送でぼ調掲察たス日西重ケアナ住橋ユムミク順待ふかんぼ人奨貯鏡すびそ")]  // Japanese
+    [TestCase("국민경제의 발전을 위한 중요정책의 수립에 관하여 대통령의 자문에 응하기 위하여 국민경제자문회의를 둘 수 있다")]
+    [TestCase("旅ロ京青利セムレ弱改フヨス波府かばぼ意送でぼ調掲察たス日西重ケアナ住橋ユムミク順待ふかんぼ人奨貯鏡すびそ")]
     [TestCase("😁😂😃😄😅😆😉😊😋😌😍😏😒😓😔😖")]
     public void Ice_string_to_slice_string(string value)
     {
@@ -103,8 +118,8 @@ public class PrimitiveTypeTests
     /// <summary>Encodes a slice string then decodes an ice string.</summary>
     [TestCase("abcd")]
     [TestCase("")]
-    [TestCase("국민경제의 발전을 위한 중요정책의 수립에 관하여 대통령의 자문에 응하기 위하여 국민경제자문회의를 둘 수 있다")] // Korean
-    [TestCase("旅ロ京青利セムレ弱改フヨス波府かばぼ意送でぼ調掲察たス日西重ケアナ住橋ユムミク順待ふかんぼ人奨貯鏡すびそ")]  // Japanese
+    [TestCase("국민경제의 발전을 위한 중요정책의 수립에 관하여 대통령의 자문에 응하기 위하여 국민경제자문회의를 둘 수 있다")]
+    [TestCase("旅ロ京青利セムレ弱改フヨス波府かばぼ意送でぼ調掲察たス日西重ケアナ住橋ユムミク順待ふかんぼ人奨貯鏡すびそ")]
     [TestCase("😁😂😃😄😅😆😉😊😋😌😍😏😒😓😔😖")]
     public void Slice_string_to_ice_string(string value)
     {

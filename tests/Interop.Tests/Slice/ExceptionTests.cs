@@ -111,11 +111,11 @@ public class ExceptionTests
         string[] args = new string[] { $"--Ice.Default.SlicedFormat={(slicedFormat ? 1 : 0)}" };
         using Communicator communicator = Util.initialize(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        _ = adapter.add(new TestEngine(userException), Util.stringToIdentity("protoX"));
+        _ = adapter.add(new TestEngine(userException), Util.stringToIdentity("engine"));
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
-        var proxy = new EngineProxy(clientConnection, new Uri("ice:/protoX"));
+        var proxy = new EngineProxy(clientConnection, new Uri("ice:/engine"));
 
         await proxy.StartAsync();
     }
@@ -126,7 +126,7 @@ public class ExceptionTests
         ServerAddress serverAddress = server.Listen();
 
         using Communicator communicator = Util.initialize();
-        EnginePrx proxy = EnginePrxHelper.uncheckedCast(communicator.CreateObjectPrx("protoX", serverAddress));
+        EnginePrx proxy = EnginePrxHelper.uncheckedCast(communicator.CreateObjectPrx("engine", serverAddress));
         await proxy.startAsync();
     }
 
