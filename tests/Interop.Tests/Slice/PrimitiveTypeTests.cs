@@ -16,8 +16,7 @@ public class PrimitiveTypeTests
     [TestCase(false)]
     public void Ice_bool_to_slice_bool(bool value)
     {
-        bool decodedValue = IceToSlice(
-            value,
+        bool decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeBool(value),
             (ref SliceDecoder decoder) => decoder.DecodeBool());
 
@@ -29,8 +28,7 @@ public class PrimitiveTypeTests
     [TestCase(false)]
     public void Slice_bool_to_ice_bool(bool value)
     {
-        bool decodedValue = SliceToIce(
-            value,
+        bool decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, bool value) => encoder.EncodeBool(value),
             inputStream => inputStream.readBool());
 
@@ -42,8 +40,7 @@ public class PrimitiveTypeTests
     [TestCase(30_000)]
     public void Ice_short_to_slice_int16(short value)
     {
-        short decodedValue = IceToSlice(
-            value,
+        short decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeShort(value),
             (ref SliceDecoder decoder) => decoder.DecodeInt16());
 
@@ -55,8 +52,7 @@ public class PrimitiveTypeTests
     [TestCase(30_000)]
     public void Slice_int16_to_ice_short(short value)
     {
-        short decodedValue = SliceToIce(
-            value,
+        short decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
             inputStream => inputStream.readShort());
 
@@ -69,8 +65,7 @@ public class PrimitiveTypeTests
     [TestCase(2.71828182845904523536028747135266249775724709369995957)]
     public void Ice_double_to_slice_float64(double value)
     {
-        double decodedValue = IceToSlice(
-            value,
+        double decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeDouble(value),
             (ref SliceDecoder decoder) => decoder.DecodeFloat64());
 
@@ -83,8 +78,7 @@ public class PrimitiveTypeTests
     [TestCase(2.71828182845904523536028747135266249775724709369995957)]
     public void Slice_float64_to_ice_double(double value)
     {
-        double decodedValue = SliceToIce(
-            value,
+        double decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, double value) => encoder.EncodeFloat64(value),
             inputStream => inputStream.readDouble());
 
@@ -99,8 +93,7 @@ public class PrimitiveTypeTests
     [TestCase("😁😂😃😄😅😆😉😊😋😌😍😏😒😓😔😖")]
     public void Ice_string_to_slice_string(string value)
     {
-        string decodedValue = IceToSlice(
-            value,
+        string decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeString(value),
             (ref SliceDecoder decoder) => decoder.DecodeString());
 
@@ -115,37 +108,10 @@ public class PrimitiveTypeTests
     [TestCase("😁😂😃😄😅😆😉😊😋😌😍😏😒😓😔😖")]
     public void Slice_string_to_ice_string(string value)
     {
-        string decodedValue = SliceToIce(
-            value,
+        string decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, string value) => encoder.EncodeString(value),
             inputStream => inputStream.readString());
 
         Assert.That(decodedValue, Is.EqualTo(value));
-    }
-
-    private static T IceToSlice<T>(T value, Action<OutputStream, T> encodeAction, DecodeFunc<T> decodeFunc)
-    {
-        using Communicator communicator = Util.initialize();
-        var outputStream = new OutputStream(communicator);
-        encodeAction(outputStream, value);
-        byte[] buffer = outputStream.finished();
-
-        var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
-        return decodeFunc(ref decoder);
-    }
-
-    private static T SliceToIce<T>(T value, EncodeAction<T> encodeAction, Func<InputStream, T> decodeFunc)
-    {
-        var pipe = new Pipe();
-        var encoder = new SliceEncoder(pipe.Writer, SliceEncoding.Slice1);
-        encodeAction(ref encoder, value);
-        pipe.Writer.Complete();
-        pipe.Reader.TryRead(out ReadResult readResult);
-
-        using Communicator communicator = Util.initialize();
-        var inputStream = new InputStream(communicator, readResult.Buffer.ToArray());
-        pipe.Reader.Complete();
-
-        return decodeFunc(inputStream);
     }
 }
