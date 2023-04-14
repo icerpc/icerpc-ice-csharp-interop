@@ -33,7 +33,7 @@ public class EnumTests
         Assert.That(decodedValue, Is.EqualTo(MyEnum.Enum1));
     }
 
-    private static TSliceEnum IceToSlice<TIceEnum,TSliceEnum>(
+    private static TSliceEnum IceToSlice<TIceEnum, TSliceEnum>(
         TIceEnum value,
         Action<OutputStream, TIceEnum> encodeAction,
         DecodeFunc<TSliceEnum> decodeFunc)
