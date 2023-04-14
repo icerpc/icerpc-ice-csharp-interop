@@ -13,7 +13,7 @@ namespace Interop.Tests;
 public static class ValueEncodingExtensions
 {
     /// <summary>Encodes a value with <see cref="SliceEncoder" /> and decodes it with <see cref="InputStream" />.
-    /// Depending on the value type, the encoding or decoding functions can be .ice or .slice generated function.
+    /// Depending on the value type, the encoding or decoding functions can be a .ice or a .slice generated function.
     /// </summary>
     /// <param name="value">The value to encode with the Slice encoder.</param>
     /// <param name="encodeAction">The function to encode the value with the IceRPC encoder.</param>
@@ -38,7 +38,7 @@ public static class ValueEncodingExtensions
     }
 
     /// <summary>Encodes a value with <see cref="OutputStream" /> and decodes it with <see cref="SliceDecoder" />.
-    /// Depending on the value type, the encoding or decoding functions can be .ice or .slice generated function.
+    /// Depending on the value type, the encoding or decoding functions can be a .ice or a .slice generated function.
     /// </summary>
     /// <param name="value">The value to encode with the Slice encoder.</param>
     /// <param name="encodeAction">The function to encode the value with the Ice encoder.</param>
