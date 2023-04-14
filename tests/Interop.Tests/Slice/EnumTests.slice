@@ -1,0 +1,11 @@
+// Copyright (c) ZeroC, Inc.
+
+encoding = Slice1
+
+module Interop::Tests::Slice
+
+[cs::identifier("MyEnumTwin")]
+enum MyEnum
+{
+    Enum1 = 187
+}
