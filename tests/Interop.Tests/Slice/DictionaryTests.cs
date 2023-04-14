@@ -14,10 +14,10 @@ public class DictionaryTests
         {
             yield return new Dictionary<short, short>();
             yield return new Dictionary<short, short>()
-                {
-                    [10] = 56,
-                    [30] = 3
-                };
+            {
+                [10] = 56,
+                [30] = 3
+            };
         }
     }
 
