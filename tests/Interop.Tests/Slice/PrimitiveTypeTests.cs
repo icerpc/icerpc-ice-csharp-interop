@@ -9,9 +9,8 @@ namespace Interop.Tests.Slice;
 public class PrimitiveTypeTests
 {
     /// <summary>Encodes an ice bool then decodes a slice bool.</summary>
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Ice_bool_to_slice_bool(bool value)
+    [Test]
+    public void Ice_bool_to_slice_bool([Values] bool value)
     {
         bool decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeBool(value),
@@ -21,9 +20,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes a slice bool then decodes an ice bool.</summary>
-    [TestCase(true)]
-    [TestCase(false)]
-    public void Slice_bool_to_ice_bool(bool value)
+    [Test]
+    public void Slice_bool_to_ice_bool([Values] bool value)
     {
         bool decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, bool value) => encoder.EncodeBool(value),
@@ -33,9 +31,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes an ice short then decodes a slice int16.</summary>
-    [TestCase(-30_000)]
-    [TestCase(30_000)]
-    public void Ice_short_to_slice_int16(short value)
+    [Test]
+    public void Ice_short_to_slice_int16([Values(-30_000, 30_000)] short value)
     {
         short decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeShort(value),
@@ -45,9 +42,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes a slice int16 then decodes an ice short.</summary>
-    [TestCase(-30_000)]
-    [TestCase(30_000)]
-    public void Slice_int16_to_ice_short(short value)
+    [Test]
+    public void Slice_int16_to_ice_short([Values(-30_000, 30_000)] short value)
     {
         short decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
@@ -83,11 +79,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes an ice size then decodes a slice size.</summary>
-    [TestCase(0)]
-    [TestCase(7)]
-    [TestCase(254)]
-    [TestCase(350)]
-    public void Ice_size_to_slice_size(int value)
+    [Test]
+    public void Ice_size_to_slice_size([Values(0, 7, 254, 350)] int value)
     {
         int decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeSize(value),
@@ -97,11 +90,8 @@ public class PrimitiveTypeTests
     }
 
     /// <summary>Encodes a slice size then decodes an ice size.</summary>
-    [TestCase(0)]
-    [TestCase(7)]
-    [TestCase(254)]
-    [TestCase(350)]
-    public void Slice_size_to_ice_size(int value)
+    [Test]
+    public void Slice_size_to_ice_size([Values(0, 7, 254, 350)] int value)
     {
         int decodedValue = value.SliceToIce(
             (ref SliceEncoder encoder, int value) => encoder.EncodeSize(value),
