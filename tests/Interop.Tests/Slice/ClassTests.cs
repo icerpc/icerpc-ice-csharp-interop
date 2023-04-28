@@ -241,7 +241,7 @@ public class ClassTests
         var decoder = new SliceDecoder(
             buffer,
             SliceEncoding.Slice1,
-            activator: SliceDecoder.GetActivator(typeof(ClassTests).Assembly));
+            activator: IActivator.FromAssembly(typeof(ClassTests).Assembly));
 
         // Skip encapsulation header
         decoder.Skip(6);
