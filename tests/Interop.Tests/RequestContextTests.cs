@@ -62,7 +62,7 @@ public class RequestContextTests
         var proxy = new GreeterProxy(new RequestContextInterceptor(clientConnection), new Uri("ice:/greeter"));
 
         var features = new FeatureCollection();
-        features.Set<IRequestContextFeature>(new RequestContextFeature { Value = context });
+        features.Set<IRequestContextFeature>(new RequestContextFeature(context));
 
         // Act
         await proxy.GreetAsync("Bob", features);
