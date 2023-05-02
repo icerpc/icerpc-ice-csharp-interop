@@ -3,13 +3,21 @@
 param (
     $action="build",
     $config="debug",
-    $iceVersion = "3.7.9",
-    $icerpcVersion = "0.1.0",
+    $iceVersion=$null,
+    $icerpcVersion=$null,
     [switch]$examples,
-    [switch]$srcdist,
-    [switch]$coverage,
     [switch]$help
 )
+
+if ($iceVersion -eq $null) {
+    Get-Content .\build\Versions.props -Raw | Where {$_ -match "<IceVersion .*>(.*)</IceVersion>"} | Out-Null
+    $iceVersion = $Matches.1
+}
+
+if ($iceRpcVersion -eq $null)  {
+    Get-Content .\build\Versions.props -Raw | Where {$_ -match "<IceRpcVersion .*>(.*)</IceRpcVersion>"} | Out-Null
+    $iceRpcVersion = $Matches.1
+}
 
 function Build($config) {
     $dotnetConfiguration = DotnetConfiguration($config)
@@ -26,9 +34,9 @@ function Rebuild($config, $examples, $srcdist) {
     Build $config
 }
 
-function Test($config, $coverage) {
+function Test($config) {
     $dotnetConfiguration = DotnetConfiguration($config)
-    $arguments = @('test', '--no-build', '--configuration', $dotnetConfiguration)
+    $arguments = @('test', '--configuration', $dotnetConfiguration)
     RunCommand "dotnet" $arguments
 }
 
@@ -57,8 +65,8 @@ function Get-Help() {
     Write-Host "  test                      Runs tests."
     Write-Host "Arguments:"
     Write-Host "  -config                   Build configuration: debug or release, the default is debug."
-    Write-Host "  -iceVersion               Build tests using the given Ice version default is (3.7.9)."
-    Write-Host "  -icerpcVersion            Build tests using the given IceRPC vresion default is (0.1.0)"
+    Write-Host "  -iceVersion               Build tests using the given Ice version, see IceVersion in build/Versions.props for the default."
+    Write-Host "  -icerpcVersion            Build tests using the given IceRPC vresion, see IceRpcVersion in build/Versions.props for the default."
     Write-Host "  -help                     Print help and exit."
 }
 
