@@ -23,7 +23,7 @@
   <ItemGroup>
     <PackageReference Include="IceRpc.Slice.Tools" Version="$(IceRpcVersion)" PrivateAssets="All" />
     <PackageReference Include="IceRpc" Version="$(IceRpcVersion)" />
-    <PackageReference Include="IceRpc.Coloc" Version="$(IceRpcVersion)" />
+    <PackageReference Include="IceRpc.Transports.Coloc" Version="$(IceRpcVersion)" />
     <PackageReference Include="IceRpc.RequestContext" Version="$(IceRpcVersion)" />
   </ItemGroup>
 

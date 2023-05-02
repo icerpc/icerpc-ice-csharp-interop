@@ -2,8 +2,8 @@
 
 set -ue
 
-iceVersion="3.7.9"
-iceRpcVersion="0.1.0-preview3"
+iceVersion=$(cat build/Versions.props | grep "<IceVersion" | sed -E "s/<IceVersion .*>(.*)<\/IceVersion>/\1/g" | sed -e 's/^[[:space:]]*//')
+iceRpcVersion=$(cat build/Versions.props | grep "<IceRpcVersion" | sed -E "s/<IceRpcVersion .*>(.*)<\/IceRpcVersion>/\1/g" | sed -e 's/^[[:space:]]*//')
 
 usage()
 {
@@ -15,8 +15,8 @@ usage()
     echo "  test                      Runs tests."
     echo "Arguments:"
     echo "  --config | -c             Build configuration: debug or release, the default is debug."
-    echo "  --ice-version             Build tests using the given Ice version default is (3.7.9)."
-    echo "  --icerpc-version          Build tests using the given IceRPC version default is (0.1.0-preview3)."
+    echo "  --ice-version             Build tests using the given Ice version, see IceVersion in build/Versions.props for the default."
+    echo "  --icerpc-version          Build tests using the given IceRPC version, see IceRpcVersion in build/Versions.props for the default."
     echo "  --help   | -h             Print help and exit."
 }
 
@@ -133,8 +133,5 @@ case $action in
         ;;
     "test")
         run_test
-        ;;
-    "doc")
-        doc
         ;;
 esac

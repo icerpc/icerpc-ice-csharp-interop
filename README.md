@@ -14,28 +14,6 @@ This repository provides a test suite to verify that [IceRPC for C#](1) interope
 
 You need to install the Slice compilers for Ice. See https://zeroc.com/downloads/ice/3.7/csharp.
 
-### Using pre-built IceRPC preview packages on Linux
-
-On Linux, you can use pre-built IceRPC preview packages by creating a `nuget.config` file in this project directory with
-the following contents:
-
-```xml
-<?xml version="1.0" encoding="utf-8"?>
-<configuration>
-    <packageSources>
-        <add key="github" value="https://nuget.pkg.github.com/zeroc-ice/index.json" />
-    </packageSources>
-    <packageSourceCredentials>
-        <github>
-            <add key="Username" value="USERNAME" />
-            <add key="ClearTextPassword" value="TOKEN" />
-        </github>
-    </packageSourceCredentials>
-</configuration>
-```
-
-This `nuget.config` adds a new package source with the private preview packages for IceRPC C#.
-
 ### Using the IceRPC packages from the source distribution
 
 Follow the instructions in the `icerpc-csharp` repository for packaging and pushing the `IceRPC` NuGet packages:
