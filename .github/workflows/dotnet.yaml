@@ -57,9 +57,9 @@ jobs:
       uses: webfactory/ssh-agent@v0.5.4
       with:
         ssh-private-key: ${{ secrets.ICERPC_DEPLOY_KEY }}
-    - name: 🔨 Build and Push IceRPC NuGet packages
+    - name: 🔨 Build and Publish IceRPC NuGet packages
       working-directory: icerpc-csharp
-      run:  ./build.sh push
+      run:  ./build.sh --build --pack --publish
     - name: 🔨 Build Tests
       run: dotnet build
     - name: 🧪 Run Tests
