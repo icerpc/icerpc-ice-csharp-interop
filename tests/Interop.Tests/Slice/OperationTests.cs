@@ -18,7 +18,22 @@ public class OperationTests
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
-        var proxy = new GreeterProxy(clientConnection, new Uri("ice:/hello"));
+        var proxy = new GreeterProxy(clientConnection, new Uri($"ice:/hello"));
+
+        // Act/Assert
+        Assert.That(async () => await proxy.GreetAsync("Alice"), Throws.Nothing);
+    }
+
+    [Test]
+    public async Task Request_from_icerpc_client_with_empty_identity()
+    {
+        using Communicator communicator = Util.initialize();
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
+        adapter.addDefaultServant(new Chatbot(), ""); // catch-all
+        adapter.activate();
+
+        await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
+        var proxy = new GreeterProxy(clientConnection, new ServiceAddress(Protocol.Ice)); // keep "/" identity-path
 
         // Act/Assert
         Assert.That(async () => await proxy.GreetAsync("Alice"), Throws.Nothing);
