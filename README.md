@@ -1,34 +1,32 @@
-# IceRPC Ice C# Interop Tests
+# The IceRPC-Ice C# Interop Tests
 
-[![Continuous Integration](https://github.com/zeroc-ice/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml/badge.svg)](https://github.com/zeroc-ice/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml)
+![Continuous Integration][ci-badge]
 
-- [Build Requirements](#build-requirements)
-- [Building the tests](#building-the-tests)
-- [Running the tests](#running-the-tests)
+This repository provides a test suite to verify that [IceRPC for C#][icerpc-csharp] interoperates with
+[Ice for C#][ice-csharp].
 
-This repository provides a test suite to verify that [IceRPC for C#](1) interoperates with [Ice for C#](2).
+The test suite uses by default the Ice and IceRPC versions specified in [build/Versions.props](build/Versions.props).
 
-## Build Requirements
+## Linux and macOS prerequisites
 
-### Linux and macOS
+Install the Slice compilers for the Ice version you want to test as described on the
+[Ice for C# download page](https://zeroc.com/downloads/ice/3.7/csharp).
 
-You need to install the Slice compilers for Ice. See https://zeroc.com/downloads/ice/3.7/csharp.
-
-### Using the IceRPC packages from the source distribution
-
-Follow the instructions in the `icerpc-csharp` repository for packaging and pushing the `IceRPC` NuGet packages:
-https://github.com/zeroc-ice/icerpc-csharp#packaging
+> **Note**
+> IceRPC for C# and Ice for C# have distinct Slice compilers for C# to compile Slice definitions into C# code. These
+> Slice compilers are native tools.
+> [IceRpc.Slice.Tools][icerpc-slice-tools] includes IceRPC's Slice compiler (`slicec-cs`) for all platforms while
+> [zeroc.ice.net][zeroc-ice-net] includes Ice's Slice compiler (`slice2cs`) only for Windows x86. This is why you need
+> to install manually `slice2cs` on Linux and macOS.
 
 ## Building the tests
 
-### Linux or macOS
-
+Linux or macOS
 ```shell
 ./build.sh
 ```
 
-### Windows
-
+Windows
 ```shell
 build.cmd
 ```
@@ -39,9 +37,11 @@ build.cmd
 dotnet test
 ```
 
-This command builds the `Interop.Tests.sln` solution and executes all tests.
+This command executes all tests known to the `Interop.Tests.sln` solution. See
+[dotnet-test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test) for additional options.
 
-See <https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test> for additional options.
-
-[1]: https://github.com:zeroc-ice/icerpc-csharp
-[1]: https://github.com:zeroc-ice/ice
+[ci-badge]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/dotnet.yml/badge.svg
+[icerpc-csharp]: https://github.com:zeroc-ice/icerpc-csharp
+[icerpc-slice-tools]: https://www.nuget.org/packages/icerpc.slice.tools
+[ice-csharp]: https://github.com:zeroc-ice/ice
+[zeroc-ice-net]: https://www.nuget.org/packages/zeroc.ice.net
