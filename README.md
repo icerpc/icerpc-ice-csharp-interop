@@ -1,6 +1,6 @@
 # The IceRPC-Ice C# Interop Tests
 
-![Continuous Integration][ci-badge]
+[![Continuous Integration][ci-badge]][ci-home]
 
 This repository provides a test suite to verify that [IceRPC for C#][icerpc-csharp] interoperates with
 [Ice for C#][ice-csharp].
@@ -40,7 +40,8 @@ dotnet test
 This command executes all tests known to the `Interop.Tests.sln` solution. See
 [dotnet-test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test) for additional options.
 
-[ci-badge]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/dotnet.yml/badge.svg
+[ci-badge]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml/badge.svg
+[ci-home]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml
 [icerpc-csharp]: https://github.com:zeroc-ice/icerpc-csharp
 [icerpc-slice-tools]: https://www.nuget.org/packages/icerpc.slice.tools
 [ice-csharp]: https://github.com:zeroc-ice/ice
