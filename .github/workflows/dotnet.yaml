@@ -56,7 +56,7 @@ jobs:
     - name: 🔗 Start SSH Agent
       uses: webfactory/ssh-agent@v0.5.4
       with:
-        ssh-private-key: ${{ secrets.SLICE_DEPLOY_KEY }}
+        ssh-private-key: ${{ secrets.SLICEC_DEPLOY_KEY }}
     - name: 🔨 Build and Publish IceRPC NuGet packages
       working-directory: icerpc-csharp
       run:  ./build.sh --build --pack --publish
