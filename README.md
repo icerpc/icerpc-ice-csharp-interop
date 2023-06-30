@@ -21,17 +21,11 @@ https://github.com/zeroc-ice/icerpc-csharp#packaging
 
 ## Building the tests
 
-### Linux or macOS
-
 ```shell
-./build.sh
+dotnet build
 ```
 
-### Windows
-
-```shell
-build.cmd
-```
+The Ice and IceRPC versions used by the build are defined in `build/Version.props`.
 
 ## Running the tests
 
