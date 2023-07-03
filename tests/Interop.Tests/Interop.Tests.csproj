@@ -45,4 +45,13 @@
       </SliceCompile>
     </ItemDefinitionGroup>
 
+    <ItemGroup>
+      <None Include="..\..\certs\*.p12">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Include="..\..\certs\*.der">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+  </ItemGroup>
+
 </Project>

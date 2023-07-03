@@ -21,15 +21,11 @@ Install the Slice compilers for the Ice version you want to test as described on
 
 ## Building the tests
 
-Linux or macOS
 ```shell
-./build.sh
+dotnet build
 ```
 
-Windows
-```shell
-build.cmd
-```
+The Ice and IceRPC versions used by the build are defined in `build/Version.props`.
 
 ## Running the tests
 

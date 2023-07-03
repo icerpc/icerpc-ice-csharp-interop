@@ -59,7 +59,7 @@ jobs:
         ssh-private-key: ${{ secrets.SLICEC_DEPLOY_KEY }}
     - name: 🔨 Build and Publish IceRPC NuGet packages
       working-directory: icerpc-csharp
-      run:  ./build.sh --build --pack --publish
+      run:  ./build.sh --publish
     - name: 🔨 Build Tests
       run: dotnet build
     - name: 🧪 Run Tests

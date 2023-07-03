@@ -15,9 +15,9 @@ public class SslTransportTests
     public async Task Create_ssl_connection_from_Ice_to_IceRPC()
     {
         // Arrange
-        using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
-        using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
-        using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
+        using var caCertificate = new X509Certificate2("cacert.der");
+        using var serverCertificate = new X509Certificate2("server.p12");
+        using var clientCertificate = new X509Certificate2("client.p12");
         X509Certificate2? peerCertificate = null;
         await using var server = new Server(
             new InlineDispatcher((request, cancellationToken) => throw new NotImplementedException()),
@@ -36,13 +36,11 @@ public class SslTransportTests
 
         ServerAddress serverAddress = server.Listen();
         // Load and configure the IceSSL plugin.
-        string[] args = new string[] 
-        { 
+        string[] args = new string[]
+        {
             "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory",
-            "--IceSSL.DefaultDir=../../../../../certs/",
             "--IceSSL.CertFile=client.p12",
             "--IceSSL.CAs=cacert.der",
-            "--IceSSL.Password=password",
         };
         using Communicator communicator = Util.initialize(ref args);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress with { Transport = "ssl" });
@@ -68,10 +66,8 @@ public class SslTransportTests
         string[] args = new string[]
         {
             "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory",
-            "--IceSSL.DefaultDir=../../../../../certs/",
             "--IceSSL.CertFile=server.p12",
             "--IceSSL.CAs=cacert.der",
-            "--IceSSL.Password=password",
         };
 
         using Communicator communicator = Util.initialize(ref args);
@@ -81,9 +77,9 @@ public class SslTransportTests
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "ssl -h 127.0.0.1 -p 0");
         adapter.activate();
 
-        using var caCertificate = new X509Certificate2("../../../../../certs/cacert.der");
-        using var serverCertificate = new X509Certificate2("../../../../../certs/server.p12", "password");
-        using var clientCertificate = new X509Certificate2("../../../../../certs/client.p12", "password");
+        using var caCertificate = new X509Certificate2("cacert.der");
+        using var serverCertificate = new X509Certificate2("server.p12");
+        using var clientCertificate = new X509Certificate2("client.p12");
         X509Certificate2? peerCertificate = null;
         await using var clientConnection = new ClientConnection(
             adapter.GetFirstServerAddress(),
@@ -110,7 +106,6 @@ public class SslTransportTests
 
         Assert.That(peerCertificate, Is.EqualTo(serverCertificate));
     }
-
 
     /// <summary>A certificate verifier used by the tests to capture the peer connection info.</summary>
     private class Verifier : IceSSL.CertificateVerifier
