@@ -107,7 +107,6 @@ public class SslTransportTests
         Assert.That(peerCertificate, Is.EqualTo(serverCertificate));
     }
 
-
     /// <summary>A certificate verifier used by the tests to capture the peer connection info.</summary>
     private class Verifier : IceSSL.CertificateVerifier
     {
