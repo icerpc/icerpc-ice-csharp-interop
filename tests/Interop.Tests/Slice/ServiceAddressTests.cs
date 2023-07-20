@@ -2,10 +2,10 @@
 
 using Ice;
 using IceRpc;
-using IceRpc.Slice;
 using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
+using ZeroC.Slice;
 
 namespace Interop.Tests.Slice;
 

@@ -4,6 +4,7 @@ using Ice;
 using IceRpc.Slice;
 using System.Buffers;
 using System.IO.Pipelines;
+using ZeroC.Slice;
 
 namespace Interop.Tests;
 
