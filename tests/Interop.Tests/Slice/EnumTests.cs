@@ -1,7 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
 using Ice;
-using IceRpc.Slice;
 using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;

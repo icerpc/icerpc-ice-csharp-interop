@@ -101,7 +101,7 @@ public class ExceptionTests
     {
         var wiperException = new WiperException();
 
-        UnknownSliceException? exception = Assert.ThrowsAsync<UnknownSliceException> (
+        UnknownSliceException? exception = Assert.ThrowsAsync<UnknownSliceException>(
             async () => await IceToSliceAsync(wiperException, slicedFormat));
 
         Assert.That(exception.TypeId, Is.EqualTo("::Interop::Tests::Slice::WiperException"));
