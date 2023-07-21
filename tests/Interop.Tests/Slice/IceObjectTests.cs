@@ -1,9 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 using IceRpc;
-using IceRpc.Ice;
 using IceRpc.Slice;
+using IceRpc.Slice.Ice;
 using NUnit.Framework;
+using ZeroC.Slice;
 
 namespace Interop.Tests.Slice;
 
