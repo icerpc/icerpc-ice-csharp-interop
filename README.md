@@ -12,8 +12,7 @@ The test suite uses by default the Ice and IceRPC versions specified in [build/V
 Install the Slice compilers for the Ice version you want to test as described on the
 [Ice for C# download page](https://zeroc.com/downloads/ice/3.7/csharp).
 
-> **Note**
-> IceRPC for C# and Ice for C# have distinct Slice compilers for C# to compile Slice definitions into C# code. These
+> IceRPC for C# and Ice for C# provide distinct Slice compilers to compile Slice definitions into C# code. These
 > Slice compilers are native tools.
 > [IceRpc.Slice.Tools][icerpc-slice-tools] includes IceRPC's Slice compiler (`slicec-cs`) for all platforms while
 > [zeroc.ice.net][zeroc-ice-net] includes Ice's Slice compiler (`slice2cs`) only for Windows x86. This is why you need
