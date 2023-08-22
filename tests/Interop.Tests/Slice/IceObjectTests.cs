@@ -11,11 +11,11 @@ namespace Interop.Tests.Slice;
 [Parallelizable(scope: ParallelScope.All)]
 public class IceObjectTests
 {
-    /// <summary>An Ice client sends ice_ping to an IceRPC service.</summary>
+    /// <summary>An Ice client sends ice_ping to an IceRPC service that implements Ice::Object.</summary>
     [Test]
     public async Task Ice_ping_on_IceRPC_service()
     {
-        await using var server = new Server(new Service(), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new IceService(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Ice.Communicator communicator = Ice.Util.initialize();
@@ -86,5 +86,9 @@ public class IceObjectTests
         // Act/Assert
         string[] ids = await proxy1.IceIdsAsync();
         Assert.That(async () => await proxy2.ice_idsAsync(), Is.EqualTo(ids));
+    }
+
+    internal class IceService : Service, IIceObjectService
+    {
     }
 }

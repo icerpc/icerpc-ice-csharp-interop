@@ -17,23 +17,23 @@ public class ConnectionTests
         {
             string errorMessage = "super custom error message";
 
-            yield return new TestCaseData(new ObjectNotExistException(), StatusCode.ServiceNotFound, null);
-            yield return new TestCaseData(new FacetNotExistException(), StatusCode.ServiceNotFound, null);
-            yield return new TestCaseData(new OperationNotExistException(), StatusCode.OperationNotFound, null);
+            yield return new TestCaseData(new ObjectNotExistException(), StatusCode.NotFound, null);
+            yield return new TestCaseData(new FacetNotExistException(), StatusCode.NotFound, null);
+            yield return new TestCaseData(new OperationNotExistException(), StatusCode.NotImplemented, null);
 
             yield return new TestCaseData(
                 new UnknownException(errorMessage),
-                StatusCode.UnhandledException,
+                StatusCode.InternalError,
                 errorMessage);
 
             yield return new TestCaseData(
                 new UnknownLocalException(errorMessage),
-                StatusCode.UnhandledException,
+                StatusCode.InternalError,
                 errorMessage);
 
             yield return new TestCaseData(
                 new UnknownUserException(errorMessage),
-                StatusCode.UnhandledException,
+                StatusCode.InternalError,
                 errorMessage);
         }
     }
@@ -116,10 +116,10 @@ public class ConnectionTests
     }
 
     /// <summary>Sends a failure from IceRPC to Ice.</summary>
-    [TestCase(StatusCode.ServiceNotFound, typeof(ObjectNotExistException))]
-    [TestCase(StatusCode.OperationNotFound, typeof(OperationNotExistException))]
-    [TestCase(StatusCode.UnhandledException, typeof(UnknownException))]
-    [TestCase(StatusCode.DeadlineExpired, typeof(UnknownException))]
+    [TestCase(StatusCode.NotFound, typeof(ObjectNotExistException))]
+    [TestCase(StatusCode.NotImplemented, typeof(OperationNotExistException))]
+    [TestCase(StatusCode.InternalError, typeof(UnknownException))]
+    [TestCase(StatusCode.DeadlineExceeded, typeof(UnknownException))]
     [TestCase((StatusCode)999, typeof(UnknownException))]
     public async Task Send_failure_from_IceRPC_to_Ice(StatusCode statusCode, Type exceptionType)
     {
@@ -193,7 +193,7 @@ public class ConnectionTests
 
         // Assert
         Assert.That(readResult.Buffer.ToArray(), Is.EqualTo(expectedPayload));
-        Assert.That(response.StatusCode, Is.EqualTo(success ? StatusCode.Success : StatusCode.ApplicationError));
+        Assert.That(response.StatusCode, Is.EqualTo(success ? StatusCode.Ok : StatusCode.ApplicationError));
     }
 
     /// <summary>Sends a failure from Ice to IceRPC.</summary>

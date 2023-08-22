@@ -16,7 +16,7 @@ class Bicycle : Vehicle {
 
 [cs::identifier("TruckTwin")]
 class Truck : Vehicle {
-    cargo: sequence<Vehicle>
+    cargo: Sequence<Vehicle>
 }
 
 // Only in .slice file
