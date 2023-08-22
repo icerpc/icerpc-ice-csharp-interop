@@ -1,3 +1,4 @@
 {
   "cSpell.showStatus": true,
+  "dotnet.defaultSolution": "Interop.Tests.sln",
 }

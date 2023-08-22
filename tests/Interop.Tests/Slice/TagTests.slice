@@ -24,9 +24,9 @@ interface TagTest {
 
     opSequence(
         tag(0) str: string?
-        tag(1) oneByteSeq: sequence<OneByte>?
-        tag(5) pointSeq: sequence<Point>?
-        tag(10) stringSeq: sequence<string>?
+        tag(1) oneByteSeq: Sequence<OneByte>?
+        tag(5) pointSeq: Sequence<Point>?
+        tag(10) stringSeq: Sequence<string>?
     )
 
     // slicec does not accept tagged parameters with a class type.

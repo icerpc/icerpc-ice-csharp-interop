@@ -73,11 +73,11 @@ public class ExceptionTests
     {
         var tirePressureException = new TirePressureException("FrontRight");
 
-        // IceRPC-Slice enforces exception specifications on the dispatch-side while Ice-Slice enforces exception
-        // specifications on the invoke-side; here, the exception goes through.
+        // IceRPC-Slice enforces exception specifications on both sides while Ice-Slice enforces exception
+        // specifications on the invoke-side.
         Assert.That(
             async () => await IceToSliceAsync(tirePressureException, slicedFormat),
-            Throws.TypeOf<TirePressureExceptionTwin>());
+            Throws.TypeOf<InvalidDataException>());
     }
 
     /// <summary>Throws an exception encoded with the .slice-generated code and decodes this exception with the
@@ -101,10 +101,9 @@ public class ExceptionTests
     {
         var wiperException = new WiperException();
 
-        UnknownSliceException? exception = Assert.ThrowsAsync<UnknownSliceException>(
-            async () => await IceToSliceAsync(wiperException, slicedFormat));
-
-        Assert.That(exception.TypeId, Is.EqualTo("::Interop::Tests::Slice::WiperException"));
+        Assert.That(
+            async () => await IceToSliceAsync(wiperException, slicedFormat),
+            Throws.InstanceOf<InvalidDataException>());
     }
 
     private static async Task IceToSliceAsync(UserException userException, bool slicedFormat)
