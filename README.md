@@ -37,7 +37,7 @@ This command executes all tests known to the `Interop.Tests.sln` solution. See
 
 [ci-badge]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml/badge.svg
 [ci-home]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/dotnet.yaml
-[icerpc-csharp]: https://github.com:zeroc-ice/icerpc-csharp
+[icerpc-csharp]: https://github.com:icerpc/icerpc-csharp
 [icerpc-slice-tools]: https://www.nuget.org/packages/icerpc.slice.tools
 [ice-csharp]: https://github.com:zeroc-ice/ice
 [zeroc-ice-net]: https://www.nuget.org/packages/zeroc.ice.net
