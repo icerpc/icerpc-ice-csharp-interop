@@ -41,3 +41,4 @@ This command executes all tests known to the `Interop.Tests.sln` solution. See
 [icerpc-slice-tools]: https://www.nuget.org/packages/icerpc.slice.tools
 [ice-csharp]: https://github.com/zeroc-ice/ice
 [zeroc-ice-net]: https://www.nuget.org/packages/zeroc.ice.net
+[license]: https://github.com/icerpc/icerpc-ice-csharp-interop/blob/main/LICENSE
