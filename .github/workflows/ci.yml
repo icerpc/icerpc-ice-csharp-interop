@@ -54,17 +54,10 @@ jobs:
       uses: actions/checkout@master
       with:
         repository: icerpc/icerpc-csharp
-        token: ${{ secrets.ICERPC_CSHARP_READ_TOKEN }}
         path: 'icerpc-csharp'
-    - name: 🔗 Start SSH Agent
-      uses: webfactory/ssh-agent@v0.7.0
-      with:
-        ssh-private-key: ${{ secrets.SLICEC_DEPLOY_KEY }}
     - name: 🔨 Build and Publish IceRPC NuGet packages
       working-directory: icerpc-csharp
       run:  ./build.sh --publish
-      env:
-        CARGO_NET_GIT_FETCH_WITH_CLI: true
     - name: 🔨 Build Tests
       run: dotnet build
     - name: 🧪 Run Tests
