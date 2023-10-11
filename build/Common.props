@@ -9,9 +9,11 @@
         <WarningLevel>4</WarningLevel>
         <DefineConstants>TRACE</DefineConstants>
         <Nullable>enable</Nullable>
-        <TargetFramework>net7.0</TargetFramework>
-        <LangVersion>11.0</LangVersion>
+        <TargetFramework>net8.0</TargetFramework>
+        <LangVersion>12.0</LangVersion>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+        <!-- TODO: remove when upgrading to Ice 3.7.10 -->
+        <WarningsNotAsErrors>CS0672, SYSLIB0051</WarningsNotAsErrors>
         <AnalysisMode>All</AnalysisMode>
         <ImplicitUsings>true</ImplicitUsings>
     </PropertyGroup>
