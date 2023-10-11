@@ -7,7 +7,7 @@ module Interop::Tests::Slice
 [cs::identifier("EngineExceptionTwin")]
 exception EngineException {
     errorCode: string
- }
+}
 
 [cs::identifier("CylinderExceptionTwin")]
 exception CylinderException : EngineException {

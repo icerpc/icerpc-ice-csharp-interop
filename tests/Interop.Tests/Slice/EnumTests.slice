@@ -5,7 +5,6 @@ mode = Slice1
 module Interop::Tests::Slice
 
 [cs::identifier("MyEnumTwin")]
-enum MyEnum
-{
+enum MyEnum {
     Enum1 = 187
 }
