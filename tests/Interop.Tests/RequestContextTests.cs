@@ -12,7 +12,7 @@ using System.Collections.Immutable;
 namespace Interop.Tests;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class RequestContextTests
+public partial class RequestContextTests
 {
     private static IEnumerable<IDictionary<string, string>> RequestContextSource
     {
@@ -83,7 +83,8 @@ public class RequestContextTests
         }
     }
 
-    private class ChatbotTwin : Service, IGreeterService
+    [SliceService]
+    private partial class ChatbotTwin : IGreeterService
     {
         public IDictionary<string, string> RequestContext { get; private set; } =
             ImmutableDictionary<string, string>.Empty;

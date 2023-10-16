@@ -27,7 +27,7 @@ public class OperationTests
     [Test]
     public async Task Request_from_ice_client()
     {
-        await using var server = new Server(new ChatbotTwin(), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new Chatbot(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using Communicator communicator = Util.initialize();

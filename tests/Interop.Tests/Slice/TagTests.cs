@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class TagTests
+public partial class TagTests
 {
     private static IEnumerable<TestCaseData> IceClassSource
     {
@@ -340,7 +340,8 @@ public class TagTests
         }
     }
 
-    private class TagTestServiceTwin : Service, ITagTestService
+    [SliceService]
+    private partial class TagTestServiceTwin : ITagTestService
     {
         internal bool? F1 { get; private set; }
 
