@@ -10,7 +10,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class ExceptionTests
+public partial class ExceptionTests
 {
     /// <summary>Throws an exception encoded with the .ice-generated code and decodes this exception with the
     /// .slice-generated code.</summary>
@@ -139,7 +139,8 @@ public class ExceptionTests
         internal TestEngine(UserException userException) => _userException = userException;
     }
 
-    private class TestEngineTwin : Service, IEngineService
+    [SliceService]
+    private partial class TestEngineTwin : IEngineService
     {
         private readonly SliceException _sliceException;
 

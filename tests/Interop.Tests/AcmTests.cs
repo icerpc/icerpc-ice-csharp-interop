@@ -43,7 +43,8 @@ public class AcmTests
             {
                 ConnectionOptions = new ConnectionOptions
                 {
-                    Dispatcher = new IceRpc.Slice.Service(),
+                    Dispatcher = new InlineDispatcher(
+                        (request, cancellationToken) => new(new OutgoingResponse(request))),
                     EnableIceIdleCheck = enableIdleCheck,
                     IceIdleTimeout = TimeSpan.FromSeconds(3)
                 },
@@ -101,7 +102,8 @@ public class AcmTests
             {
                 ConnectionOptions = new ConnectionOptions
                 {
-                    Dispatcher = new IceRpc.Slice.Service(),
+                    Dispatcher = new InlineDispatcher(
+                        (request, cancellationToken) => new(new OutgoingResponse(request))),
                     EnableIceIdleCheck = enableIdleCheck,
                     IceIdleTimeout = TimeSpan.FromSeconds(2),
                     InactivityTimeout = TimeSpan.FromSeconds(3)
