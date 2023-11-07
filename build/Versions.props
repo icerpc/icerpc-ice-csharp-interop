@@ -6,6 +6,6 @@
         <StyleCopAnalyzersVersion>1.2.0-beta.435</StyleCopAnalyzersVersion>
         <!-- This version must match the IceRpcVersion on icerpc-csharp/main -->
         <IceRpcVersion Condition="'$(IceRpcVersion)' == ''">0.2.0-preview1</IceRpcVersion>
-        <IceVersion Condition="'$(IceVersion)' == ''">3.7.9</IceVersion>
+        <IceVersion Condition="'$(IceVersion)' == ''">3.7.10</IceVersion>
     </PropertyGroup>
 </Project>
