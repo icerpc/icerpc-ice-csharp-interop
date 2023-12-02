@@ -15,7 +15,7 @@ interface TagTest {
 
     opEnum(tag(1) fruit: Fruit?)
 
-    opServiceAddress(tag(1) serviceAddress: TagTest?) // TODO: replace by ServiceAddress?
+    opServiceAddress(tag(1) serviceAddress: IceRpc::ServiceAddress?)
 
     opStruct(
         tag(1) point: Point?

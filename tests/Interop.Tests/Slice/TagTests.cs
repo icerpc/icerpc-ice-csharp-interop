@@ -153,9 +153,7 @@ public partial class TagTests
     [TestCase("ice://localhost:10000/foo/bar")]
     public async Task Slice_tagged_service_address_to_ice_optional_proxy(ServiceAddress? serviceAddress)
     {
-        TagTestService service = await SliceToIceAsync(
-            proxy => proxy.OpServiceAddressAsync(
-                serviceAddress is null ? null : new TagTestProxy { ServiceAddress = serviceAddress }));
+        TagTestService service = await SliceToIceAsync(proxy => proxy.OpServiceAddressAsync(serviceAddress));
 
         Assert.That(
             service.ServiceAddress is null ? null : Util.identityToString(service.ServiceAddress.ice_getIdentity()),
@@ -408,11 +406,11 @@ public partial class TagTests
         }
 
         public ValueTask OpServiceAddressAsync(
-            TagTestProxy? serviceAddress,
+            ServiceAddress? serviceAddress,
             IFeatureCollection features,
             CancellationToken cancellationToken)
         {
-            ServiceAddress = serviceAddress?.ServiceAddress;
+            ServiceAddress = serviceAddress;
             return default;
         }
 
