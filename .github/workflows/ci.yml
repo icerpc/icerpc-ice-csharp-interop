@@ -2,9 +2,9 @@ name: ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["main", "0.2.x"]
   pull_request:
-    branches: ["main"]
+    branches: ["main", "0.2.x"]
   schedule:
     # Run every day at 6:00 UTC
     - cron: '00 6 * * *'
@@ -37,11 +37,6 @@ jobs:
         key: ${{ runner.os }}-cargo-${{ hashFiles('**/Cargo.lock') }}
         restore-keys: |
           ${{ runner.os }}-cargo-
-    - name: 🔗 Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: '8.0.x'
-        dotnet-quality: 'preview'
     - name: Setup Ice 3.7
       run: |
         sudo mkdir -p /etc/apt/keyrings
@@ -51,14 +46,6 @@ jobs:
           | sudo tee /etc/apt/sources.list.d/zeroc-ice-3.7.list
         sudo apt-get update
         sudo apt-get install zeroc-ice-slice zeroc-ice-compilers
-    - name: Check out IceRPC for C# repository
-      uses: actions/checkout@master
-      with:
-        repository: icerpc/icerpc-csharp
-        path: 'icerpc-csharp'
-    - name: 🔨 Build and Publish IceRPC NuGet packages
-      working-directory: icerpc-csharp
-      run:  ./build.sh --publish
     - name: 🔨 Build Tests
       run: dotnet build
     - name: 🧪 Run Tests

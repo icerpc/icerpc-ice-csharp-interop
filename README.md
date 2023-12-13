@@ -1,6 +1,6 @@
 # The IceRPC-Ice C# Interop Tests
 
-[![CI](https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/ci.yml/badge.svg)][ci-home]
+[![CI](https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/ci.yml/badge.svg?branch=0.2.x)][ci-home]
 [![License](https://img.shields.io/github/license/icerpc/icerpc-ice-csharp-interop?color=blue)][license]
 
 This repository provides a test suite to verify that [IceRPC for C#][icerpc-csharp] interoperates with
@@ -36,7 +36,7 @@ dotnet test
 This command executes all tests known to the `Interop.Tests.sln` solution. See
 [dotnet-test](https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test) for additional options.
 
-[ci-home]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/ci.yml
+[ci-home]: https://github.com/icerpc/icerpc-ice-csharp-interop/actions/workflows/ci.yml?query=branch%3A0.2.x
 [icerpc-csharp]: https://github.com/icerpc/icerpc-csharp
 [icerpc-slice-tools]: https://www.nuget.org/packages/icerpc.slice.tools
 [ice-csharp]: https://github.com/zeroc-ice/ice
