@@ -17,24 +17,30 @@ public class ConnectionTests
         {
             string errorMessage = "super custom error message";
 
-            yield return new TestCaseData(new ObjectNotExistException(), StatusCode.NotFound, null);
-            yield return new TestCaseData(new FacetNotExistException(), StatusCode.NotFound, null);
-            yield return new TestCaseData(new OperationNotExistException(), StatusCode.NotImplemented, null);
+            yield return new TestCaseData(new ObjectNotExistException(), StatusCode.NotFound, null)
+                .SetName("Send_failure_from_Ice_to_IceRPC(ObjectNotExistException)");
+            yield return new TestCaseData(new FacetNotExistException(), StatusCode.NotFound, null)
+                .SetName("Send_failure_from_Ice_to_IceRPC(FacetNotExistException)");
+            yield return new TestCaseData(new OperationNotExistException(), StatusCode.NotImplemented, null)
+                .SetName("Send_failure_from_Ice_to_IceRPC(OperationNotExistException)");
 
             yield return new TestCaseData(
                 new UnknownException(errorMessage),
                 StatusCode.InternalError,
-                errorMessage);
+                errorMessage)
+                .SetName("Send_failure_from_Ice_to_IceRPC(UnknownException)");
 
             yield return new TestCaseData(
                 new UnknownLocalException(errorMessage),
                 StatusCode.InternalError,
-                errorMessage);
+                errorMessage)
+                .SetName("Send_failure_from_Ice_to_IceRPC(UnknownLocalException)");
 
             yield return new TestCaseData(
                 new UnknownUserException(errorMessage),
                 StatusCode.InternalError,
-                errorMessage);
+                errorMessage)
+                .SetName("Send_failure_from_Ice_to_IceRPC(UnknownUserException)");
         }
     }
 
