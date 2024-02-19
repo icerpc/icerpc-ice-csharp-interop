@@ -59,9 +59,6 @@
     "zeroc",
     "Zipkin"
   ],
-  "dictionaries": [
-    "csharp",
-    "softwareTerms",
-    "en_US"
-  ]
+  "dictionaries": ["csharp", "softwareTerms", "en_US"],
+  "enableFiletypes": ["ice", "slice"]
 }
