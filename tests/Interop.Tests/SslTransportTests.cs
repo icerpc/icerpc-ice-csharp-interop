@@ -16,8 +16,8 @@ public class SslTransportTests
     {
         // Arrange
         using var caCertificate = new X509Certificate2("cacert.der");
-        using var serverCertificate = new X509Certificate2("server.p12");
-        using var clientCertificate = new X509Certificate2("client.p12");
+        using var serverCertificate = new X509Certificate2("server.p12", "password");
+        using var clientCertificate = new X509Certificate2("client.p12", "password");
         X509Certificate2? peerCertificate = null;
         await using var server = new Server(
             new InlineDispatcher((request, cancellationToken) => throw new NotImplementedException()),
@@ -41,6 +41,7 @@ public class SslTransportTests
             "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory",
             "--IceSSL.CertFile=client.p12",
             "--IceSSL.CAs=cacert.der",
+            "--IceSSL.Password=password"
         };
         using Communicator communicator = Util.initialize(ref args);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress with { Transport = "ssl" });
@@ -68,6 +69,7 @@ public class SslTransportTests
             "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory",
             "--IceSSL.CertFile=server.p12",
             "--IceSSL.CAs=cacert.der",
+            "--IceSSL.Password=password"
         };
 
         using Communicator communicator = Util.initialize(ref args);
@@ -78,8 +80,8 @@ public class SslTransportTests
         adapter.activate();
 
         using var caCertificate = new X509Certificate2("cacert.der");
-        using var serverCertificate = new X509Certificate2("server.p12");
-        using var clientCertificate = new X509Certificate2("client.p12");
+        using var serverCertificate = new X509Certificate2("server.p12", "password");
+        using var clientCertificate = new X509Certificate2("client.p12", "password");
         X509Certificate2? peerCertificate = null;
         await using var clientConnection = new ClientConnection(
             adapter.GetFirstServerAddress(),
