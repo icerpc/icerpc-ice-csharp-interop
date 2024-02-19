@@ -138,7 +138,7 @@ public class ClassTests
     {
         var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
 
-        var bicycleTwin1 = new RacingBicycle("b1", hasBasket: false, maxSpeed: 60.0);
+        var bicycleTwin1 = new RacingBicycleTwin("b1", hasBasket: false, maxSpeed: 60.0);
         truckTwin.Cargo.Add(bicycleTwin1);
         truckTwin.Cargo.Add(new BicycleTwin("b2", hasBasket: false));
         truckTwin.Cargo.Add(bicycleTwin1);
@@ -200,7 +200,7 @@ public class ClassTests
     {
         var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
 
-        var bicycleTwin1 = new RacingBicycle("b1", hasBasket: false, maxSpeed: 60.0);
+        var bicycleTwin1 = new RacingBicycleTwin("b1", hasBasket: false, maxSpeed: 60.0);
         truckTwin.Cargo.Add(bicycleTwin1);
         truckTwin.Cargo.Add(new BicycleTwin("b2", hasBasket: false));
         truckTwin.Cargo.Add(bicycleTwin1);
@@ -221,10 +221,10 @@ public class ClassTests
             (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
 
         Assert.That(newTruckTwin.Cargo, Has.Count.EqualTo(truckTwin.Cargo.Count));
-        Assert.That(newTruckTwin.Cargo[0], Is.InstanceOf<RacingBicycle>());
+        Assert.That(newTruckTwin.Cargo[0], Is.InstanceOf<RacingBicycleTwin>());
         Assert.That(newTruckTwin.Cargo[1], Is.InstanceOf<BicycleTwin>());
         Assert.That(newTruckTwin.Cargo[2], Is.SameAs(newTruckTwin.Cargo[0]));
-        Assert.That(((RacingBicycle)newTruckTwin.Cargo[0]).MaxSpeed, Is.EqualTo(bicycleTwin1.MaxSpeed));
+        Assert.That(((RacingBicycleTwin)newTruckTwin.Cargo[0]).MaxSpeed, Is.EqualTo(bicycleTwin1.MaxSpeed));
     }
 
     private static T IceToSlice<T>(bool slicedFormat, Action<OutputStream> encodeAction, DecodeFunc<T> decodeFunc)
