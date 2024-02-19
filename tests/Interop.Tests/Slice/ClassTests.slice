@@ -20,8 +20,8 @@ class Truck : Vehicle {
 }
 
 // Only in .slice file
-// We need to use cs::identifier otherwise Ice will find the ZeroC.Slice-generated RacingBicyleTwin class when it tries
-// to decode type ID "::Interop::Tests::Slice::RacingBicyle".
+// We need to use cs::identifier otherwise Ice will find the ZeroC.Slice -generated RacingBicycleTwin class when it
+// tries to decode type ID "::Interop::Tests::Slice::RacingBicycle".
 [cs::identifier("RacingBicycleTwin")]
 class RacingBicycle : Bicycle {
     maxSpeed: float64
