@@ -3,5 +3,6 @@
         "EditorConfig.EditorConfig",
         "ms-dotnettools.csharp",
         "streetsidesoftware.code-spell-checker",
+        "ZeroCInc.slice"
     ]
 }
