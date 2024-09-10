@@ -58,7 +58,7 @@ public partial class ExceptionTests
     [Test]
     public void Slice_exception_to_ice_exception_with_slicing()
     {
-        var batteryException = new BatteryException("bt123", 5.4f);
+        var batteryException = new BatteryExceptionTwin("bt123", 5.4f);
 
         EngineException? exception = Assert.ThrowsAsync<EngineException>(
             async () => await SliceToIceAsync(batteryException));
