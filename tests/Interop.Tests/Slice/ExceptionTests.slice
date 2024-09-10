@@ -15,6 +15,8 @@ exception CylinderException : EngineException {
 }
 
 // Only defined in .slice file.
+// Use Twin suffix otherwise Ice will find and instantiate the Slice-generated class.
+[cs::identifier("BatteryExceptionTwin")]
 exception BatteryException : EngineException {
     voltage: float32
 }
