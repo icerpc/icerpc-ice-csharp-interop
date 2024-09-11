@@ -114,7 +114,7 @@ public class ConnectionTests
         Object_Ice_invokeResult result = await proxy.IceInvokeAsync(
             operation: "op",
             mode: OperationMode.Normal,
-            Array.Empty<byte>());
+            []);
 
         // Assert
         Assert.That(result.outEncaps[6..], Is.EqualTo(expectedPayload));
@@ -139,7 +139,7 @@ public class ConnectionTests
 
         // Act/Assert
         Assert.That(
-            async () => await proxy.IceInvokeAsync(operation: "op", mode: OperationMode.Normal, Array.Empty<byte>()),
+            async () => await proxy.IceInvokeAsync(operation: "op", mode: OperationMode.Normal, []),
             Throws.InstanceOf(exceptionType));
     }
 
@@ -210,7 +210,7 @@ public class ConnectionTests
         string? errorMessage)
     {
         // Arrange
-        string[] args = new string[] { "--Ice.Warn.Dispatch=0" };
+        string[] args = ["--Ice.Warn.Dispatch=0"];
         using Communicator communicator = Util.initialize(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(new InlineBlobject((payload, current) => throw systemException), "");
