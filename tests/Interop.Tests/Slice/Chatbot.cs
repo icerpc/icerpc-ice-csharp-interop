@@ -12,10 +12,12 @@ namespace Interop.Tests.Slice;
 [SliceService]
 public partial class Chatbot : GreeterDisp_, IGreeterService, IIceObjectService
 {
-    public override string greet(string name, Current current) => $"Hello, {name}!";
+    public override string greet(string name, Current current) => CreateGreeting(name);
 
     public ValueTask<string> GreetAsync(
         string name,
         IFeatureCollection features,
-        CancellationToken cancellationToken) => new(greet(name, null!));
+        CancellationToken cancellationToken) => new(CreateGreeting(name));
+
+    private static string CreateGreeting(string name) => $"Hello, {name}!";
 }
