@@ -3,7 +3,6 @@
   <PropertyGroup>
     <!-- Missing XML comment for publicly visible type or member. -->
     <NoWarn>CS1591</NoWarn>
-    <IceRpcBuildTelemetry>false</IceRpcBuildTelemetry>
   </PropertyGroup>
 
   <ItemGroup>
