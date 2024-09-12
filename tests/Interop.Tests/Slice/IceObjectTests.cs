@@ -49,7 +49,7 @@ public partial class IceObjectTests
         using Ice.Communicator communicator = Ice.Util.initialize();
         Ice.ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
-        Assert.That(async () => await proxy.ice_isAAsync(typeof(GreeterProxy).GetSliceTypeId()), Is.True);
+        Assert.That(async () => await proxy.ice_isAAsync(typeof(GreeterProxy).GetSliceTypeId()!), Is.True);
     }
 
     /// <summary>An IceRPC client sends ice_isA to an Ice object.</summary>

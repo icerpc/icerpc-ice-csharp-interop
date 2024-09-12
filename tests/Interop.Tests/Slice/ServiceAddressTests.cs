@@ -32,10 +32,8 @@ public class ServiceAddressTests
     {
         // Arrange
 
-        // We need to load the IceSSL plugin to parse ssl and wss endpoints.
-        string[] args = new string[] { "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory" };
-        using Communicator communicator = Util.initialize(ref args);
-        ObjectPrx iceProxy = communicator.stringToProxy(iceString);
+        using Communicator communicator = Util.initialize();
+        ObjectPrx iceProxy = ObjectPrxHelper.createProxy(communicator, iceString);
 
         byte[] buffer = EncodeIceProxy(iceProxy);
         var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
@@ -44,9 +42,10 @@ public class ServiceAddressTests
         var inputStream = new InputStream(communicator, EncodeServiceAddress(serviceAddress));
 
         // Act
-        ObjectPrx newIceProxy = inputStream.readProxy();
+        ObjectPrx? newIceProxy = inputStream.readProxy();
 
         // Assert
+        Assert.That(newIceProxy, Is.Not.Null);
         Assert.That(decoder.Consumed, Is.EqualTo(buffer.Length));
         Assert.That(newIceProxy.ice_getIdentity(), Is.EqualTo(iceProxy.ice_getIdentity()));
         Assert.That(newIceProxy.ice_getFacet(), Is.EqualTo(iceProxy.ice_getFacet()));
@@ -76,14 +75,12 @@ public class ServiceAddressTests
     {
         // Arrange
 
-        // We need to load the IceSSL plugin to decode ssl endpoints.
-        string[] args = new string[] { "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory" };
-        using Communicator communicator = Util.initialize(ref args);
+        using Communicator communicator = Util.initialize();
 
         var inputStream = new InputStream(communicator, EncodeServiceAddress(serviceAddress));
-        ObjectPrx iceProxy = inputStream.readProxy();
+        ObjectPrx? iceProxy = inputStream.readProxy();
 
-        byte[] buffer = EncodeIceProxy(iceProxy);
+        byte[] buffer = EncodeIceProxy(iceProxy!);
         var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
 
         // Act

@@ -13,6 +13,8 @@ public static class CommunicatorExtensions
         ServerAddress serverAddress)
     {
         string transport = serverAddress.Transport ?? "default";
-        return communicator.stringToProxy($"{identity}:{transport} -h {serverAddress.Host} -p {serverAddress.Port}");
+        return Ice.ObjectPrxHelper.createProxy(
+            communicator,
+            $"{identity}:{transport} -h {serverAddress.Host} -p {serverAddress.Port}");
     }
 }
