@@ -1,40 +1,34 @@
 // Copyright (c) ZeroC, Inc.
 
-module Interop
+module Interop::Tests::Slice
 {
-    module Tests
+    exception EngineException
     {
-        module Slice
-        {
-            exception EngineException
-            {
-                string errorCode;
-            }
+        string errorCode;
+    }
 
-            exception CylinderException extends EngineException
-            {
-                int cylinder;
-            }
+    exception CylinderException extends EngineException
+    {
+        int cylinder;
+    }
 
-            // Only defined in .ice file.
-            exception FuelPumpException extends EngineException
-            {
-            }
+    // Only defined in .ice file.
+    exception FuelPumpException extends EngineException
+    {
+    }
 
-            exception TirePressureException
-            {
-                string tireId;
-            }
+    exception TirePressureException
+    {
+        string tireId;
+    }
 
-            // Only defined in .ice file.
-            exception WiperException
-            {
-            }
+    // Only defined in .ice file.
+    exception WiperException
+    {
+    }
 
-            interface Engine
-            {
-                void start() throws EngineException;
-            }
-        }
+    interface Engine
+    {
+        void start() throws EngineException;
     }
 }

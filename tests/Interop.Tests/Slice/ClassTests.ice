@@ -1,34 +1,28 @@
 // Copyright (c) ZeroC, Inc.
 
-module Interop
+module Interop::Tests::Slice
 {
-    module Tests
+    class Vehicle
     {
-        module Slice
-        {
-            class Vehicle
-            {
-                string name;
-            }
+        string name;
+    }
 
-            sequence<Vehicle> VehicleSeq;
+    sequence<Vehicle> VehicleSeq;
 
-            // preserve-slice for Slice-preservation test.
-            ["preserve-slice"] class Bicycle extends Vehicle
-            {
-                bool hasBasket;
-            }
+    // preserve-slice for Slice-preservation test.
+    ["preserve-slice"] class Bicycle extends Vehicle
+    {
+        bool hasBasket;
+    }
 
-            class Truck extends Vehicle
-            {
-                VehicleSeq cargo;
-            }
+    class Truck extends Vehicle
+    {
+        VehicleSeq cargo;
+    }
 
-            // Only in .ice file.
-            class MountainBike extends Bicycle
-            {
-                string suspensionType;
-            }
-        }
+    // Only in .ice file.
+    class MountainBike extends Bicycle
+    {
+        string suspensionType;
     }
 }

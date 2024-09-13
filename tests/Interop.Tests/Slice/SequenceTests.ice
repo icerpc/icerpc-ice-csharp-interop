@@ -2,13 +2,7 @@
 
 // With Slice1, a sequence is encoded as a size for the number of elements followed by the encoded elements.
 
-module Interop
+module Interop::Tests::Slice
 {
-    module Tests
-    {
-        module Slice
-        {
-            sequence<short> ShortSeq;
-        }
-    }
+    sequence<short> ShortSeq;
 }

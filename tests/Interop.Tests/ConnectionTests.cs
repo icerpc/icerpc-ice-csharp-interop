@@ -56,6 +56,140 @@ public class ConnectionTests
         Assert.That(async () => await clientConnection.ConnectAsync(), Throws.Nothing);
     }
 
+    /// <summary>Verifies an IceRPC->Ice connection remains alive after idling for > idle timeout. That's because the
+    /// both sides use the same idle timeout / enable idle check mechanism (as of Ice 3.8 / IceRPC 0.4).
+    /// </summary>
+    [Test]
+    public async Task Idle_connection_to_Ice_server_remains_alive()
+    {
+        const int idleTimeout = 3; // in seconds
+
+        string[] args = [ $"--Ice.Connection.Server.IdleTimeout={idleTimeout}" ];
+        using Communicator communicator = Util.initialize(ref args);
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
+        adapter.activate();
+
+        var clientConnectionFactory = new ClientProtocolConnectionFactory(
+            new ConnectionOptions { IceIdleTimeout = TimeSpan.FromSeconds(idleTimeout) });
+
+        await using IProtocolConnection clientConnection =
+            clientConnectionFactory.CreateConnection(adapter.GetFirstServerAddress());
+
+        Task shutdownRequested = (await clientConnection.ConnectAsync()).ShutdownRequested;
+
+        // Act/Assert
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        Assert.That(shutdownRequested.IsCompleted, Is.False);
+    }
+
+    /// <summary>Verifies an Ice->IceRPC connection remains alive after idling for > idle timeout.
+    /// </summary>
+    [Test]
+    public async Task Idle_connection_to_IceRpc_server_remains_alive()
+    {
+        const int idleTimeout = 3; // in seconds
+
+        await using var server = new Server(
+            new ServerOptions
+            {
+                ConnectionOptions = new ConnectionOptions
+                {
+                    Dispatcher = new InlineDispatcher(
+                        (request, cancellationToken) => new(new IceRpc.OutgoingResponse(request))),
+                    IceIdleTimeout = TimeSpan.FromSeconds(idleTimeout)
+                },
+                ServerAddress = new ServerAddress(new Uri("ice://127.0.0.1:0")),
+            });
+
+        ServerAddress serverAddress = server.Listen();
+
+        string[] args = [ $"--Ice.Connection.Client.IdleTimeout={idleTimeout}" ];
+        using Communicator communicator = Util.initialize(ref args);
+        ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
+
+        bool connectionClosed = false;
+        Connection? connection = await proxy.ice_getConnectionAsync();
+        connection!.setCloseCallback(_ => connectionClosed = true);
+
+        // Act/Assert
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        Assert.That(connectionClosed, Is.False);
+    }
+
+    /// <summary>Verifies an IceRPC->Ice connection is shut down when inactive. That's because the inactivity timeout
+    /// shuts down the connection.</summary>
+    [Test]
+    public async Task Inactive_connection_to_Ice_is_shutdown([Values] bool byIceRpc)
+    {
+        const int idleTimeout = 1; // in seconds
+        const int inactivityTimeout = 3; // in seconds
+
+        string[] args =
+        [
+            $"--Ice.Connection.Server.IdleTimeout={idleTimeout}",
+            $"--Ice.Connection.Server.InactivityTimeout={(byIceRpc ? 0 : inactivityTimeout)}"
+        ];
+
+        using Communicator communicator = Util.initialize(ref args);
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
+        adapter.activate();
+
+        var clientConnectionFactory = new ClientProtocolConnectionFactory(
+            new ConnectionOptions
+            {
+                IceIdleTimeout = TimeSpan.FromSeconds(idleTimeout),
+                InactivityTimeout = byIceRpc ? TimeSpan.FromSeconds(inactivityTimeout) : Timeout.InfiniteTimeSpan
+            });
+
+        await using IProtocolConnection clientConnection =
+            clientConnectionFactory.CreateConnection(adapter.GetFirstServerAddress());
+
+        Task shutdownRequested = (await clientConnection.ConnectAsync()).ShutdownRequested;
+
+        // Act/Assert
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        Assert.That(shutdownRequested.IsCompleted, Is.True);
+    }
+
+    /// <summary>Verifies an Ice->IceRPC connection is shut down when inactive.</summary>
+    [Test]
+    public async Task Inactive_connection_to_IceRpc_is_shutdown([Values] bool byIceRpc)
+    {
+        const int idleTimeout = 1; // in seconds
+        const int inactivityTimeout = 3; // in seconds
+
+        await using var server = new Server(
+            new ServerOptions
+            {
+                ConnectionOptions = new ConnectionOptions
+                {
+                    Dispatcher = new InlineDispatcher(
+                        (request, cancellationToken) => new(new IceRpc.OutgoingResponse(request))),
+                    IceIdleTimeout = TimeSpan.FromSeconds(idleTimeout),
+                    InactivityTimeout = byIceRpc ? TimeSpan.FromSeconds(inactivityTimeout) : Timeout.InfiniteTimeSpan,
+                },
+                ServerAddress = new ServerAddress(new Uri("ice://127.0.0.1:0")),
+            });
+
+        ServerAddress serverAddress = server.Listen();
+
+        string[] args =
+        [
+            $"--Ice.Connection.Client.IdleTimeout={idleTimeout}",
+            $"--Ice.Connection.Client.InactivityTimeout={(byIceRpc ? 0 : inactivityTimeout)}"
+        ];
+        using var communicator = Util.initialize(ref args);
+        ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
+
+        bool connectionClosed = false;
+        Connection? connection = await proxy.ice_getConnectionAsync();
+        connection!.setCloseCallback(_ => connectionClosed = true);
+
+        // Act/Assert
+        await Task.Delay(TimeSpan.FromSeconds(5));
+        Assert.That(connectionClosed, Is.True);
+    }
+
     /// <summary>Sends a request from Ice to IceRPC.</summary>
     [Test]
     public async Task Send_request_from_Ice_to_IceRpc([Values] bool oneway)
@@ -70,7 +204,7 @@ public class ConnectionTests
                 cancellationToken);
             tcs.SetResult(readResult.Buffer.ToArray());
             request.Payload.AdvanceTo(readResult.Buffer.End);
-            return new OutgoingResponse(request);
+            return new IceRpc.OutgoingResponse(request);
         });
         await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
@@ -100,8 +234,8 @@ public class ConnectionTests
         {
             var payload = PipeReader.Create(new ReadOnlySequence<byte>(expectedPayload));
             return new(success ?
-                new OutgoingResponse(request) { Payload = payload } :
-                new OutgoingResponse(request, StatusCode.ApplicationError, "") { Payload = payload });
+                new IceRpc.OutgoingResponse(request) { Payload = payload } :
+                new IceRpc.OutgoingResponse(request, StatusCode.ApplicationError, "") { Payload = payload });
         });
 
         await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
@@ -130,7 +264,7 @@ public class ConnectionTests
     public async Task Send_failure_from_IceRPC_to_Ice(StatusCode statusCode, Type exceptionType)
     {
         var dispatcher = new InlineDispatcher((request, cancellationToken) =>
-            new(new OutgoingResponse(request, statusCode, "error message")));
+            new(new IceRpc.OutgoingResponse(request, statusCode, "error message")));
         await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 

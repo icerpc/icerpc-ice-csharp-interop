@@ -1,15 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-module Interop
+module Interop::Tests::Slice
 {
-    module Tests
+    interface Greeter
     {
-        module Slice
-        {
-            interface Greeter
-            {
-                string greet(string name);
-            }
-        }
+        string greet(string name);
     }
 }

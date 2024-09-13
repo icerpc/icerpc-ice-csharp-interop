@@ -1,15 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
-module Interop
+module Interop::Tests::Slice
 {
-    module Tests
+    enum MyEnum
     {
-        module Slice
-        {
-            enum MyEnum
-            {
-                Enum1 = 187
-            }
-        }
+        Enum1 = 187
     }
 }

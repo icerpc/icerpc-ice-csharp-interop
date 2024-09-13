@@ -14,7 +14,7 @@ public static class ObjectPrxExtensions
         string operation,
         OperationMode mode,
         byte[] payload,
-        OptionalContext context = default,
+        Dictionary<string, string>? context = null,
         IProgress<bool>? progress = null,
         CancellationToken cancel = default) =>
         prx.ice_invokeAsync(operation, mode, payload.ToEncapsulation(), context, progress, cancel);

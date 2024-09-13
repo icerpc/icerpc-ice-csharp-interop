@@ -134,7 +134,7 @@ public partial class ExceptionTests
     {
         private readonly UserException _userException;
 
-        public override void start(Current? current = null) => throw _userException;
+        public override void start(Current current) => throw _userException;
 
         internal TestEngine(UserException userException) => _userException = userException;
     }
