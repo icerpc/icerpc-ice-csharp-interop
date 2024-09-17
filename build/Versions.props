@@ -3,7 +3,8 @@
     <PropertyGroup>
         <!-- TODO update to 1.2 stable release https://github.com/DotNetAnalyzers/StyleCopAnalyzers/pull/3187#issuecomment-1043221630 -->
         <StyleCopAnalyzersVersion>1.2.0-beta.507</StyleCopAnalyzersVersion>
-        <IceRpcVersion Condition="'$(IceRpcVersion)' == ''">0.4.0.1</IceRpcVersion>
+        <!-- Keep in sync with version in icerpc-csharp/0.4.x -->
+        <IceRpcVersion Condition="'$(IceRpcVersion)' == ''">0.4.1-preview1</IceRpcVersion>
         <IceVersion Condition="'$(IceVersion)' == ''">3.7.10</IceVersion>
     </PropertyGroup>
 </Project>
