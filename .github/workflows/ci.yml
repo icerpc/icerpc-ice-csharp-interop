@@ -72,6 +72,6 @@ jobs:
       working-directory: icerpc-csharp
       run:  ./build.sh --publish
     - name: 🔨 Build Tests
-      run: dotnet build
+      run: dotnet build /p:IceHome=${{ github.workspace }}/ice /p:IceToolsPath=${{ github.workspace }}/ice/cpp/bin
     - name: 🧪 Run Tests
       run: dotnet test --no-build --verbosity normal
