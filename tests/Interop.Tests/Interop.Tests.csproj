@@ -19,6 +19,11 @@
     <PackageReference Include="NUnit" Version="4.2.2" />
   </ItemGroup>
 
+  <!-- Required for X509CertificateLoader with .NET 8-->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net8.0'">
+    <PackageReference Include="Microsoft.Bcl.Cryptography" Version="9.0.0-preview.*" />
+  </ItemGroup>
+
   <!-- IceRPC Packages -->
   <ItemGroup>
     <PackageReference Include="IceRpc.Slice.Tools" Version="$(IceRpcVersion)" PrivateAssets="All" />

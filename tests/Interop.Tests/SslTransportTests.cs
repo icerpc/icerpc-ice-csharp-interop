@@ -15,77 +15,104 @@ public class SslTransportTests
     public async Task Create_ssl_connection_from_Ice_to_IceRPC()
     {
         // Arrange
-        using var caCertificate = new X509Certificate2("cacert.der");
-        using var serverCertificate = new X509Certificate2("server.p12", "password");
-        using var clientCertificate = new X509Certificate2("client.p12", "password");
-        X509Certificate2? peerCertificate = null;
+        using var caCertificate = X509CertificateLoader.LoadCertificateFromFile("cacert.der");
+
+        using var serverCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+            "server.p12",
+            "password",
+             keyStorageFlags: X509KeyStorageFlags.Exportable);
+
+        using var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+            "client.p12",
+            "password",
+             keyStorageFlags: X509KeyStorageFlags.Exportable);
+
+        X509Certificate2? validatedClientCertificate = null;
+        X509Certificate2? validatedServerCertificate = null;
         await using var server = new Server(
             new InlineDispatcher((request, cancellationToken) => throw new NotImplementedException()),
             new Uri("ice://127.0.0.1:0"),
             serverAuthenticationOptions: new SslServerAuthenticationOptions
             {
-                ServerCertificate = serverCertificate,
+                ServerCertificateContext = SslStreamCertificateContext.Create(
+                    serverCertificate,
+                    additionalCertificates: null),
                 RemoteCertificateValidationCallback =
                     (sender, certificate, chain, errors) =>
                     {
-                        peerCertificate = certificate as X509Certificate2;
+                        validatedClientCertificate = certificate as X509Certificate2;
                         return certificate?.Issuer == clientCertificate.Issuer;
                     },
                 ClientCertificateRequired = true
             });
-
         ServerAddress serverAddress = server.Listen();
+
+
         // Configure IceSSL
-        string[] args =
-        [
-            "--IceSSL.CertFile=client.p12",
-            "--IceSSL.CAs=cacert.der",
-            "--IceSSL.Password=password"
-        ];
-        using Communicator communicator = Util.initialize(ref args);
+        var initData = new InitializationData();
+        initData.properties = new Properties();
+        initData.clientAuthenticationOptions = new SslClientAuthenticationOptions
+        {
+            ClientCertificates = new X509CertificateCollection { clientCertificate },
+            RemoteCertificateValidationCallback =
+                (sender, certificate, chain, errors) =>
+                {
+                    validatedServerCertificate = certificate as X509Certificate2;
+                    return certificate?.Issuer == serverCertificate.Issuer;
+                }
+        };
+
+        using Communicator communicator = Util.initialize(initData);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress with { Transport = "ssl" });
 
         // Act
         Connection? connection = await proxy.ice_getConnectionAsync();
 
         // Assert
-        Assert.That(connection, Is.Not.Null);
-        var info = connection?.getInfo() as Ice.SSL.ConnectionInfo;
-        Assert.That(info, Is.Not.Null);
-        Assert.That(info.verified, Is.True);
-        Assert.That(info.certs[0], Is.EqualTo(serverCertificate));
-
-        // TODO: fix
-        // Assert.That(info.certs[1], Is.EqualTo(caCertificate));
-
-        Assert.That(peerCertificate, Is.EqualTo(clientCertificate));
+        Assert.That(validatedServerCertificate, Is.EqualTo(serverCertificate));
+        Assert.That(validatedClientCertificate, Is.EqualTo(clientCertificate));
     }
 
-    /*
     [Test]
     public async Task Create_ssl_connection_from_IceRPC_to_Ice()
     {
         // Arrange
-        // Load and configure the IceSSL plugin.
-        string[] args = new string[]
-        {
-            "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory",
-            "--IceSSL.CertFile=server.p12",
-            "--IceSSL.CAs=cacert.der",
-            "--IceSSL.Password=password"
-        };
+        using var caCertificate = X509CertificateLoader.LoadCertificateFromFile("cacert.der");
 
-        using Communicator communicator = Util.initialize(ref args);
-        var plugin = (IceSSL.Plugin)communicator.getPluginManager().getPlugin("IceSSL");
-        var verifier = new Verifier();
-        plugin.setCertificateVerifier(verifier);
-        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "ssl -h 127.0.0.1 -p 0");
+        using var serverCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+            "server.p12",
+            "password",
+             keyStorageFlags: X509KeyStorageFlags.Exportable);
+
+        using var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(
+            "client.p12",
+            "password",
+             keyStorageFlags: X509KeyStorageFlags.Exportable);
+
+        X509Certificate2? validatedClientCertificate = null;
+        X509Certificate2? validatedServerCertificate = null;
+
+        using Communicator communicator = Util.initialize();
+
+        ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints(
+            "test",
+            "ssl -h 127.0.0.1 -p 0",
+            serverAuthenticationOptions: new SslServerAuthenticationOptions
+            {
+                ServerCertificateContext = SslStreamCertificateContext.Create(
+                    serverCertificate,
+                    additionalCertificates: null),
+                RemoteCertificateValidationCallback =
+                    (sender, certificate, chain, errors) =>
+                    {
+                        validatedClientCertificate = certificate as X509Certificate2;
+                        return certificate?.Issuer == clientCertificate.Issuer;
+                    },
+                ClientCertificateRequired = true
+            });
         adapter.activate();
 
-        using var caCertificate = new X509Certificate2("cacert.der");
-        using var serverCertificate = new X509Certificate2("server.p12", "password");
-        using var clientCertificate = new X509Certificate2("client.p12", "password");
-        X509Certificate2? peerCertificate = null;
+
         await using var clientConnection = new ClientConnection(
             adapter.GetFirstServerAddress(),
             clientAuthenticationOptions: new SslClientAuthenticationOptions
@@ -94,7 +121,7 @@ public class SslTransportTests
                 RemoteCertificateValidationCallback =
                     (sender, certificate, chain, errors) =>
                     {
-                        peerCertificate = certificate as X509Certificate2;
+                        validatedServerCertificate = certificate as X509Certificate2;
                         return certificate?.Issuer == serverCertificate.Issuer;
                     }
             });
@@ -103,25 +130,7 @@ public class SslTransportTests
         await clientConnection.ConnectAsync();
 
         // Assert
-        IceSSL.ConnectionInfo info = verifier.ConnectionInfo;
-        Assert.That(info, Is.Not.Null);
-        Assert.That(info.verified, Is.True);
-        Assert.That(info.certs[0], Is.EqualTo(clientCertificate));
-        Assert.That(info.certs[1], Is.EqualTo(caCertificate));
-
-        Assert.That(peerCertificate, Is.EqualTo(serverCertificate));
+        Assert.That(validatedServerCertificate, Is.EqualTo(serverCertificate));
+        Assert.That(validatedClientCertificate, Is.EqualTo(clientCertificate));
     }
-
-    /// <summary>A certificate verifier used by the tests to capture the peer connection info.</summary>
-    private class Verifier : IceSSL.CertificateVerifier
-    {
-        internal IceSSL.ConnectionInfo ConnectionInfo { get; private set; } = null!;
-
-        public bool verify(IceSSL.ConnectionInfo info)
-        {
-            ConnectionInfo = info;
-            return true;
-        }
-    }
-    */
 }
