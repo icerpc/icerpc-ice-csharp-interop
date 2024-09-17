@@ -2,9 +2,9 @@ name: ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["3.8"]
   pull_request:
-    branches: ["main"]
+    branches: ["3.8"]
   schedule:
     # Run every day at 6:00 UTC
     - cron: '00 6 * * *'
@@ -42,15 +42,27 @@ jobs:
         dotnet-version: |
           8.0.x
           9.0.x
-    - name: Setup Ice 3.7
+    - name: Check out Ice repository
+      uses: actions/checkout@master
+      with:
+        repository: zeroc-ice/ice
+        path: 'ice'
+    - name: Install Ice apt dependencies
       run: |
-        sudo mkdir -p /etc/apt/keyrings
-        sudo curl -fsSL https://download.zeroc.com/GPG-KEY-zeroc-release-B6391CB2CFBA643D | sudo gpg --dearmor -o /etc/apt/keyrings/zeroc.gpg
-        echo \
-          "deb [signed-by=/etc/apt/keyrings/zeroc.gpg] https://download.zeroc.com/ice/3.7/ubuntu22.04 stable main" \
-          | sudo tee /etc/apt/sources.list.d/zeroc-ice-3.7.list
-        sudo apt-get update
-        sudo apt-get install zeroc-ice-slice zeroc-ice-compilers
+        sudo apt-get update && sudo apt-get install -y \
+            python3 python3-pip nodejs libbz2-dev libssl-dev libffi-dev \
+            libmcpp-dev libedit-dev liblmdb-dev libexpat1-dev libsystemd-dev \
+            ruby ruby-dev php-cli php-dev \
+            libbluetooth-dev libdbus-1-dev \
+            libsystemd-dev
+      shell: bash
+    - name: 🔨 Build and Publish Ice NuGet packages
+      working-directory: ice/csharp
+      run:  |
+        make -C ../cpp slice2cs
+        dotnet msbuild msbuild/ice.proj /p:Configuration=Release
+        dotnet msbuild msbuild/ice.proj /t:NuGetPack
+        dotnet nuget push msbuild/zeroc.ice.net/*.nupkg --source ~/.nuget/packages
     - name: Check out IceRPC for C# repository
       uses: actions/checkout@master
       with:
