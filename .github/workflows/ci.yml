@@ -2,9 +2,9 @@ name: ci
 
 on:
   push:
-    branches: ["main"]
+    branches: ["0.4.x"]
   pull_request:
-    branches: ["main"]
+    branches: ["0.4.x"]
   schedule:
     # Run every day at 6:00 UTC
     - cron: '00 6 * * *'
@@ -55,6 +55,7 @@ jobs:
       uses: actions/checkout@master
       with:
         repository: icerpc/icerpc-csharp
+        ref: 0.4.x
         path: 'icerpc-csharp'
     - name: 🔨 Build and Publish IceRPC NuGet packages
       working-directory: icerpc-csharp
