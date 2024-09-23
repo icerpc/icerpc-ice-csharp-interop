@@ -19,13 +19,13 @@ public class SslTransportTests
 
         using var serverCertificate = X509CertificateLoader.LoadPkcs12FromFile(
             "server.p12",
-            "password",
-             keyStorageFlags: X509KeyStorageFlags.Exportable);
+            password: null,
+            keyStorageFlags: X509KeyStorageFlags.Exportable);
 
         using var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(
             "client.p12",
-            "password",
-             keyStorageFlags: X509KeyStorageFlags.Exportable);
+            password: null,
+            keyStorageFlags: X509KeyStorageFlags.Exportable);
 
         X509Certificate2? validatedClientCertificate = null;
         X509Certificate2? validatedServerCertificate = null;
@@ -53,7 +53,7 @@ public class SslTransportTests
         initData.properties = new Properties();
         initData.clientAuthenticationOptions = new SslClientAuthenticationOptions
         {
-            ClientCertificates = new X509CertificateCollection { clientCertificate },
+            ClientCertificates = [clientCertificate],
             RemoteCertificateValidationCallback =
                 (sender, certificate, chain, errors) =>
                 {
@@ -81,13 +81,13 @@ public class SslTransportTests
 
         using var serverCertificate = X509CertificateLoader.LoadPkcs12FromFile(
             "server.p12",
-            "password",
-             keyStorageFlags: X509KeyStorageFlags.Exportable);
+            password: null,
+            keyStorageFlags: X509KeyStorageFlags.Exportable);
 
         using var clientCertificate = X509CertificateLoader.LoadPkcs12FromFile(
             "client.p12",
-            "password",
-             keyStorageFlags: X509KeyStorageFlags.Exportable);
+            password: null,
+            keyStorageFlags: X509KeyStorageFlags.Exportable);
 
         X509Certificate2? validatedClientCertificate = null;
         X509Certificate2? validatedServerCertificate = null;
@@ -117,7 +117,7 @@ public class SslTransportTests
             adapter.GetFirstServerAddress(),
             clientAuthenticationOptions: new SslClientAuthenticationOptions
             {
-                ClientCertificates = new X509CertificateCollection { clientCertificate },
+                ClientCertificates = [clientCertificate],
                 RemoteCertificateValidationCallback =
                     (sender, certificate, chain, errors) =>
                     {
