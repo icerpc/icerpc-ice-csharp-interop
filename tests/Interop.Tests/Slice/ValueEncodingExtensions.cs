@@ -19,8 +19,7 @@ public static class ValueEncodingExtensions
     /// <param name="encodeAction">The function to encode the value with the IceRPC encoder.</param>
     /// <param name="decodeFunc">The function to decode the value with the Ice decoder.</param>
     /// <returns>The decoded value.</returns>
-    /// <remarks>This method should only be used for types that don't require an Ice communicator for the decoding.
-    /// </remarks>
+    /// <remarks>This method creates a temporary communicator that gets destroyed when the method returns.</remarks>
     public static T SliceToIce<T>(
         this T value,
         EncodeAction<T> encodeAction,
@@ -32,7 +31,8 @@ public static class ValueEncodingExtensions
         pipe.Writer.Complete();
         pipe.Reader.TryRead(out ReadResult readResult);
 
-        var inputStream = new InputStream(readResult.Buffer.ToArray());
+        using Communicator communicator = Util.initialize();
+        var inputStream = new InputStream(communicator, readResult.Buffer.ToArray());
         pipe.Reader.Complete();
 
         return decodeFunc(inputStream);
