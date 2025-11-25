@@ -5,7 +5,7 @@ using Ice;
 namespace Interop.Tests;
 
 /// <summary>Implements <see cref="Blobject" /> inline with a function.</summary>
-public class InlineBlobject : Blobject
+internal class InlineBlobject : Blobject
 {
     private readonly Func<byte[], Current?, (bool Ok, byte[] ResponsePayload)> _func;
 
@@ -25,5 +25,5 @@ public class InlineBlobject : Blobject
     /// <summary>Constructs an inline blobject.</summary>
     /// <param name="func">The function that implements the dispatch. It accepts an un-encapsulated payload and returns
     /// an un-encapsulated payload.</param>
-    public InlineBlobject(Func<byte[], Current?, (bool Ok, byte[] Payload)> func) => _func = func;
+    internal InlineBlobject(Func<byte[], Current?, (bool Ok, byte[] Payload)> func) => _func = func;
 }

@@ -11,7 +11,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class ServiceAddressTests
+internal class ServiceAddressTests
 {
     /// <summary>Encodes a proxy with Ice, then decodes it as a service address, then encodes this service address with
     /// IceRpc and decodes it with Ice, then verifies only proxy options are lost.</summary>
@@ -31,29 +31,26 @@ public class ServiceAddressTests
     public void Proxy_to_service_address_and_back(string iceString)
     {
         // Arrange
+        using var communicator = new Ice.Communicator();
+        ObjectPrx iceProxy =  ObjectPrxHelper.createProxy(communicator, iceString);
 
-        // We need to load the IceSSL plugin to parse ssl and wss endpoints.
-        string[] args = new string[] { "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory" };
-        using Communicator communicator = Util.initialize(ref args);
-        ObjectPrx iceProxy = communicator.stringToProxy(iceString);
-
-        byte[] buffer = EncodeIceProxy(iceProxy);
+        byte[] buffer = EncodeIceProxy(communicator, iceProxy);
         var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
         ServiceAddress serviceAddress = decoder.DecodeServiceAddress();
 
         var inputStream = new InputStream(communicator, EncodeServiceAddress(serviceAddress));
 
         // Act
-        ObjectPrx newIceProxy = inputStream.readProxy();
+        ObjectPrx? newIceProxy = inputStream.readProxy();
 
         // Assert
+        Assert.That(newIceProxy, Is.Not.Null);
         Assert.That(decoder.Consumed, Is.EqualTo(buffer.Length));
         Assert.That(newIceProxy.ice_getIdentity(), Is.EqualTo(iceProxy.ice_getIdentity()));
         Assert.That(newIceProxy.ice_getFacet(), Is.EqualTo(iceProxy.ice_getFacet()));
         Assert.That(newIceProxy.ice_getEndpoints(), Is.EqualTo(iceProxy.ice_getEndpoints()));
         Assert.That(newIceProxy.ice_getAdapterId(), Is.EqualTo(iceProxy.ice_getAdapterId()));
 
-        Assert.That(newIceProxy.ice_isSecure(), Is.False);
         Assert.That(newIceProxy.ice_isTwoway(), Is.True);
         Assert.That(newIceProxy.ice_getEncodingVersion(), Is.EqualTo(Util.Encoding_1_1));
     }
@@ -75,15 +72,12 @@ public class ServiceAddressTests
     public void Service_address_to_proxy_and_back(ServiceAddress serviceAddress)
     {
         // Arrange
-
-        // We need to load the IceSSL plugin to decode ssl endpoints.
-        string[] args = new string[] { "--Ice.Plugin.IceSSL=IceSSL:IceSSL.PluginFactory" };
-        using Communicator communicator = Util.initialize(ref args);
+        using var communicator = new Ice.Communicator();
 
         var inputStream = new InputStream(communicator, EncodeServiceAddress(serviceAddress));
-        ObjectPrx iceProxy = inputStream.readProxy();
+        ObjectPrx? iceProxy = inputStream.readProxy();
 
-        byte[] buffer = EncodeIceProxy(iceProxy);
+        byte[] buffer = EncodeIceProxy(communicator, iceProxy);
         var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
 
         // Act
@@ -94,9 +88,9 @@ public class ServiceAddressTests
         Assert.That(newServiceAddress, Is.EqualTo(serviceAddress));
     }
 
-    private static byte[] EncodeIceProxy(ObjectPrx iceProxy)
+    private static byte[] EncodeIceProxy(Communicator communicator, ObjectPrx? iceProxy)
     {
-        var outputStream = new OutputStream(iceProxy.ice_getCommunicator());
+        var outputStream = new OutputStream(communicator);
         outputStream.writeProxy(iceProxy);
         return outputStream.finished();
     }

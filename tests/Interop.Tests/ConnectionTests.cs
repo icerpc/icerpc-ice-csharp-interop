@@ -9,7 +9,7 @@ using System.IO.Pipelines;
 namespace Interop.Tests;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class ConnectionTests
+internal class ConnectionTests
 {
     private static IEnumerable<TestCaseData> SystemExceptionToStatusCode
     {
@@ -47,7 +47,7 @@ public class ConnectionTests
     [Test]
     public async Task Establish_connection_from_IceRpc_to_Ice()
     {
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.activate();
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -61,7 +61,7 @@ public class ConnectionTests
     public async Task Send_request_from_Ice_to_IceRpc([Values] bool oneway)
     {
         // Arrange
-        byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
+        byte[] expectedPayload = [.. Enumerable.Range(0, 4096).Select(p => (byte)p)];
         var tcs = new TaskCompletionSource<byte[]>();
         var dispatcher = new InlineDispatcher(async (request, cancellationToken) =>
         {
@@ -70,12 +70,12 @@ public class ConnectionTests
                 cancellationToken);
             tcs.SetResult(readResult.Buffer.ToArray());
             request.Payload.AdvanceTo(readResult.Buffer.End);
-            return new OutgoingResponse(request);
+            return new IceRpc.OutgoingResponse(request);
         });
         await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
         if (oneway)
         {
@@ -95,19 +95,19 @@ public class ConnectionTests
     public async Task Send_response_from_IceRPC_to_Ice([Values] bool success)
     {
         // Arrange
-        byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
+        byte[] expectedPayload = [.. Enumerable.Range(0, 4096).Select(p => (byte)p)];
         var dispatcher = new InlineDispatcher((request, cancellationToken) =>
         {
             var payload = PipeReader.Create(new ReadOnlySequence<byte>(expectedPayload));
             return new(success ?
-                new OutgoingResponse(request) { Payload = payload } :
-                new OutgoingResponse(request, StatusCode.ApplicationError, "") { Payload = payload });
+                new IceRpc.OutgoingResponse(request) { Payload = payload } :
+                new IceRpc.OutgoingResponse(request, StatusCode.ApplicationError, "") { Payload = payload });
         });
 
         await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
         // Act
@@ -130,11 +130,11 @@ public class ConnectionTests
     public async Task Send_failure_from_IceRPC_to_Ice(StatusCode statusCode, Type exceptionType)
     {
         var dispatcher = new InlineDispatcher((request, cancellationToken) =>
-            new(new OutgoingResponse(request, statusCode, "error message")));
+            new(new IceRpc.OutgoingResponse(request, statusCode, "error message")));
         await using var server = new Server(dispatcher, new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
         // Act/Assert
@@ -148,10 +148,10 @@ public class ConnectionTests
     public async Task Send_request_from_IceRPC_to_Ice([Values] bool oneway)
     {
         // Arrange
-        byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
+        byte[] expectedPayload = [.. Enumerable.Range(0, 4096).Select(p => (byte)p)];
         var tcs = new TaskCompletionSource<byte[]>();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(
             new InlineBlobject(
@@ -183,9 +183,9 @@ public class ConnectionTests
     public async Task Send_response_from_Ice_to_IceRPC([Values] bool success)
     {
         // Arrange
-        byte[] expectedPayload = Enumerable.Range(0, 4096).Select(p => (byte)p).ToArray();
+        byte[] expectedPayload = [.. Enumerable.Range(0, 4096).Select(p => (byte)p)];
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(new InlineBlobject((payload, current) => (success, expectedPayload)), "");
         adapter.activate();
@@ -211,7 +211,7 @@ public class ConnectionTests
     {
         // Arrange
         string[] args = ["--Ice.Warn.Dispatch=0"];
-        using Communicator communicator = Util.initialize(ref args);
+        using var communicator = new Communicator(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(new InlineBlobject((payload, current) => throw systemException), "");
         adapter.activate();

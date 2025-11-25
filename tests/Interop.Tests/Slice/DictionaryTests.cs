@@ -6,7 +6,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class DictionaryTests
+internal class DictionaryTests
 {
     public static IEnumerable<Dictionary<short, short>> DictionarySource
     {
@@ -37,7 +37,9 @@ public class DictionaryTests
     [TestCaseSource(nameof(DictionarySource))]
     public void Slice_dictionary_to_ice_dictionary(Dictionary<short, short> value)
     {
+        using var communicator = new Ice.Communicator();
         Dictionary<short, short> decodedValue = value.SliceToIce(
+            communicator,
             (ref SliceEncoder encoder, Dictionary<short, short> value) => encoder.EncodeDictionary(
                 value,
                 (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),

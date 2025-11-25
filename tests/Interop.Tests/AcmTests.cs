@@ -3,11 +3,12 @@
 using Ice;
 using IceRpc;
 using NUnit.Framework;
+using System.Diagnostics;
 
 namespace Interop.Tests;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class AcmTests
+internal class AcmTests
 {
     /// <summary>Verifies an IceRPC->Ice connection remains alive after idling for > idle timeout. That's because the
     /// IceRPC-side sends ValidateConnection and by default doesn't expect ValidateConnection from the Ice side.
@@ -15,7 +16,13 @@ public class AcmTests
     [Test]
     public async Task Idle_connection_to_Ice_server_remains_alive([Values] bool enableIdleCheck)
     {
-        using Communicator communicator = CreateCommunicator(acmTimeout: 3, enableIdleCheck);
+        var initData = new Ice.InitializationData
+        {
+            properties = new Ice.Properties()
+        };
+        initData.properties.setProperty("Ice.Connection.Server.EnableIdleCheck", enableIdleCheck ? "1" : "0");
+        initData.properties.setProperty("Ice.Connection.Server.IdleTimeout", "3");
+        using var communicator = new Communicator(initData);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.activate();
 
@@ -44,7 +51,7 @@ public class AcmTests
                 ConnectionOptions = new ConnectionOptions
                 {
                     Dispatcher = new InlineDispatcher(
-                        (request, cancellationToken) => new(new OutgoingResponse(request))),
+                        (request, cancellationToken) => new(new IceRpc.OutgoingResponse(request))),
                     EnableIceIdleCheck = enableIdleCheck,
                     IceIdleTimeout = TimeSpan.FromSeconds(3)
                 },
@@ -53,12 +60,18 @@ public class AcmTests
 
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = CreateCommunicator(acmTimeout: 3, enableIdleCheck);
+        var initData = new Ice.InitializationData
+        {
+            properties = new Ice.Properties()
+        };
+        initData.properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enableIdleCheck ? "1" : "0");
+        initData.properties.setProperty("Ice.Connection.Client.IdleTimeout", "3");
+        using var communicator = new Communicator(initData);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
         bool connectionClosed = false;
-        Connection connection = await proxy.ice_getConnectionAsync();
-        connection.setCloseCallback(_ => connectionClosed = true);
+        Connection? connection = await proxy.ice_getConnectionAsync();
+        connection!.setCloseCallback(_ => connectionClosed = true);
 
         // Act/Assert
         await Task.Delay(TimeSpan.FromSeconds(5));
@@ -70,7 +83,12 @@ public class AcmTests
     [Test]
     public async Task Inactive_connection_to_Ice_is_shutdown([Values] bool enableIdleCheck)
     {
-        using Communicator communicator = CreateCommunicator(acmTimeout: 2, enableIdleCheck);
+        var initData = new Ice.InitializationData
+        {
+            properties = new Ice.Properties()
+        };
+        initData.properties.setProperty("Ice.Connection.Server.EnableIdleCheck", enableIdleCheck ? "1" : "0");
+        using var communicator = new Communicator(initData);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.activate();
 
@@ -103,7 +121,7 @@ public class AcmTests
                 ConnectionOptions = new ConnectionOptions
                 {
                     Dispatcher = new InlineDispatcher(
-                        (request, cancellationToken) => new(new OutgoingResponse(request))),
+                        (request, cancellationToken) => new(new IceRpc.OutgoingResponse(request))),
                     EnableIceIdleCheck = enableIdleCheck,
                     IceIdleTimeout = TimeSpan.FromSeconds(2),
                     InactivityTimeout = TimeSpan.FromSeconds(3)
@@ -113,27 +131,21 @@ public class AcmTests
 
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = CreateCommunicator(acmTimeout: 2, enableIdleCheck);
+        var initData = new Ice.InitializationData
+        {
+            properties = new Ice.Properties()
+        };
+        initData.properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enableIdleCheck ? "1" : "0");
+
+        using var communicator = new Ice.Communicator(initData);
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
         bool connectionClosed = false;
-        Connection connection = await proxy.ice_getConnectionAsync();
-        connection.setCloseCallback(_ => connectionClosed = true);
+        Connection? connection = await proxy.ice_getConnectionAsync();
+        connection!.setCloseCallback(_ => connectionClosed = true);
 
         // Act/Assert
         await Task.Delay(TimeSpan.FromSeconds(5));
         Assert.That(connectionClosed, Is.True);
-    }
-
-    private static Communicator CreateCommunicator(int acmTimeout, bool sendHeartbeats)
-    {
-        string[] args = new string[]
-        {
-            $"--Ice.ACM.Timeout={acmTimeout}",
-            // 3 = HeartbeatAlways while 1 = HeartbeatOnDispatch (the default)
-            $"--Ice.ACM.Heartbeat={(sendHeartbeats ? 3 : 1)}"
-        };
-
-        return Util.initialize(ref args);
     }
 }

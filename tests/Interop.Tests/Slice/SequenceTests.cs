@@ -6,7 +6,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class SequenceTests
+internal class SequenceTests
 {
     public static IEnumerable<short[]> SequenceSource
     {
@@ -30,7 +30,9 @@ public class SequenceTests
     [TestCaseSource(nameof(SequenceSource))]
     public void Slice_sequence_to_ice_sequence(short[] value)
     {
+        using var communicator = new Ice.Communicator();
         short[] decodedValue = value.SliceToIce(
+            communicator,
             (ref SliceEncoder encoder, short[] value) => encoder.EncodeSequence(value),
             ShortSeqHelper.read);
 

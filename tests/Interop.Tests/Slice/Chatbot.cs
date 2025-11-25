@@ -10,7 +10,7 @@ namespace Interop.Tests.Slice;
 /// <summary>A basic, reusable implementation of <see cref="GreeterDisp_" /> and <see cref="IGreeterService" />.
 /// </summary>
 [SliceService]
-public partial class Chatbot : GreeterDisp_, IGreeterService, IIceObjectService
+internal partial class Chatbot : GreeterDisp_, IGreeterService, IIceObjectService
 {
     public override string greet(string name, Current? current = null) => $"Hello, {name}!";
 

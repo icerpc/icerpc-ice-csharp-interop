@@ -10,7 +10,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public partial class ExceptionTests
+internal partial class ExceptionTests
 {
     /// <summary>Throws an exception encoded with the .ice-generated code and decodes this exception with the
     /// .slice-generated code.</summary>
@@ -108,8 +108,8 @@ public partial class ExceptionTests
 
     private static async Task IceToSliceAsync(UserException userException, bool slicedFormat)
     {
-        string[] args = new string[] { $"--Ice.Default.SlicedFormat={(slicedFormat ? 1 : 0)}" };
-        using Communicator communicator = Util.initialize(ref args);
+        string[] args = [$"--Ice.Default.SlicedFormat={(slicedFormat ? 1 : 0)}"];
+        using var communicator = new Ice.Communicator(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         _ = adapter.add(new TestEngine(userException), Util.stringToIdentity("engine"));
         adapter.activate();
@@ -125,7 +125,7 @@ public partial class ExceptionTests
         await using var server = new Server(new TestEngineTwin(sliceException), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Ice.Communicator();
         EnginePrx proxy = EnginePrxHelper.uncheckedCast(communicator.CreateObjectPrx("engine", serverAddress));
         await proxy.startAsync();
     }

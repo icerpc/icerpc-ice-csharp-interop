@@ -6,7 +6,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class PrimitiveTypeTests
+internal class PrimitiveTypeTests
 {
     /// <summary>Encodes an ice bool then decodes a slice bool.</summary>
     [Test]
@@ -23,7 +23,9 @@ public class PrimitiveTypeTests
     [Test]
     public void Slice_bool_to_ice_bool([Values] bool value)
     {
+        using var communicator = new Ice.Communicator();
         bool decodedValue = value.SliceToIce(
+            communicator,
             (ref SliceEncoder encoder, bool value) => encoder.EncodeBool(value),
             inputStream => inputStream.readBool());
 
@@ -45,7 +47,9 @@ public class PrimitiveTypeTests
     [Test]
     public void Slice_int16_to_ice_short([Values(-30_000, 30_000)] short value)
     {
+        using var communicator = new Ice.Communicator();
         short decodedValue = value.SliceToIce(
+            communicator,
             (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
             inputStream => inputStream.readShort());
 
@@ -71,7 +75,9 @@ public class PrimitiveTypeTests
     [TestCase(2.71828182845904523536028747135266249775724709369995957)]
     public void Slice_float64_to_ice_double(double value)
     {
+        using var communicator = new Ice.Communicator();
         double decodedValue = value.SliceToIce(
+            communicator,
             (ref SliceEncoder encoder, double value) => encoder.EncodeFloat64(value),
             inputStream => inputStream.readDouble());
 
@@ -93,7 +99,9 @@ public class PrimitiveTypeTests
     [Test]
     public void Slice_size_to_ice_size([Values(0, 7, 254, 350)] int value)
     {
+        using var communicator = new Ice.Communicator();
         int decodedValue = value.SliceToIce(
+            communicator,
             (ref SliceEncoder encoder, int value) => encoder.EncodeSize(value),
             inputStream => inputStream.readSize());
 
@@ -123,7 +131,9 @@ public class PrimitiveTypeTests
     [TestCase("😁😂😃😄😅😆😉😊😋😌😍😏😒😓😔😖")]
     public void Slice_string_to_ice_string(string value)
     {
+        using var communicator = new Ice.Communicator();
         string decodedValue = value.SliceToIce(
+            communicator,
             (ref SliceEncoder encoder, string value) => encoder.EncodeString(value),
             inputStream => inputStream.readString());
 

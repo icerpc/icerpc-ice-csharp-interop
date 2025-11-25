@@ -56,8 +56,6 @@ module Interop
                     optional(1) OneByteSeq oneByteSeq,   // tag type = VSize (+ optimization)
                     optional(5) PointSeq pointSeq,       // tag type = VSize
                     optional(10) StringSeq stringSeq);   // tag type = FSize
-
-                void opClass(optional(1) Shape shape); // tag type = Class
             }
         }
     }

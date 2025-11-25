@@ -30,14 +30,14 @@
 
   <!-- Ice Packages -->
   <ItemGroup>
-    <PackageReference Include="zeroc.icebuilder.msbuild" Version="5.0.9" PrivateAssets="All" />
-    <PackageReference Include="zeroc.ice.net" Version="$(IceVersion)" PrivateAssets="All" />
+    <PackageReference Include="ZeroC.Ice" Version="$(IceVersion)" PrivateAssets="All" />
+    <PackageReference Include="ZeroC.Ice.Slice.Tools" Version="$(IceVersion)" PrivateAssets="All" />
   </ItemGroup>
 
    <ItemDefinitionGroup>
-      <SliceC>
+      <SliceFile>
         <OutputDir>$(MSBuildProjectDirectory)\generated\slice</OutputDir>
-      </SliceC>
+      </SliceFile>
     </ItemDefinitionGroup>
 
     <ItemDefinitionGroup>

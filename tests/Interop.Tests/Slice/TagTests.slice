@@ -28,9 +28,6 @@ interface TagTest {
         tag(5) pointSeq: Sequence<Point>?
         tag(10) stringSeq: Sequence<string>?
     )
-
-    // slicec does not accept tagged parameters with a class type.
-    opClass()
 }
 
 [cs::identifier("OneByteTwin")]
