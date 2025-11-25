@@ -3,7 +3,6 @@
 using Ice;
 using IceRpc;
 using NUnit.Framework;
-using System.Diagnostics;
 
 namespace Interop.Tests;
 

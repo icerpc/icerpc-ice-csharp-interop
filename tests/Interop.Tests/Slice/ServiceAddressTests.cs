@@ -32,7 +32,7 @@ internal class ServiceAddressTests
     {
         // Arrange
         using var communicator = new Ice.Communicator();
-        ObjectPrx iceProxy =  ObjectPrxHelper.createProxy(communicator, iceString);
+        ObjectPrx iceProxy = ObjectPrxHelper.createProxy(communicator, iceString);
 
         byte[] buffer = EncodeIceProxy(communicator, iceProxy);
         var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
