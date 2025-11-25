@@ -56,9 +56,9 @@ internal class SslTransportTests
 
         // Act
         Connection? connection = await proxy.ice_getConnectionAsync();
-        Assert.That(connection, Is.Not.Null);
 
         // Assert
+        Assert.That(connection, Is.Not.Null);
         Assert.That(clientPeerCertificate, Is.EqualTo(serverCertificate));
         Assert.That(serverPeerCertificate, Is.EqualTo(clientCertificate));
     }
