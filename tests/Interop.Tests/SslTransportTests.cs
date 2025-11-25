@@ -16,8 +16,8 @@ internal class SslTransportTests
     {
         // Arrange
         using X509Certificate2 caCertificate = X509CertificateLoader.LoadCertificateFromFile("cacert.der");
-        using X509Certificate2 serverCertificate = X509CertificateLoader.LoadPkcs12FromFile("server.p12", "password");
-        using X509Certificate2 clientCertificate = X509CertificateLoader.LoadPkcs12FromFile("client.p12", "password");
+        using X509Certificate2 serverCertificate = X509CertificateLoader.LoadPkcs12FromFile("server.p12", password: null);
+        using X509Certificate2 clientCertificate = X509CertificateLoader.LoadPkcs12FromFile("client.p12", password: null);
         X509Certificate2? serverPeerCertificate = null;
         X509Certificate2? clientPeerCertificate = null;
         await using var server = new Server(
@@ -69,8 +69,8 @@ internal class SslTransportTests
         // Arrange
 
         using X509Certificate2 caCertificate = X509CertificateLoader.LoadCertificateFromFile("cacert.der");
-        using X509Certificate2 serverCertificate = X509CertificateLoader.LoadPkcs12FromFile("server.p12", "password");
-        using X509Certificate2 clientCertificate = X509CertificateLoader.LoadPkcs12FromFile("client.p12", "password");
+        using X509Certificate2 serverCertificate = X509CertificateLoader.LoadPkcs12FromFile("server.p12", password: null);
+        using X509Certificate2 clientCertificate = X509CertificateLoader.LoadPkcs12FromFile("client.p12", password: null);
         X509Certificate2? clientPeerCertificate = null;
         X509Certificate2? serverPeerCertificate = null;
 
