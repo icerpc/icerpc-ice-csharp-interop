@@ -31,3 +31,21 @@ jobs:
 
       - name: 🧪 Run Tests
         run: dotnet test --no-build --verbosity normal
+
+      - name: Install dotnet-trx tool
+        run: dotnet tool install -g dotnet-trx
+        shell: bash
+        if: always()
+
+      - name: Create test report
+        run: trx --path TestResults
+        shell: bash
+        if: always()
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ runner.os }}
+          path: TestResults/*.trx
+          if-no-files-found: ignore
+        if: always()
