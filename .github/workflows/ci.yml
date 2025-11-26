@@ -30,7 +30,7 @@ jobs:
         run: dotnet build
 
       - name: 🧪 Run Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal --logger "trx" --results-directory TestResults
 
       - name: Install dotnet-trx tool
         run: dotnet tool install -g dotnet-trx
