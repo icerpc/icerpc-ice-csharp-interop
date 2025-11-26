@@ -21,7 +21,7 @@ internal class ClassTests
         BicycleTwin decodedValue = IceToSlice(
             slicedFormat,
             outputStream => outputStream.writeValue(value),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<BicycleTwin>());
+            (ref decoder) => decoder.DecodeClass<BicycleTwin>());
 
         Assert.That(decodedValue.Name, Is.EqualTo(value.name));
         Assert.That(decodedValue.HasBasket, Is.EqualTo(value.hasBasket));
@@ -36,7 +36,7 @@ internal class ClassTests
 
         Bicycle decodedValue = SliceToIce(
             slicedFormat,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(value),
+            (ref encoder) => encoder.EncodeClass(value),
             inputStream =>
             {
                 var bicycle = new Bicycle();
@@ -65,7 +65,7 @@ internal class ClassTests
         TruckTwin truckTwin = IceToSlice(
             slicedFormat,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Assert.That(truckTwin.Cargo, Has.Count.EqualTo(truck.cargo.Length));
         Assert.That(truckTwin.Cargo[0], Is.InstanceOf<BicycleTwin>());
@@ -92,7 +92,7 @@ internal class ClassTests
 
         Truck truck = SliceToIce(
             slicedFormat,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -123,7 +123,7 @@ internal class ClassTests
         TruckTwin truckTwin = IceToSlice(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Assert.That(truckTwin.Cargo, Has.Count.EqualTo(truck.cargo.Length));
         Assert.That(truckTwin.Cargo[0], Is.InstanceOf<BicycleTwin>());
@@ -145,7 +145,7 @@ internal class ClassTests
 
         Truck truck = SliceToIce(
             slicedFormat: true,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -174,11 +174,11 @@ internal class ClassTests
         TruckTwin truckTwin = IceToSlice(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Truck newTruck = SliceToIce(
             slicedFormat: true,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -207,7 +207,7 @@ internal class ClassTests
 
         Truck truck = SliceToIce(
             slicedFormat: true,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -218,7 +218,7 @@ internal class ClassTests
         TruckTwin newTruckTwin = IceToSlice(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Assert.That(newTruckTwin.Cargo, Has.Count.EqualTo(truckTwin.Cargo.Count));
         Assert.That(newTruckTwin.Cargo[0], Is.InstanceOf<RacingBicycleTwin>());

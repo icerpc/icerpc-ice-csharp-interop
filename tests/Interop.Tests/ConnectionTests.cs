@@ -86,7 +86,7 @@ internal class ConnectionTests
         _ = await proxy.IceInvokeAsync(operation: "op", mode: OperationMode.Normal, expectedPayload);
 
         // Assert
-        Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
+        Assert.That(await tcs.Task, Is.EqualTo(expectedPayload));
     }
 
     /// <summary>Sends a response from IceRPC to Ice. It can be either a success or an application error aka user
@@ -174,7 +174,7 @@ internal class ConnectionTests
         _ = await clientConnection.InvokeAsync(request);
 
         // Assert
-        Assert.That(async () => await tcs.Task, Is.EqualTo(expectedPayload));
+        Assert.That(await tcs.Task, Is.EqualTo(expectedPayload));
     }
 
     /// <summary>Sends a response from Ice to IceRPC. It can be either a success or an application error aka user

@@ -26,10 +26,10 @@ internal class DictionaryTests
     {
         Dictionary<short, short> decodedValue = value.IceToSlice(
             ShortShortDictHelper.write,
-            (ref SliceDecoder decoder) => decoder.DecodeDictionary(
+            (ref decoder) => decoder.DecodeDictionary(
                 count => new Dictionary<short, short>(count),
-                (ref SliceDecoder decoder) => decoder.DecodeInt16(),
-                (ref SliceDecoder decoder) => decoder.DecodeInt16()));
+                (ref decoder) => decoder.DecodeInt16(),
+                (ref decoder) => decoder.DecodeInt16()));
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -40,10 +40,10 @@ internal class DictionaryTests
         using var communicator = new Ice.Communicator();
         Dictionary<short, short> decodedValue = value.SliceToIce(
             communicator,
-            (ref SliceEncoder encoder, Dictionary<short, short> value) => encoder.EncodeDictionary(
+            (ref encoder, value) => encoder.EncodeDictionary(
                 value,
-                (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
-                (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value)),
+                (ref encoder, value) => encoder.EncodeInt16(value),
+                (ref encoder, value) => encoder.EncodeInt16(value)),
             ShortShortDictHelper.read);
 
         Assert.That(decodedValue, Is.EqualTo(value));

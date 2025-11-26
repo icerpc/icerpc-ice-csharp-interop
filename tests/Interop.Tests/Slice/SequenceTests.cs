@@ -22,7 +22,7 @@ internal class SequenceTests
     {
         short[] decodedValue = value.IceToSlice(
             ShortSeqHelper.write,
-            (ref SliceDecoder decoder) => decoder.DecodeSequence<short>());
+            (ref decoder) => decoder.DecodeSequence<short>());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -33,7 +33,7 @@ internal class SequenceTests
         using var communicator = new Ice.Communicator();
         short[] decodedValue = value.SliceToIce(
             communicator,
-            (ref SliceEncoder encoder, short[] value) => encoder.EncodeSequence(value),
+            (ref encoder, value) => encoder.EncodeSequence(value),
             ShortSeqHelper.read);
 
         Assert.That(decodedValue, Is.EqualTo(value));

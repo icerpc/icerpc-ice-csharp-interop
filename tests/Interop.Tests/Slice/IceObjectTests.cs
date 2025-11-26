@@ -49,7 +49,7 @@ internal partial class IceObjectTests
         using var communicator = new Ice.Communicator();
         Ice.ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
-        Assert.That(async () => await proxy.ice_isAAsync(typeof(GreeterProxy).GetSliceTypeId()!), Is.True);
+        Assert.That(await proxy.ice_isAAsync(typeof(GreeterProxy).GetSliceTypeId()!), Is.True);
     }
 
     /// <summary>An IceRPC client sends ice_isA to an Ice object.</summary>
@@ -64,7 +64,7 @@ internal partial class IceObjectTests
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
         var proxy = new IceObjectProxy(clientConnection, new Uri("ice:/hello"));
 
-        Assert.That(async () => await proxy.IceIsAAsync(typeof(GreeterProxy).GetSliceTypeId()!), Is.True);
+        Assert.That(await proxy.IceIsAAsync(typeof(GreeterProxy).GetSliceTypeId()!), Is.True);
     }
 
     /// <summary>Verifies that ice_ids return the same value with Ice and IceRPC.</summary>
@@ -85,7 +85,7 @@ internal partial class IceObjectTests
 
         // Act/Assert
         string[] ids = await proxy1.IceIdsAsync();
-        Assert.That(async () => await proxy2.ice_idsAsync(), Is.EqualTo(ids));
+        Assert.That(await proxy2.ice_idsAsync(), Is.EqualTo(ids));
     }
 
     [SliceService]

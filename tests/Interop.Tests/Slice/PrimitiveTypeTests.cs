@@ -14,7 +14,7 @@ internal class PrimitiveTypeTests
     {
         bool decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeBool(value),
-            (ref SliceDecoder decoder) => decoder.DecodeBool());
+            (ref decoder) => decoder.DecodeBool());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -26,7 +26,7 @@ internal class PrimitiveTypeTests
         using var communicator = new Ice.Communicator();
         bool decodedValue = value.SliceToIce(
             communicator,
-            (ref SliceEncoder encoder, bool value) => encoder.EncodeBool(value),
+            (ref encoder, value) => encoder.EncodeBool(value),
             inputStream => inputStream.readBool());
 
         Assert.That(decodedValue, Is.EqualTo(value));
@@ -38,7 +38,7 @@ internal class PrimitiveTypeTests
     {
         short decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeShort(value),
-            (ref SliceDecoder decoder) => decoder.DecodeInt16());
+            (ref decoder) => decoder.DecodeInt16());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -50,7 +50,7 @@ internal class PrimitiveTypeTests
         using var communicator = new Ice.Communicator();
         short decodedValue = value.SliceToIce(
             communicator,
-            (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
+            (ref encoder, value) => encoder.EncodeInt16(value),
             inputStream => inputStream.readShort());
 
         Assert.That(decodedValue, Is.EqualTo(value));
@@ -64,7 +64,7 @@ internal class PrimitiveTypeTests
     {
         double decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeDouble(value),
-            (ref SliceDecoder decoder) => decoder.DecodeFloat64());
+            (ref decoder) => decoder.DecodeFloat64());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -78,7 +78,7 @@ internal class PrimitiveTypeTests
         using var communicator = new Ice.Communicator();
         double decodedValue = value.SliceToIce(
             communicator,
-            (ref SliceEncoder encoder, double value) => encoder.EncodeFloat64(value),
+            (ref encoder, value) => encoder.EncodeFloat64(value),
             inputStream => inputStream.readDouble());
 
         Assert.That(decodedValue, Is.EqualTo(value));
@@ -90,7 +90,7 @@ internal class PrimitiveTypeTests
     {
         int decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeSize(value),
-            (ref SliceDecoder decoder) => decoder.DecodeSize());
+            (ref decoder) => decoder.DecodeSize());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -102,7 +102,7 @@ internal class PrimitiveTypeTests
         using var communicator = new Ice.Communicator();
         int decodedValue = value.SliceToIce(
             communicator,
-            (ref SliceEncoder encoder, int value) => encoder.EncodeSize(value),
+            (ref encoder, value) => encoder.EncodeSize(value),
             inputStream => inputStream.readSize());
 
         Assert.That(decodedValue, Is.EqualTo(value));
@@ -118,7 +118,7 @@ internal class PrimitiveTypeTests
     {
         string decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeString(value),
-            (ref SliceDecoder decoder) => decoder.DecodeString());
+            (ref decoder) => decoder.DecodeString());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -134,7 +134,7 @@ internal class PrimitiveTypeTests
         using var communicator = new Ice.Communicator();
         string decodedValue = value.SliceToIce(
             communicator,
-            (ref SliceEncoder encoder, string value) => encoder.EncodeString(value),
+            (ref encoder, value) => encoder.EncodeString(value),
             inputStream => inputStream.readString());
 
         Assert.That(decodedValue, Is.EqualTo(value));
