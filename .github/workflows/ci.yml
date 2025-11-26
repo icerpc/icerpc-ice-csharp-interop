@@ -11,8 +11,12 @@ on:
 
 jobs:
   build_and_test:
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
 
     steps:
       - name: Checkout
@@ -26,4 +30,22 @@ jobs:
         run: dotnet build
 
       - name: 🧪 Run Tests
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --verbosity normal --logger "trx" --results-directory TestResults
+
+      - name: Install dotnet-trx tool
+        run: dotnet tool install -g dotnet-trx
+        shell: bash
+        if: always()
+
+      - name: Create test report
+        run: trx --path TestResults
+        shell: bash
+        if: always()
+
+      - name: Upload test results
+        uses: actions/upload-artifact@v4
+        with:
+          name: test-results-${{ runner.os }}
+          path: TestResults/*.trx
+          if-no-files-found: ignore
+        if: always()
