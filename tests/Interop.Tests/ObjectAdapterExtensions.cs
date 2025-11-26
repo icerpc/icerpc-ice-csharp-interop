@@ -5,10 +5,10 @@ using IceRpc;
 namespace Interop.Tests;
 
 /// <summary>Provides extension method for the ObjectAdapter interface.</summary>
-public static class ObjectAdapterExtensions
+internal static class ObjectAdapterExtensions
 {
     /// <summary>Returns the first server address of this object adapter (after activation).</summary>
-    public static ServerAddress GetFirstServerAddress(this Ice.ObjectAdapter adapter)
+    internal static ServerAddress GetFirstServerAddress(this Ice.ObjectAdapter adapter)
     {
         Ice.EndpointInfo info = adapter.getEndpoints()[0].getInfo();
         Ice.IPEndpointInfo? ipInfo = info as Ice.IPEndpointInfo ?? info.underlying as Ice.IPEndpointInfo;

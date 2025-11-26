@@ -36,6 +36,7 @@
     "Parallelizable",
     "parameterless",
     "Pingable",
+    "Pkcs",
     "Quic",
     "reportgenerator",
     "retryable",

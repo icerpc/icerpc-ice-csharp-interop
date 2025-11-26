@@ -9,7 +9,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class EnumTests
+internal class EnumTests
 {
     [Test]
     public void Ice_my_enum_to_slice_my_enum()
@@ -38,7 +38,7 @@ public class EnumTests
         Action<OutputStream, TIceEnum> encodeAction,
         DecodeFunc<TSliceEnum> decodeFunc)
     {
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         var outputStream = new OutputStream(communicator);
         encodeAction(outputStream, value);
         byte[] buffer = outputStream.finished();
@@ -58,7 +58,7 @@ public class EnumTests
         pipe.Writer.Complete();
         pipe.Reader.TryRead(out ReadResult readResult);
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         var inputStream = new InputStream(communicator, readResult.Buffer.ToArray());
         pipe.Reader.Complete();
 

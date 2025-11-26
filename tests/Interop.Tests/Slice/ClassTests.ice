@@ -13,8 +13,7 @@ module Interop
 
             sequence<Vehicle> VehicleSeq;
 
-            // preserve-slice for Slice-preservation test.
-            ["preserve-slice"] class Bicycle extends Vehicle
+            class Bicycle extends Vehicle
             {
                 bool hasBasket;
             }

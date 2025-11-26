@@ -9,7 +9,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class ClassTests
+internal class ClassTests
 {
     /// <summary>Encodes a class with the .ice-generated code and decodes this class with the .slice-generated code.
     /// </summary>
@@ -21,7 +21,7 @@ public class ClassTests
         BicycleTwin decodedValue = IceToSlice(
             slicedFormat,
             outputStream => outputStream.writeValue(value),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<BicycleTwin>());
+            (ref decoder) => decoder.DecodeClass<BicycleTwin>());
 
         Assert.That(decodedValue.Name, Is.EqualTo(value.name));
         Assert.That(decodedValue.HasBasket, Is.EqualTo(value.hasBasket));
@@ -36,7 +36,7 @@ public class ClassTests
 
         Bicycle decodedValue = SliceToIce(
             slicedFormat,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(value),
+            (ref encoder) => encoder.EncodeClass(value),
             inputStream =>
             {
                 var bicycle = new Bicycle();
@@ -60,12 +60,12 @@ public class ClassTests
         var bicycle3 = new Bicycle("b3", hasBasket: true);
 
         // Here the truck's cargo includes itself.
-        truck.cargo = new Vehicle[] { bicycle1, bicycle2, bicycle3, bicycle1, truck };
+        truck.cargo = [bicycle1, bicycle2, bicycle3, bicycle1, truck];
 
         TruckTwin truckTwin = IceToSlice(
             slicedFormat,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Assert.That(truckTwin.Cargo, Has.Count.EqualTo(truck.cargo.Length));
         Assert.That(truckTwin.Cargo[0], Is.InstanceOf<BicycleTwin>());
@@ -80,7 +80,7 @@ public class ClassTests
     [Test]
     public void Slice_class_graph_to_ice_class_Gra([Values] bool slicedFormat)
     {
-        var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
+        var truckTwin = new TruckTwin("carrier", []);
 
         var bicycleTwin1 = new BicycleTwin("b1", hasBasket: true);
         truckTwin.Cargo.Add(bicycleTwin1);
@@ -92,7 +92,7 @@ public class ClassTests
 
         Truck truck = SliceToIce(
             slicedFormat,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -118,12 +118,12 @@ public class ClassTests
         var bicycle1 = new MountainBike("mtb", hasBasket: false, suspensionType: "full suspension");
         var bicycle2 = new Bicycle("plain", hasBasket: true);
 
-        truck.cargo = new Vehicle[] { bicycle1, bicycle2, bicycle1 };
+        truck.cargo = [bicycle1, bicycle2, bicycle1];
 
         TruckTwin truckTwin = IceToSlice(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Assert.That(truckTwin.Cargo, Has.Count.EqualTo(truck.cargo.Length));
         Assert.That(truckTwin.Cargo[0], Is.InstanceOf<BicycleTwin>());
@@ -136,7 +136,7 @@ public class ClassTests
     [Test]
     public void Slice_class_to_ice_class_with_slicing()
     {
-        var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
+        var truckTwin = new TruckTwin("carrier", []);
 
         var bicycleTwin1 = new RacingBicycleTwin("b1", hasBasket: false, maxSpeed: 60.0);
         truckTwin.Cargo.Add(bicycleTwin1);
@@ -145,7 +145,7 @@ public class ClassTests
 
         Truck truck = SliceToIce(
             slicedFormat: true,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -169,16 +169,16 @@ public class ClassTests
         var bicycle1 = new MountainBike("mtb", hasBasket: false, suspensionType: "full suspension");
         var bicycle2 = new Bicycle("plain", hasBasket: true);
 
-        truck.cargo = new Vehicle[] { bicycle1, bicycle2, bicycle1 };
+        truck.cargo = [bicycle1, bicycle2, bicycle1];
 
         TruckTwin truckTwin = IceToSlice(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Truck newTruck = SliceToIce(
             slicedFormat: true,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -198,7 +198,7 @@ public class ClassTests
     [Test]
     public void Slice_class_preserved_by_ice()
     {
-        var truckTwin = new TruckTwin("carrier", new List<VehicleTwin>());
+        var truckTwin = new TruckTwin("carrier", []);
 
         var bicycleTwin1 = new RacingBicycleTwin("b1", hasBasket: false, maxSpeed: 60.0);
         truckTwin.Cargo.Add(bicycleTwin1);
@@ -207,7 +207,7 @@ public class ClassTests
 
         Truck truck = SliceToIce(
             slicedFormat: true,
-            (ref SliceEncoder encoder) => encoder.EncodeClass(truckTwin),
+            (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
             {
                 var truck = new Truck();
@@ -218,7 +218,7 @@ public class ClassTests
         TruckTwin newTruckTwin = IceToSlice(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
-            (ref SliceDecoder decoder) => decoder.DecodeClass<TruckTwin>());
+            (ref decoder) => decoder.DecodeClass<TruckTwin>());
 
         Assert.That(newTruckTwin.Cargo, Has.Count.EqualTo(truckTwin.Cargo.Count));
         Assert.That(newTruckTwin.Cargo[0], Is.InstanceOf<RacingBicycleTwin>());
@@ -229,7 +229,7 @@ public class ClassTests
 
     private static T IceToSlice<T>(bool slicedFormat, Action<OutputStream> encodeAction, DecodeFunc<T> decodeFunc)
     {
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         var outputStream = new OutputStream(communicator);
         outputStream.startEncapsulation(
             Util.Encoding_1_1,
@@ -269,7 +269,7 @@ public class ClassTests
         pipe.Writer.Complete();
         pipe.Reader.TryRead(out ReadResult readResult);
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         var inputStream = new InputStream(communicator, readResult.Buffer.ToArray());
         pipe.Reader.Complete();
 

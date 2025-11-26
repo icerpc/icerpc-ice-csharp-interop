@@ -12,7 +12,7 @@ using System.Collections.Immutable;
 namespace Interop.Tests;
 
 [Parallelizable(scope: ParallelScope.All)]
-public partial class RequestContextTests
+internal partial class RequestContextTests
 {
     private static IEnumerable<IDictionary<string, string>> RequestContextSource
     {
@@ -37,7 +37,7 @@ public partial class RequestContextTests
         await using var server = new Server(new RequestContextMiddleware(chatbot), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Ice.Communicator();
         GreeterPrx proxy = GreeterPrxHelper.uncheckedCast(communicator.CreateObjectPrx("greeter", serverAddress));
 
         // Act
@@ -53,7 +53,7 @@ public partial class RequestContextTests
     {
         // Arrange
         var chatbot = new Chatbot();
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Ice.Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         _ = adapter.add(chatbot, Util.stringToIdentity("greeter"));
         adapter.activate();

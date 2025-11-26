@@ -9,7 +9,7 @@ using NUnit.Framework;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public partial class TagTests
+internal partial class TagTests
 {
     private static IEnumerable<TestCaseData> IceClassSource
     {
@@ -34,8 +34,8 @@ public partial class TagTests
 
             yield return new TestCaseData(
                 "hello world",
-                new OneByte[] { new OneByte(5) },
-                new Point[] { new Point(100, 200), new Point(-100, 300) },
+                new OneByte[] { new(5) },
+                new Point[] { new(100, 200), new(-100, 300) },
                 new string[] { "foo", "bar" });
         }
     }
@@ -54,8 +54,8 @@ public partial class TagTests
 
             yield return new TestCaseData(
                 "hello world",
-                new OneByteTwin[] { new OneByteTwin(5) },
-                new PointTwin[] { new PointTwin(100, 200), new PointTwin(-100, 300) },
+                new OneByteTwin[] { new(5) },
+                new PointTwin[] { new(100, 200), new(-100, 300) },
                 new string[] { "foo", "bar" });
         }
     }
@@ -85,12 +85,7 @@ public partial class TagTests
     [TestCase(true, 30_000, -5, -121_212.3434)]      // all non-null
     public async Task Ice_optional_numeric_to_slice_tagged_numeric(bool? f1, short? f2, int? f4, double? f8)
     {
-        TagTestServiceTwin service = await IceToSliceAsync(
-            proxy => proxy.opFixedAsync(
-                f1.ToOptionalValue(),
-                f2.ToOptionalValue(),
-                f4.ToOptionalValue(),
-                f8.ToOptionalValue()));
+        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opFixedAsync(f1, f2, f4, f8));
 
         Assert.That(service.F1, Is.EqualTo(f1));
         Assert.That(service.F2, Is.EqualTo(f2));
@@ -115,7 +110,7 @@ public partial class TagTests
     [TestCase(null)]
     public async Task Ice_optional_enum_to_slice_tagged_enum(Fruit? fruit)
     {
-        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opEnumAsync(fruit.ToOptionalValue()));
+        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opEnumAsync(fruit));
 
         Assert.That((Fruit?)service.Fruit, Is.EqualTo(fruit));
     }
@@ -129,20 +124,16 @@ public partial class TagTests
         Assert.That((FruitTwin?)service.Fruit, Is.EqualTo(fruit));
     }
 
-    [TestCase(null, true)]
-    [TestCase(null, false)]
-    [TestCase("foo/bar:tcp -h localhost -p 10000", true)]
-    public async Task Ice_optional_proxy_to_slice_tagged_service_address(string? iceProxyString, bool sendNull)
+    [TestCase(null)]
+    [TestCase("foo/bar:tcp -h localhost -p 10000")]
+    public async Task Ice_optional_proxy_to_slice_tagged_service_address(string? iceProxyString)
     {
-        using Communicator parsingCommunicator = Util.initialize();
-        ObjectPrx? serviceAddress = iceProxyString is null ? null : parsingCommunicator.stringToProxy(iceProxyString);
+        using var communicator = new Communicator();
+        ObjectPrx? serviceAddress = iceProxyString is null ?
+            null : ObjectPrxHelper.createProxy(communicator, iceProxyString);
 
-        // Ice distinguishes between null and not-set, and can send a "set" null proxy. IceRPC's Slice engine does not
-        // distinguish between not-set and null when decoding. When encoding a tagged parameter or field, it always
-        // encodes null as not-set.
         TagTestServiceTwin service = await IceToSliceAsync(
-            proxy => proxy.opServiceAddressAsync(
-                sendNull ? new(serviceAddress!) : serviceAddress.ToOptionalReference()));
+            proxy => proxy.opServiceAddressAsync(serviceAddress));
 
         Assert.That(
             service.ServiceAddress?.Path[1..],
@@ -163,10 +154,7 @@ public partial class TagTests
     [Test, TestCaseSource(nameof(IceStructSource))]
     public async Task Ice_optional_struct_to_slice_tagged_struct(Point? point, Person? person)
     {
-        TagTestServiceTwin service = await IceToSliceAsync(
-            proxy => proxy.opStructAsync(
-                point.ToOptionalValue(),
-                person.ToOptionalReference()));
+        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opStructAsync(point, person));
 
         Assert.That(service.Point?.X, Is.EqualTo(point?.x));
         Assert.That(service.Point?.Y, Is.EqualTo(point?.y));
@@ -193,11 +181,7 @@ public partial class TagTests
         string[]? stringSeq)
     {
         TagTestServiceTwin service = await IceToSliceAsync(
-            proxy => proxy.opSequenceAsync(
-                str.ToOptionalReference(),
-                oneByteSeq.ToOptionalReference(),
-                pointSeq.ToOptionalReference(),
-                stringSeq.ToOptionalReference()));
+            proxy => proxy.opSequenceAsync(str, oneByteSeq, pointSeq, stringSeq));
 
         Assert.That(service.Str, Is.EqualTo(str));
         Assert.That(service.OneByteSeq?.Length, Is.EqualTo(oneByteSeq?.Length));
@@ -221,30 +205,13 @@ public partial class TagTests
         Assert.That(service.StringSeq, Is.EqualTo(stringSeq));
     }
 
-    [Test, TestCaseSource(nameof(IceClassSource))]
-    public void Ice_optional_class_to_slice(Shape? shape)
-    {
-        Task<TagTestServiceTwin> task = IceToSliceAsync(proxy => proxy.opClassAsync(shape.ToOptionalReference()));
-
-        if (shape is null)
-        {
-            // The decoding on the server side succeeds when we don't send a value.
-            Assert.That(async () => await task, Throws.Nothing);
-        }
-        else
-        {
-            // The decoding on the server-side throws InvalidDataException; it's received as an UnknownException.
-            Assert.That(async () => await task, Throws.InstanceOf<UnknownException>());
-        }
-    }
-
     private static async Task<TagTestServiceTwin> IceToSliceAsync(Func<TagTestPrx, Task> func)
     {
         var service = new TagTestServiceTwin();
         await using var server = new Server(service, new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         TagTestPrx proxy = TagTestPrxHelper.uncheckedCast(communicator.CreateObjectPrx("TagTest", serverAddress));
         await func(proxy);
         return service;
@@ -252,7 +219,7 @@ public partial class TagTests
 
     private static async Task<TagTestService> SliceToIceAsync(Func<ITagTest, Task> func)
     {
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         var service = new TagTestService();
         _ = adapter.add(service, Util.stringToIdentity("TagTest"));
@@ -294,47 +261,36 @@ public partial class TagTests
 
         internal string[]? StringSeq { get; private set; }
 
-        public override void opClass(Optional<Shape> shape, Current? current = null) =>
-            Shape = shape.ToNullableReference();
+        public override void opEnum(Fruit? fruit, Current? current = null) => Fruit = fruit;
 
-        public override void opEnum(Optional<Fruit> fruit, Current? current = null) => Fruit = fruit.ToNullableValue();
-
-        public override void opFixed(
-            Optional<bool> f1,
-            Optional<short> f2,
-            Optional<int> f4,
-            Optional<double> f8,
-            Current? current = null)
+        public override void opFixed(bool? f1, short? f2, int? f4, double? f8, Current? current = null)
         {
-            F1 = f1.ToNullableValue();
-            F2 = f2.ToNullableValue();
-            F4 = f4.ToNullableValue();
-            F8 = f8.ToNullableValue();
+            F1 = f1;
+            F2 = f2;
+            F4 = f4;
+            F8 = f8;
         }
 
         public override void opSequence(
-            Optional<string> str,
-            Optional<OneByte[]> oneByteSeq,
-            Optional<Point[]> pointSeq,
-            Optional<string[]> stringSeq,
+            string? str,
+            OneByte[]? oneByteSeq,
+            Point[]? pointSeq,
+            string[]? stringSeq,
             Current? current = null)
         {
-            Str = str.ToNullableReference();
-            OneByteSeq = oneByteSeq.ToNullableReference();
-            PointSeq = pointSeq.ToNullableReference();
-            StringSeq = stringSeq.ToNullableReference();
+            Str = str;
+            OneByteSeq = oneByteSeq;
+            PointSeq = pointSeq;
+            StringSeq = stringSeq;
         }
 
-        public override void opServiceAddress(Optional<ObjectPrx> serviceAddress, Current? current = null) =>
-            ServiceAddress = serviceAddress.ToNullableReference();
+        public override void opServiceAddress(ObjectPrx? serviceAddress, Current? current = null) =>
+            ServiceAddress = serviceAddress;
 
-        public override void opStruct(
-            Optional<Point> point,
-            Optional<Person> person,
-            Current? current = null)
+        public override void opStruct(Point? point, Person? person, Current? current = null)
         {
-            Point = point.ToNullableValue();
-            Person = person.ToNullableReference();
+            Point = point;
+            Person = person;
         }
     }
 
@@ -366,8 +322,6 @@ public partial class TagTests
         internal string? Str { get; private set; }
 
         internal string[]? StringSeq { get; private set; }
-
-        public ValueTask OpClassAsync(IFeatureCollection features, CancellationToken cancellationToken) => default;
 
         public ValueTask OpEnumAsync(FruitTwin? fruit, IFeatureCollection features, CancellationToken cancellationToken)
         {

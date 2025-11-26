@@ -6,7 +6,7 @@ using ZeroC.Slice;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class DictionaryTests
+internal class DictionaryTests
 {
     public static IEnumerable<Dictionary<short, short>> DictionarySource
     {
@@ -26,10 +26,10 @@ public class DictionaryTests
     {
         Dictionary<short, short> decodedValue = value.IceToSlice(
             ShortShortDictHelper.write,
-            (ref SliceDecoder decoder) => decoder.DecodeDictionary(
+            (ref decoder) => decoder.DecodeDictionary(
                 count => new Dictionary<short, short>(count),
-                (ref SliceDecoder decoder) => decoder.DecodeInt16(),
-                (ref SliceDecoder decoder) => decoder.DecodeInt16()));
+                (ref decoder) => decoder.DecodeInt16(),
+                (ref decoder) => decoder.DecodeInt16()));
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -37,11 +37,13 @@ public class DictionaryTests
     [TestCaseSource(nameof(DictionarySource))]
     public void Slice_dictionary_to_ice_dictionary(Dictionary<short, short> value)
     {
+        using var communicator = new Ice.Communicator();
         Dictionary<short, short> decodedValue = value.SliceToIce(
-            (ref SliceEncoder encoder, Dictionary<short, short> value) => encoder.EncodeDictionary(
+            communicator,
+            (ref encoder, value) => encoder.EncodeDictionary(
                 value,
-                (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value),
-                (ref SliceEncoder encoder, short value) => encoder.EncodeInt16(value)),
+                (ref encoder, value) => encoder.EncodeInt16(value),
+                (ref encoder, value) => encoder.EncodeInt16(value)),
             ShortShortDictHelper.read);
 
         Assert.That(decodedValue, Is.EqualTo(value));

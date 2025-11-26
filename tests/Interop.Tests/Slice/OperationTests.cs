@@ -7,12 +7,12 @@ using NUnit.Framework;
 namespace Interop.Tests.Slice;
 
 [Parallelizable(scope: ParallelScope.All)]
-public class OperationTests
+internal class OperationTests
 {
     [Test]
     public async Task Request_from_icerpc_client()
     {
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Ice.Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         _ = adapter.add(new Chatbot(), Util.stringToIdentity("hello"));
         adapter.activate();
@@ -30,7 +30,7 @@ public class OperationTests
         await using var server = new Server(new Chatbot(), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
-        using Communicator communicator = Util.initialize();
+        using var communicator = new Ice.Communicator();
         GreeterPrx proxy = GreeterPrxHelper.uncheckedCast(communicator.CreateObjectPrx("hello", serverAddress));
 
         // Act/Assert
