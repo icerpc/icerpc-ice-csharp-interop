@@ -7,11 +7,11 @@ using NUnit.Framework;
 namespace Interop.Tests;
 
 [Parallelizable(scope: ParallelScope.All)]
-internal class AcmTests
+internal class IdleAndInactivityTests
 {
-    /// <summary>Verifies an IceRPC->Ice connection remains alive after idling for > idle timeout.</summary>
+    /// <summary>Verifies an IceRPC->Ice connection remains alive after remaining inactive for > idle timeout.</summary>
     [Test]
-    public async Task Idle_connection_to_Ice_server_remains_alive()
+    public async Task Inactive_connection_to_Ice_server_remains_alive()
     {
         var initData = new InitializationData
         {
@@ -35,9 +35,9 @@ internal class AcmTests
         Assert.That(shutdownRequested.IsCompleted, Is.False);
     }
 
-    /// <summary>Verifies an Ice->IceRPC connection remains alive after idling for > idle timeout.</summary>
+    /// <summary>Verifies an Ice->IceRPC connection remains alive after remaining inactive for > idle timeout.</summary>
     [Test]
-    public async Task Idle_connection_to_IceRpc_server_remains_alive()
+    public async Task Inactive_connection_to_IceRpc_server_remains_alive()
     {
         await using var server = new Server(
             new ServerOptions
@@ -71,23 +71,17 @@ internal class AcmTests
     }
 
     /// <summary>Verifies an IceRPC->Ice connection is shut down when inactive. That's because the InactivityTimeout
-    /// shuts down the connection.</summary>
+    /// on the IceRPC side shuts down the connection.</summary>
     [Test]
     public async Task Inactive_connection_to_Ice_is_shutdown()
     {
-        var initData = new InitializationData
-        {
-            properties = new Properties()
-        };
-        initData.properties.setProperty("Ice.Connection.Server.IdleTimeout", "2");
-        using var communicator = new Communicator(initData);
+        using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.activate();
 
         var clientConnectionFactory = new ClientProtocolConnectionFactory(
             new ConnectionOptions
             {
-                IceIdleTimeout = TimeSpan.FromSeconds(2),
                 InactivityTimeout = TimeSpan.FromSeconds(3)
             });
 
@@ -102,9 +96,9 @@ internal class AcmTests
     }
 
     /// <summary>Verifies an Ice->IceRPC connection is shut down when inactive. That's because the InactivityTimeout
-    /// shuts down the connection.</summary>
+    /// on the IceRPC side shuts down the connection.</summary>
     [Test]
-    public async Task Inactive_connection_to_IceRpc_is_shutdown([Values] bool enableIdleCheck)
+    public async Task Inactive_connection_to_IceRpc_is_shutdown()
     {
         await using var server = new Server(
             new ServerOptions
@@ -113,8 +107,6 @@ internal class AcmTests
                 {
                     Dispatcher = new InlineDispatcher(
                         (request, cancellationToken) => new(new IceRpc.OutgoingResponse(request))),
-                    EnableIceIdleCheck = enableIdleCheck,
-                    IceIdleTimeout = TimeSpan.FromSeconds(2),
                     InactivityTimeout = TimeSpan.FromSeconds(3)
                 },
                 ServerAddress = new ServerAddress(new Uri("ice://127.0.0.1:0")),
@@ -122,14 +114,7 @@ internal class AcmTests
 
         ServerAddress serverAddress = server.Listen();
 
-        var initData = new Ice.InitializationData
-        {
-            properties = new Ice.Properties()
-        };
-        initData.properties.setProperty("Ice.Connection.Client.EnableIdleCheck", enableIdleCheck ? "1" : "0");
-        initData.properties.setProperty("Ice.Connection.Client.IdleTimeout", "2");
-
-        using var communicator = new Ice.Communicator(initData);
+        using var communicator = new Communicator();
         ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
         bool connectionClosed = false;

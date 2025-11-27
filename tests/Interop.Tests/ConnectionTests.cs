@@ -154,11 +154,12 @@ internal class ConnectionTests
         using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
         adapter.addDefaultServant(
-            new InlineBlobject(
-                (payload, current) =>
+            new InlineObject(
+                request =>
                 {
+                    byte[] payload = request.inputStream.readEncapsulation(out _)[6..];
                     tcs.SetResult(payload);
-                    return (true, Array.Empty<byte>());
+                    return new(request.current.createEmptyOutgoingResponse());
                 }),
             "");
         adapter.activate();
@@ -187,7 +188,11 @@ internal class ConnectionTests
 
         using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        adapter.addDefaultServant(new InlineBlobject((payload, current) => (success, expectedPayload)), "");
+        adapter.addDefaultServant(
+            new InlineObject(
+                request => new(request.current.createOutgoingResponse(ok: success, expectedPayload.ToEncapsulation()))),
+            "");
+
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
@@ -213,7 +218,7 @@ internal class ConnectionTests
         string[] args = ["--Ice.Warn.Dispatch=0"];
         using var communicator = new Communicator(ref args);
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
-        adapter.addDefaultServant(new InlineBlobject((payload, current) => throw systemException), "");
+        adapter.addDefaultServant(new InlineObject(request => throw systemException), "");
         adapter.activate();
 
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
