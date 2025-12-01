@@ -23,7 +23,8 @@ internal class IdleAndInactivityTests
         adapter.activate();
 
         var clientConnectionFactory = new ClientProtocolConnectionFactory(
-            new ConnectionOptions { IceIdleTimeout = TimeSpan.FromSeconds(3) });
+            new ConnectionOptions { IceIdleTimeout = TimeSpan.FromSeconds(3) },
+            connectTimeout: TimeSpan.FromSeconds(10));
 
         await using IProtocolConnection clientConnection =
             clientConnectionFactory.CreateConnection(adapter.GetFirstServerAddress());
@@ -83,7 +84,8 @@ internal class IdleAndInactivityTests
             new ConnectionOptions
             {
                 InactivityTimeout = TimeSpan.FromSeconds(3)
-            });
+            },
+            connectTimeout: TimeSpan.FromSeconds(10));
 
         await using IProtocolConnection clientConnection =
             clientConnectionFactory.CreateConnection(adapter.GetFirstServerAddress());
