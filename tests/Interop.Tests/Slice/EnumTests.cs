@@ -4,7 +4,7 @@ using Ice;
 using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
-using ZeroC.Slice;
+using IceRpc.Ice.Codec;
 
 namespace Interop.Tests.Slice;
 
@@ -17,7 +17,7 @@ internal class EnumTests
         MyEnumTwin decodedValue = IceToSlice(
             MyEnum.Enum1,
             MyEnumHelper.write,
-            MyEnumTwinSliceDecoderExtensions.DecodeMyEnumTwin);
+            MyEnumTwinIceDecoderExtensions.DecodeMyEnumTwin);
 
         Assert.That(decodedValue, Is.EqualTo(MyEnumTwin.Enum1));
     }
@@ -27,7 +27,7 @@ internal class EnumTests
     {
         MyEnum decodedValue = SliceToIce(
             MyEnumTwin.Enum1,
-            MyEnumTwinSliceEncoderExtensions.EncodeMyEnumTwin,
+            MyEnumTwinIceEncoderExtensions.EncodeMyEnumTwin,
             MyEnumHelper.read);
 
         Assert.That(decodedValue, Is.EqualTo(MyEnum.Enum1));
@@ -43,7 +43,7 @@ internal class EnumTests
         encodeAction(outputStream, value);
         byte[] buffer = outputStream.finished();
 
-        var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
+        var decoder = new IceDecoder(buffer);
         return decodeFunc(ref decoder);
     }
 
@@ -53,7 +53,7 @@ internal class EnumTests
         Func<InputStream, TIceEnum> decodeFunc)
     {
         var pipe = new Pipe();
-        var encoder = new SliceEncoder(pipe.Writer, SliceEncoding.Slice1);
+        var encoder = new IceEncoder(pipe.Writer);
         encodeAction(ref encoder, value);
         pipe.Writer.Complete();
         pipe.Reader.TryRead(out ReadResult readResult);

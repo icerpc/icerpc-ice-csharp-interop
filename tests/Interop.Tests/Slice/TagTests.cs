@@ -3,7 +3,7 @@
 using Ice;
 using IceRpc;
 using IceRpc.Features;
-using IceRpc.Slice;
+using IceRpc.Ice;
 using NUnit.Framework;
 
 namespace Interop.Tests.Slice;
@@ -11,15 +11,6 @@ namespace Interop.Tests.Slice;
 [Parallelizable(scope: ParallelScope.All)]
 internal partial class TagTests
 {
-    private static IEnumerable<TestCaseData> IceClassSource
-    {
-        get
-        {
-            yield return new TestCaseData(null);
-            yield return new TestCaseData(new Shape(100));
-        }
-    }
-
     private static IEnumerable<TestCaseData> IceSequenceSource
     {
         get
@@ -129,26 +120,28 @@ internal partial class TagTests
     public async Task Ice_optional_proxy_to_slice_tagged_service_address(string? iceProxyString)
     {
         using var communicator = new Communicator();
-        ObjectPrx? serviceAddress = iceProxyString is null ?
+        ObjectPrx? proxy = iceProxyString is null ?
             null : ObjectPrxHelper.createProxy(communicator, iceProxyString);
 
-        TagTestServiceTwin service = await IceToSliceAsync(
-            proxy => proxy.opServiceAddressAsync(serviceAddress));
+        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opProxyAsync(proxy));
 
         Assert.That(
             service.ServiceAddress?.Path[1..],
-            Is.EqualTo(serviceAddress is null ? null : Util.identityToString(serviceAddress.ice_getIdentity())));
+            Is.EqualTo(proxy is null ? null : Util.identityToString(proxy.ice_getIdentity())));
     }
 
     [TestCase(null)]
     [TestCase("ice://localhost:10000/foo/bar")]
-    public async Task Slice_tagged_service_address_to_ice_optional_proxy(ServiceAddress? serviceAddress)
+    public async Task Slice_tagged_proxy_to_ice_optional_proxy(string? proxyString)
     {
-        TagTestService service = await SliceToIceAsync(proxy => proxy.OpServiceAddressAsync(serviceAddress));
+        IceObjectProxy? objectProxy =
+            proxyString is null ? null : new IceObjectProxy(InvalidInvoker.Instance, new Uri(proxyString));
+
+        TagTestService service = await SliceToIceAsync(proxy => proxy.OpProxyAsync(objectProxy));
 
         Assert.That(
-            service.ServiceAddress is null ? null : Util.identityToString(service.ServiceAddress.ice_getIdentity()),
-            Is.EqualTo(serviceAddress?.Path[1..]));
+            service.Proxy is null ? null : Util.identityToString(service.Proxy.ice_getIdentity()),
+            Is.EqualTo(objectProxy?.ServiceAddress.Path[1..]));
     }
 
     [Test, TestCaseSource(nameof(IceStructSource))]
@@ -253,9 +246,7 @@ internal partial class TagTests
 
         internal Point[]? PointSeq { get; private set; }
 
-        internal ObjectPrx? ServiceAddress { get; private set; }
-
-        internal Shape? Shape { get; private set; }
+        internal ObjectPrx? Proxy { get; private set; }
 
         internal string? Str { get; private set; }
 
@@ -284,8 +275,7 @@ internal partial class TagTests
             StringSeq = stringSeq;
         }
 
-        public override void opServiceAddress(ObjectPrx? serviceAddress, Current? current = null) =>
-            ServiceAddress = serviceAddress;
+        public override void opProxy(ObjectPrx? proxy, Current? current = null) => Proxy = proxy;
 
         public override void opStruct(Point? point, Person? person, Current? current = null)
         {
@@ -294,7 +284,7 @@ internal partial class TagTests
         }
     }
 
-    [SliceService]
+    [Service]
     private partial class TagTestServiceTwin : ITagTestService
     {
         internal bool? F1 { get; private set; }
@@ -359,12 +349,12 @@ internal partial class TagTests
             return default;
         }
 
-        public ValueTask OpServiceAddressAsync(
-            ServiceAddress? serviceAddress,
+        public ValueTask OpProxyAsync(
+            IceObjectProxy? proxy,
             IFeatureCollection features,
             CancellationToken cancellationToken)
         {
-            ServiceAddress = serviceAddress;
+            ServiceAddress = proxy?.ServiceAddress;
             return default;
         }
 

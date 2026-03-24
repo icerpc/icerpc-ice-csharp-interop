@@ -1,40 +1,52 @@
 // Copyright (c) ZeroC, Inc.
 
-module Interop
+module Interop::Tests::Slice
 {
-    module Tests
+#ifdef __ICERPC__
+    ["cs:identifier:EngineExceptionTwin"]
+#endif
+    exception EngineException
     {
-        module Slice
-        {
-            exception EngineException
-            {
-                string errorCode;
-            }
+        string errorCode;
+    }
 
-            exception CylinderException extends EngineException
-            {
-                int cylinder;
-            }
+#ifdef __ICERPC__
+    ["cs:identifier:CylinderExceptionTwin"]
+#endif
+    exception CylinderException extends EngineException
+    {
+        int cylinder;
+    }
 
-            // Only defined in .ice file.
-            exception FuelPumpException extends EngineException
-            {
-            }
+#ifdef __ICERPC__
+    exception BatteryException extends EngineException
+    {
+        float voltage;
+    }
+#else
+    // Only defined for Ice.
+    exception FuelPumpException extends EngineException
+    {
+    }
+#endif
 
-            exception TirePressureException
-            {
-                string tireId;
-            }
+#ifdef __ICERPC__
+    ["cs:identifier:TirePressureExceptionTwin"]
+#endif
+    exception TirePressureException
+    {
+        string tireId;
+    }
 
-            // Only defined in .ice file.
-            exception WiperException
-            {
-            }
+#ifndef __ICERPC__
+    // Only defined for Ice.
+    exception WiperException
+    {
+    }
+#endif
 
-            interface Engine
-            {
-                void start() throws EngineException;
-            }
-        }
+    interface Engine
+    {
+        void start() throws EngineException;
     }
 }

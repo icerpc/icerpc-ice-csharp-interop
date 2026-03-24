@@ -3,7 +3,7 @@
 using Ice;
 using System.Buffers;
 using System.IO.Pipelines;
-using ZeroC.Slice;
+using IceRpc.Ice.Codec;
 
 namespace Interop.Tests.Slice;
 
@@ -12,7 +12,7 @@ namespace Interop.Tests.Slice;
 /// from a .slice file).</summary>
 internal static class ValueEncodingExtensions
 {
-    /// <summary>Encodes a value with <see cref="SliceEncoder" /> and decodes it with <see cref="InputStream" />.
+    /// <summary>Encodes a value with <see cref="IceEncoder" /> and decodes it with <see cref="InputStream" />.
     /// Depending on the value type, the encoding or decoding functions can be a .ice or a .slice generated function.
     /// </summary>
     /// <param name="value">The value to encode with the Slice encoder.</param>
@@ -29,7 +29,7 @@ internal static class ValueEncodingExtensions
         Func<InputStream, T> decodeFunc)
     {
         var pipe = new Pipe();
-        var encoder = new SliceEncoder(pipe.Writer, SliceEncoding.Slice1);
+        var encoder = new IceEncoder(pipe.Writer);
         encodeAction(ref encoder, value);
         pipe.Writer.Complete();
         pipe.Reader.TryRead(out ReadResult readResult);
@@ -40,7 +40,7 @@ internal static class ValueEncodingExtensions
         return decodeFunc(inputStream);
     }
 
-    /// <summary>Encodes a value with <see cref="OutputStream" /> and decodes it with <see cref="SliceDecoder" />.
+    /// <summary>Encodes a value with <see cref="OutputStream" /> and decodes it with <see cref="IceDecoder" />.
     /// Depending on the value type, the encoding or decoding functions can be a .ice or a .slice generated function.
     /// </summary>
     /// <param name="value">The value to encode with the Slice encoder.</param>
@@ -58,7 +58,7 @@ internal static class ValueEncodingExtensions
         encodeAction(outputStream, value);
         byte[] buffer = outputStream.finished();
 
-        var decoder = new SliceDecoder(buffer, SliceEncoding.Slice1);
+        var decoder = new IceDecoder(buffer);
         return decodeFunc(ref decoder);
     }
 }

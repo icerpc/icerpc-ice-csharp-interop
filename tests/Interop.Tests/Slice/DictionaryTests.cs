@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 using NUnit.Framework;
-using ZeroC.Slice;
+using IceRpc.Ice.Codec;
 
 namespace Interop.Tests.Slice;
 
@@ -28,8 +28,8 @@ internal class DictionaryTests
             ShortShortDictHelper.write,
             (ref decoder) => decoder.DecodeDictionary(
                 count => new Dictionary<short, short>(count),
-                (ref decoder) => decoder.DecodeInt16(),
-                (ref decoder) => decoder.DecodeInt16()));
+                (ref decoder) => decoder.DecodeShort(),
+                (ref decoder) => decoder.DecodeShort()));
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -42,8 +42,8 @@ internal class DictionaryTests
             communicator,
             (ref encoder, value) => encoder.EncodeDictionary(
                 value,
-                (ref encoder, value) => encoder.EncodeInt16(value),
-                (ref encoder, value) => encoder.EncodeInt16(value)),
+                (ref encoder, value) => encoder.EncodeShort(value),
+                (ref encoder, value) => encoder.EncodeShort(value)),
             ShortShortDictHelper.read);
 
         Assert.That(decodedValue, Is.EqualTo(value));

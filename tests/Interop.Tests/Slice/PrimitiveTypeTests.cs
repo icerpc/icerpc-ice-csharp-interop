@@ -1,7 +1,7 @@
 // Copyright (c) ZeroC, Inc.
 
 using NUnit.Framework;
-using ZeroC.Slice;
+using IceRpc.Ice.Codec;
 
 namespace Interop.Tests.Slice;
 
@@ -38,7 +38,7 @@ internal class PrimitiveTypeTests
     {
         short decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeShort(value),
-            (ref decoder) => decoder.DecodeInt16());
+            (ref decoder) => decoder.DecodeShort());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -50,7 +50,7 @@ internal class PrimitiveTypeTests
         using var communicator = new Ice.Communicator();
         short decodedValue = value.SliceToIce(
             communicator,
-            (ref encoder, value) => encoder.EncodeInt16(value),
+            (ref encoder, value) => encoder.EncodeShort(value),
             inputStream => inputStream.readShort());
 
         Assert.That(decodedValue, Is.EqualTo(value));
@@ -64,7 +64,7 @@ internal class PrimitiveTypeTests
     {
         double decodedValue = value.IceToSlice(
             (outputStream, value) => outputStream.writeDouble(value),
-            (ref decoder) => decoder.DecodeFloat64());
+            (ref decoder) => decoder.DecodeDouble());
 
         Assert.That(decodedValue, Is.EqualTo(value));
     }
@@ -78,7 +78,7 @@ internal class PrimitiveTypeTests
         using var communicator = new Ice.Communicator();
         double decodedValue = value.SliceToIce(
             communicator,
-            (ref encoder, value) => encoder.EncodeFloat64(value),
+            (ref encoder, value) => encoder.EncodeDouble(value),
             inputStream => inputStream.readDouble());
 
         Assert.That(decodedValue, Is.EqualTo(value));

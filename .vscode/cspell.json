@@ -26,6 +26,8 @@
     "icebuilder",
     "icecertutils",
     "icerpc",
+    "ifdef",
+    "ifndef",
     "lalrpop",
     "makecerts",
     "Memberwise",
