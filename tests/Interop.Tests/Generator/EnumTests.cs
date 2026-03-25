@@ -6,15 +6,15 @@ using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal class EnumTests
 {
     [Test]
-    public void Ice_my_enum_to_slice_my_enum()
+    public void Ice_my_enum_to_icerpc_my_enum()
     {
-        MyEnumTwin decodedValue = IceToSlice(
+        MyEnumTwin decodedValue = IceToIceRpc(
             MyEnum.Enum1,
             MyEnumHelper.write,
             MyEnumTwinIceDecoderExtensions.DecodeMyEnumTwin);
@@ -23,9 +23,9 @@ internal class EnumTests
     }
 
     [Test]
-    public void Slice_my_enum_to_ice_my_enum()
+    public void IceRpc_my_enum_to_ice_my_enum()
     {
-        MyEnum decodedValue = SliceToIce(
+        MyEnum decodedValue = IceRpcToIce(
             MyEnumTwin.Enum1,
             MyEnumTwinIceEncoderExtensions.EncodeMyEnumTwin,
             MyEnumHelper.read);
@@ -33,10 +33,10 @@ internal class EnumTests
         Assert.That(decodedValue, Is.EqualTo(MyEnum.Enum1));
     }
 
-    private static TSliceEnum IceToSlice<TIceEnum, TSliceEnum>(
+    private static TIceRpcEnum IceToIceRpc<TIceEnum, TIceRpcEnum>(
         TIceEnum value,
         Action<OutputStream, TIceEnum> encodeAction,
-        DecodeFunc<TSliceEnum> decodeFunc)
+        DecodeFunc<TIceRpcEnum> decodeFunc)
     {
         using var communicator = new Communicator();
         var outputStream = new OutputStream(communicator);
@@ -47,9 +47,9 @@ internal class EnumTests
         return decodeFunc(ref decoder);
     }
 
-    private static TIceEnum SliceToIce<TSliceEnum, TIceEnum>(
-        TSliceEnum value,
-        EncodeAction<TSliceEnum> encodeAction,
+    private static TIceEnum IceRpcToIce<TIceRpcEnum, TIceEnum>(
+        TIceRpcEnum value,
+        EncodeAction<TIceRpcEnum> encodeAction,
         Func<InputStream, TIceEnum> decodeFunc)
     {
         var pipe = new Pipe();

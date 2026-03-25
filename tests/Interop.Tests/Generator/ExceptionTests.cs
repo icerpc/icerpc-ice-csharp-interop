@@ -7,106 +7,106 @@ using IceRpc.Ice;
 using IceRpc.Ice.Codec;
 using NUnit.Framework;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal partial class ExceptionTests
 {
-    /// <summary>Throws an exception encoded with the .ice-generated code and decodes this exception with the
-    /// .slice-generated code.</summary>
+    /// <summary>Throws an exception encoded with the Ice generated code and decodes this exception with the
+    /// IceRpc generated code.</summary>
     [Test]
-    public void Ice_exception_to_slice_exception([Values] bool slicedFormat)
+    public void Ice_exception_to_icerpc_exception([Values] bool slicedFormat)
     {
         var cylinderException = new CylinderException("cy123", 4);
 
         CylinderExceptionTwin? exception = Assert.ThrowsAsync<CylinderExceptionTwin>(
-            async () => await IceToSliceAsync(cylinderException, slicedFormat));
+            async () => await IceToIceRpcAsync(cylinderException, slicedFormat));
 
         Assert.That(exception!.ErrorCode, Is.EqualTo(cylinderException.errorCode));
         Assert.That(exception!.Cylinder, Is.EqualTo(cylinderException.cylinder));
     }
 
-    /// <summary>Throws an exception encoded with the .slice-generated code and decodes this exception with the .ice
+    /// <summary>Throws an exception encoded with the IceRpc generated code and decodes this exception with the Ice
     /// generated code.</summary>
     [Test]
-    public void Slice_exception_to_ice_exception()
+    public void IceRpc_exception_to_ice_exception()
     {
         var cylinderException = new CylinderExceptionTwin("cy123", 4);
 
         CylinderException? exception = Assert.ThrowsAsync<CylinderException>(
-            async () => await SliceToIceAsync(cylinderException));
+            async () => await IceRpcToIceAsync(cylinderException));
 
         Assert.That(exception!.errorCode, Is.EqualTo(cylinderException.ErrorCode));
         Assert.That(exception.cylinder, Is.EqualTo(cylinderException.Cylinder));
     }
 
-    /// <summary>Throws an exception encoded with the .ice-generated code and decodes this exception with the
-    /// .slice-generated code while slicing unknown slices.</summary>
+    /// <summary>Throws an exception encoded with the Ice generated code and decodes this exception with the
+    /// IceRpc generated code while slicing unknown slices.</summary>
     [Test]
-    public void Ice_exception_to_slice_exception_with_slicing()
+    public void Ice_exception_to_icerpc_exception_with_slicing()
     {
         var fuelPumpException = new FuelPumpException("fp123");
 
         EngineExceptionTwin? exception = Assert.ThrowsAsync<EngineExceptionTwin>(
-            async () => await IceToSliceAsync(fuelPumpException, slicedFormat: true));
+            async () => await IceToIceRpcAsync(fuelPumpException, slicedFormat: true));
 
         Assert.That(exception!.ErrorCode, Is.EqualTo(fuelPumpException.errorCode));
     }
 
-    /// <summary>Throws an exception encoded with the .slice-generated code and decodes this exception with the .ice
+    /// <summary>Throws an exception encoded with the IceRpc generated code and decodes this exception with the Ice
     /// generated code while slicing unknown slices.</summary>
     [Test]
-    public void Slice_exception_to_ice_exception_with_slicing()
+    public void IceRpc_exception_to_ice_exception_with_slicing()
     {
         var batteryException = new BatteryException("bt123", 5.4f);
 
         EngineException? exception = Assert.ThrowsAsync<EngineException>(
-            async () => await SliceToIceAsync(batteryException));
+            async () => await IceRpcToIceAsync(batteryException));
 
         Assert.That(exception!.errorCode, Is.EqualTo(batteryException.ErrorCode));
     }
 
-    /// <summary>Throws an exception encoded with the .ice-generated code and decodes this exception with the
-    /// .slice-generated code; this exception is not in the operation's exception specification.</summary>
+    /// <summary>Throws an exception encoded with the Ice generated code and decodes this exception with the
+    /// IceRpc generated code; this exception is not in the operation's exception specification.</summary>
     [Test]
-    public void Ice_exception_to_non_specified_slice_exception([Values] bool slicedFormat)
+    public void Ice_exception_to_non_specified_icerpc_exception([Values] bool slicedFormat)
     {
         var tirePressureException = new TirePressureException("FrontRight");
 
-        // IceRPC-Slice enforces exception specifications on both sides while Ice-Slice enforces exception
+        // IceRPC enforces exception specifications on both sides while Ice enforces exception
         // specifications on the invoke-side.
         Assert.That(
-            async () => await IceToSliceAsync(tirePressureException, slicedFormat),
+            async () => await IceToIceRpcAsync(tirePressureException, slicedFormat),
             Throws.TypeOf<InvalidDataException>());
     }
 
-    /// <summary>Throws an exception encoded with the .slice-generated code and decodes this exception with the
-    /// .ice-generated code; this exception is not in the operation's exception specification.</summary>
+    /// <summary>Throws an exception encoded with the IceRpc generated code and decodes this exception with the
+    /// Ice generated code; this exception is not in the operation's exception specification.</summary>
     [Test]
-    public void Slice_exception_to_non_specified_ice_exception()
+    public void IceRpc_exception_to_non_specified_ice_exception()
     {
         var tirePressureException = new TirePressureExceptionTwin("FrontRight");
 
-        // IceRPC-Slice encodes the unspecified exception as an UnknownException (not UnknownUserException).
+        // IceRPC encodes the unspecified exception as an UnknownException (not UnknownUserException).
         Assert.That(
-            async () => await SliceToIceAsync(tirePressureException),
+            async () => await IceRpcToIceAsync(tirePressureException),
             Throws.TypeOf<UnknownException>());
     }
 
-    /// <summary>Throws an exception encoded with the .ice-generated code and decodes this exception with the
-    /// .slice-generated code; this exception is not in the operation's exception specification and unknown to the
+    /// <summary>Throws an exception encoded with the Ice generated code and decodes this exception with the
+    /// IceRpc generated code; this exception is not in the operation's exception specification and unknown to the
     /// recipient.</summary>
     [Test]
-    public void Ice_exception_to_unknown_slice_exception([Values] bool slicedFormat)
+    public void Ice_exception_to_unknown_icerpc_exception([Values] bool slicedFormat)
     {
         var wiperException = new WiperException();
 
         Assert.That(
-            async () => await IceToSliceAsync(wiperException, slicedFormat),
+            async () => await IceToIceRpcAsync(wiperException, slicedFormat),
             Throws.InstanceOf<InvalidDataException>());
     }
 
-    private static async Task IceToSliceAsync(UserException userException, bool slicedFormat)
+    private static async Task IceToIceRpcAsync(UserException userException, bool slicedFormat)
     {
         string[] args = [$"--Ice.Default.SlicedFormat={(slicedFormat ? 1 : 0)}"];
         using var communicator = new Ice.Communicator(ref args);
@@ -120,7 +120,7 @@ internal partial class ExceptionTests
         await proxy.StartAsync();
     }
 
-    private static async Task SliceToIceAsync(IceException iceException)
+    private static async Task IceRpcToIceAsync(IceException iceException)
     {
         await using var server = new Server(new TestEngineTwin(iceException), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();

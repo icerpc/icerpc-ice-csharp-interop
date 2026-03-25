@@ -5,24 +5,20 @@ using IceRpc.Ice.Codec;
 using System.Buffers;
 using System.IO.Pipelines;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
-/// <summary>Provides extension methods to encode or decode a value with an Ice encoding or decoding function (possibly
-/// generated from a .ice file) and decode or encode it with an IceRPC decoding or encoding function (possibly generated
-/// from a .slice file).</summary>
+/// <summary>Provides extension methods to encode or decode a value using Ice APIs and decode or encode the same value
+/// with IceRPC APIs.</summary>
 internal static class ValueEncodingExtensions
 {
     /// <summary>Encodes a value with <see cref="IceEncoder" /> and decodes it with <see cref="InputStream" />.
-    /// Depending on the value type, the encoding or decoding functions can be a .ice or a .slice generated function.
     /// </summary>
-    /// <param name="value">The value to encode with the Slice encoder.</param>
+    /// <param name="value">The value to encode with the IceRPC encoder.</param>
     /// <param name="communicator">The Ice communicator used to decode the value.</param>
     /// <param name="encodeAction">The function to encode the value with the IceRPC encoder.</param>
     /// <param name="decodeFunc">The function to decode the value with the Ice decoder.</param>
     /// <returns>The decoded value.</returns>
-    /// <remarks>This method should only be used for types that don't require an Ice communicator for the decoding.
-    /// </remarks>
-    internal static T SliceToIce<T>(
+    internal static T IceRpcToIce<T>(
         this T value,
         Communicator communicator,
         EncodeAction<T> encodeAction,
@@ -41,15 +37,12 @@ internal static class ValueEncodingExtensions
     }
 
     /// <summary>Encodes a value with <see cref="OutputStream" /> and decodes it with <see cref="IceDecoder" />.
-    /// Depending on the value type, the encoding or decoding functions can be a .ice or a .slice generated function.
     /// </summary>
-    /// <param name="value">The value to encode with the Slice encoder.</param>
+    /// <param name="value">The value to encode with the IceRPC encoder.</param>
     /// <param name="encodeAction">The function to encode the value with the Ice encoder.</param>
-    /// <param name="decodeFunc">The function to decode the value with the IceRpc decoder.</param>
+    /// <param name="decodeFunc">The function to decode the value with the IceRPC decoder.</param>
     /// <returns>The decoded value.</returns>
-    /// <remarks>This method should only be used for types that don't require an Ice communicator for the encoding.
-    /// </remarks>
-    internal static T IceToSlice<T>(
+    internal static T IceToIceRpc<T>(
         this T value,
         Action<OutputStream, T> encodeAction,
         DecodeFunc<T> decodeFunc)

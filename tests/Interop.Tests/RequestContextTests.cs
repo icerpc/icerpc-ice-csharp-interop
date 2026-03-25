@@ -4,7 +4,7 @@ using Ice;
 using IceRpc;
 using IceRpc.Features;
 using IceRpc.RequestContext;
-using Interop.Tests.Slice;
+using Interop.Tests.Generator;
 using NUnit.Framework;
 using System.Collections.Immutable;
 

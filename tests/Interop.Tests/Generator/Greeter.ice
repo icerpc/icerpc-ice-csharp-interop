@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-module Interop::Tests::Slice
+module Interop::Tests::Generator
 {
     interface Greeter
     {

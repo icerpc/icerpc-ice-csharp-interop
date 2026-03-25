@@ -3,7 +3,7 @@
 using IceRpc.Ice.Codec;
 using NUnit.Framework;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal class SequenceTests
@@ -18,9 +18,9 @@ internal class SequenceTests
     }
 
     [TestCaseSource(nameof(SequenceSource))]
-    public void Ice_sequence_to_slice_sequence(short[] value)
+    public void Ice_sequence_to_icerpc_sequence(short[] value)
     {
-        short[] decodedValue = value.IceToSlice(
+        short[] decodedValue = value.IceToIceRpc(
             ShortSeqHelper.write,
             (ref decoder) => decoder.DecodeSequence<short>());
 
@@ -28,10 +28,10 @@ internal class SequenceTests
     }
 
     [TestCaseSource(nameof(SequenceSource))]
-    public void Slice_sequence_to_ice_sequence(short[] value)
+    public void IceRpc_sequence_to_ice_sequence(short[] value)
     {
         using var communicator = new Ice.Communicator();
-        short[] decodedValue = value.SliceToIce(
+        short[] decodedValue = value.IceRpcToIce(
             communicator,
             (ref encoder, value) => encoder.EncodeSequence(value),
             ShortSeqHelper.read);

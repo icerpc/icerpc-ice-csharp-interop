@@ -4,7 +4,7 @@ using Ice;
 using IceRpc;
 using NUnit.Framework;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal class OperationTests

@@ -63,5 +63,5 @@
     "Zipkin"
   ],
   "dictionaries": ["csharp", "softwareTerms", "en_US"],
-  "enableFiletypes": ["ice", "slice"]
+  "enableFiletypes": ["ice"]
 }

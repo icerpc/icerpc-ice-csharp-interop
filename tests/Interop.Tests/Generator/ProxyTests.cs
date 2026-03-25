@@ -8,7 +8,7 @@ using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal class ProxyTests
