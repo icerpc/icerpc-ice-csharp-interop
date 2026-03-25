@@ -4,7 +4,6 @@ using Ice;
 using IceRpc;
 using IceRpc.Features;
 using IceRpc.RequestContext;
-using IceRpc.Slice;
 using Interop.Tests.Slice;
 using NUnit.Framework;
 using System.Collections.Immutable;
@@ -83,7 +82,7 @@ internal partial class RequestContextTests
         }
     }
 
-    [SliceService]
+    [Service]
     private partial class ChatbotTwin : IGreeterService
     {
         public IDictionary<string, string> RequestContext { get; private set; } =

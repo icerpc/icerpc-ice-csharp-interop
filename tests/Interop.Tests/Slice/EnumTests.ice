@@ -1,15 +1,12 @@
 // Copyright (c) ZeroC, Inc.
 
-module Interop
+module Interop::Tests::Slice
 {
-    module Tests
+#ifdef __ICERPC__
+    ["cs:identifier:MyEnumTwin"]
+#endif
+    enum MyEnum
     {
-        module Slice
-        {
-            enum MyEnum
-            {
-                Enum1 = 187
-            }
-        }
+        Enum1 = 187
     }
 }

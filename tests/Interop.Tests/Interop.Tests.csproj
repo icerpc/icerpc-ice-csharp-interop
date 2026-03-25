@@ -21,9 +21,7 @@
 
   <!-- IceRPC Packages -->
   <ItemGroup>
-    <PackageReference Include="IceRpc.Slice.Tools" Version="$(IceRpcVersion)" PrivateAssets="All" />
-    <PackageReference Include="IceRpc" Version="$(IceRpcVersion)" />
-    <PackageReference Include="IceRpc.Slice" Version="$(IceRpcVersion)" />
+    <PackageReference Include="IceRpc.Ice" Version="$(IceRpcVersion)" />
     <PackageReference Include="IceRpc.Transports.Coloc" Version="$(IceRpcVersion)" />
     <PackageReference Include="IceRpc.RequestContext" Version="$(IceRpcVersion)" />
   </ItemGroup>
@@ -34,25 +32,28 @@
     <PackageReference Include="ZeroC.Ice.Slice.Tools" Version="$(IceVersion)" PrivateAssets="All" />
   </ItemGroup>
 
-   <ItemDefinitionGroup>
-      <SliceFile>
-        <OutputDir>$(MSBuildProjectDirectory)\generated\slice</OutputDir>
-      </SliceFile>
-    </ItemDefinitionGroup>
+  <!-- Compile all .ice files with icerpc -->
+  <ItemGroup>
+    <SliceCompile Include="Slice/*.ice">
+      <IceRpc>true</IceRpc>
+      <OutputDir>$(MSBuildProjectDirectory)/generated/icerpc</OutputDir>
+    </SliceCompile>
+  </ItemGroup>
 
-    <ItemDefinitionGroup>
-      <SliceCompile>
-        <OutputDir>$(MSBuildProjectDirectory)\generated\ice</OutputDir>
-      </SliceCompile>
-    </ItemDefinitionGroup>
+  <!-- Compile all .ice files again without icerpc -->
+  <ItemGroup>
+    <SliceCompile Include="Slice/*.ice">
+      <IceRpc>false</IceRpc>
+    </SliceCompile>
+  </ItemGroup>
 
-    <ItemGroup>
-      <None Include="..\..\certs\*.p12">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Include="..\..\certs\*.der">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
+  <ItemGroup>
+    <None Include="..\..\certs\*.p12">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="..\..\certs\*.der">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

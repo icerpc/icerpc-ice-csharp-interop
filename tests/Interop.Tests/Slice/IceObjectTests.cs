@@ -1,10 +1,9 @@
 // Copyright (c) ZeroC, Inc.
 
 using IceRpc;
-using IceRpc.Slice;
-using IceRpc.Slice.Ice;
+using IceRpc.Ice;
+using IceRpc.Ice.Codec;
 using NUnit.Framework;
-using ZeroC.Slice;
 
 namespace Interop.Tests.Slice;
 
@@ -49,7 +48,7 @@ internal partial class IceObjectTests
         using var communicator = new Ice.Communicator();
         Ice.ObjectPrx proxy = communicator.CreateObjectPrx("hello", serverAddress);
 
-        Assert.That(await proxy.ice_isAAsync(typeof(GreeterProxy).GetSliceTypeId()!), Is.True);
+        Assert.That(await proxy.ice_isAAsync(typeof(GreeterProxy).GetIceTypeId()!), Is.True);
     }
 
     /// <summary>An IceRPC client sends ice_isA to an Ice object.</summary>
@@ -64,7 +63,7 @@ internal partial class IceObjectTests
         await using var clientConnection = new ClientConnection(adapter.GetFirstServerAddress());
         var proxy = new IceObjectProxy(clientConnection, new Uri("ice:/hello"));
 
-        Assert.That(await proxy.IceIsAAsync(typeof(GreeterProxy).GetSliceTypeId()!), Is.True);
+        Assert.That(await proxy.IceIsAAsync(typeof(GreeterProxy).GetIceTypeId()!), Is.True);
     }
 
     /// <summary>Verifies that ice_ids return the same value with Ice and IceRPC.</summary>
@@ -88,7 +87,7 @@ internal partial class IceObjectTests
         Assert.That(await proxy2.ice_idsAsync(), Is.EqualTo(ids));
     }
 
-    [SliceService]
+    [Service]
     internal partial class IceService : IIceObjectService
     {
     }

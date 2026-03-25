@@ -3,9 +3,9 @@
 using Ice;
 using IceRpc;
 using IceRpc.Features;
-using IceRpc.Slice;
+using IceRpc.Ice;
+using IceRpc.Ice.Codec;
 using NUnit.Framework;
-using ZeroC.Slice;
 
 namespace Interop.Tests.Slice;
 
@@ -58,7 +58,7 @@ internal partial class ExceptionTests
     [Test]
     public void Slice_exception_to_ice_exception_with_slicing()
     {
-        var batteryException = new BatteryExceptionTwin("bt123", 5.4f);
+        var batteryException = new BatteryException("bt123", 5.4f);
 
         EngineException? exception = Assert.ThrowsAsync<EngineException>(
             async () => await SliceToIceAsync(batteryException));
@@ -120,9 +120,9 @@ internal partial class ExceptionTests
         await proxy.StartAsync();
     }
 
-    private static async Task SliceToIceAsync(SliceException sliceException)
+    private static async Task SliceToIceAsync(IceException iceException)
     {
-        await using var server = new Server(new TestEngineTwin(sliceException), new Uri("ice://127.0.0.1:0"));
+        await using var server = new Server(new TestEngineTwin(iceException), new Uri("ice://127.0.0.1:0"));
         ServerAddress serverAddress = server.Listen();
 
         using var communicator = new Ice.Communicator();
@@ -139,14 +139,14 @@ internal partial class ExceptionTests
         internal TestEngine(UserException userException) => _userException = userException;
     }
 
-    [SliceService]
+    [Service]
     private partial class TestEngineTwin : IEngineService
     {
-        private readonly SliceException _sliceException;
+        private readonly IceException _iceException;
 
         public ValueTask StartAsync(IFeatureCollection features, CancellationToken cancellationToken) =>
-            throw _sliceException;
+            throw _iceException;
 
-        internal TestEngineTwin(SliceException sliceException) => _sliceException = sliceException;
+        internal TestEngineTwin(IceException iceException) => _iceException = iceException;
     }
 }
