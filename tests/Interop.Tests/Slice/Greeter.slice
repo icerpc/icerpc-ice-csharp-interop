@@ -1,9 +1,0 @@
-// Copyright (c) ZeroC, Inc.
-
-mode = Slice1
-
-module Interop::Tests::Slice
-
-interface Greeter {
-    greet(name: string) -> string
-}

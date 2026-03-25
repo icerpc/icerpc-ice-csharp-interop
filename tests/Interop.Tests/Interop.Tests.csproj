@@ -36,6 +36,7 @@
   <ItemGroup>
     <SliceCompile Include="Slice/*.ice">
       <IceRpc>true</IceRpc>
+      <OutputDir>$(MSBuildProjectDirectory)/generated/icerpc</OutputDir>
     </SliceCompile>
   </ItemGroup>
 

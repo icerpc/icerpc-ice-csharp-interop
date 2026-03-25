@@ -4,8 +4,8 @@ using Ice;
 using IceRpc;
 using IceRpc.Features;
 using IceRpc.Ice;
-using NUnit.Framework;
 using IceRpc.Ice.Codec;
+using NUnit.Framework;
 
 namespace Interop.Tests.Slice;
 

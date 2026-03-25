@@ -1,10 +1,10 @@
 // Copyright (c) ZeroC, Inc.
 
 using Ice;
+using IceRpc.Ice.Codec;
 using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
-using IceRpc.Ice.Codec;
 
 namespace Interop.Tests.Slice;
 
