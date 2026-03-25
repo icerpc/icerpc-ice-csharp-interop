@@ -117,17 +117,16 @@ internal partial class TagTests
 
     [TestCase(null)]
     [TestCase("foo/bar:tcp -h localhost -p 10000")]
-    public async Task Ice_optional_proxy_to_slice_tagged_service_address(string? iceProxyString)
+    public async Task Ice_optional_proxy_to_slice_tagged_proxy(string? iceProxyString)
     {
         using var communicator = new Communicator();
-        ObjectPrx? proxy = iceProxyString is null ?
-            null : ObjectPrxHelper.createProxy(communicator, iceProxyString);
+        ObjectPrx? iceProxy = iceProxyString is null ? null : ObjectPrxHelper.createProxy(communicator, iceProxyString);
 
-        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opProxyAsync(proxy));
+        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opProxyAsync(iceProxy));
 
         Assert.That(
             service.ServiceAddress?.Path[1..],
-            Is.EqualTo(proxy is null ? null : Util.identityToString(proxy.ice_getIdentity())));
+            Is.EqualTo(iceProxy is null ? null : Util.identityToString(iceProxy.ice_getIdentity())));
     }
 
     [TestCase(null)]
