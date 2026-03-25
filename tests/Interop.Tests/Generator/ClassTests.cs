@@ -193,7 +193,7 @@ internal class ClassTests
         Assert.That(((MountainBike)newTruck.cargo[0]).suspensionType, Is.EqualTo(bicycle1.suspensionType));
     }
 
-    /// <summary>Verifies that a class encoded with the Ice generated code in sliced format is preserved when encoded
+    /// <summary>Verifies that a class encoded with the IceRpc generated code in sliced format is preserved when encoded
     /// and then re-encoded with the Ice generated code.</summary>
     [Test]
     public void IceRpc_class_preserved_by_ice()

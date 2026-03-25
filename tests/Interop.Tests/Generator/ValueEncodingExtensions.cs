@@ -13,7 +13,7 @@ internal static class ValueEncodingExtensions
 {
     /// <summary>Encodes a value with <see cref="IceEncoder" /> and decodes it with <see cref="InputStream" />.
     /// </summary>
-    /// <param name="value">The value to encode with IceRPC's encoder.</param>
+    /// <param name="value">The value to encode with the IceRPC encoder.</param>
     /// <param name="communicator">The Ice communicator used to decode the value.</param>
     /// <param name="encodeAction">The function to encode the value with the IceRPC encoder.</param>
     /// <param name="decodeFunc">The function to decode the value with the Ice decoder.</param>
@@ -38,7 +38,7 @@ internal static class ValueEncodingExtensions
 
     /// <summary>Encodes a value with <see cref="OutputStream" /> and decodes it with <see cref="IceDecoder" />.
     /// </summary>
-    /// <param name="value">The value to encode with IceRPC's encoder.</param>
+    /// <param name="value">The value to encode with the IceRPC encoder.</param>
     /// <param name="encodeAction">The function to encode the value with the Ice encoder.</param>
     /// <param name="decodeFunc">The function to decode the value with the IceRPC decoder.</param>
     /// <returns>The decoded value.</returns>

@@ -8,7 +8,7 @@ namespace Interop.Tests.Generator;
 [Parallelizable(scope: ParallelScope.All)]
 internal class PrimitiveTypeTests
 {
-    /// <summary>Encodes an Ice bool then decodes an IceRpc bool.</summary>
+    /// <summary>Encodes a bool using Ice then decodes it using IceRpc.</summary>
     [Test]
     public void Ice_bool_to_icerpc_bool([Values] bool value)
     {
@@ -19,7 +19,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an IceRpc bool then decodes an Ice bool.</summary>
+    /// <summary>Encodes a bool using IceRpc then decodes it using Ice.</summary>
     [Test]
     public void IceRpc_bool_to_ice_bool([Values] bool value)
     {
@@ -32,7 +32,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an Ice short then decodes an IceRpc short.</summary>
+    /// <summary>Encodes a short using Ice then decodes it using IceRpc.</summary>
     [Test]
     public void Ice_short_to_icerpc_short([Values(-30_000, 30_000)] short value)
     {
@@ -43,7 +43,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an IceRpc short then decodes an Ice short.</summary>
+    /// <summary>Encodes a short using IceRpc then decodes it using Ice.</summary>
     [Test]
     public void IceRpc_short_to_ice_short([Values(-30_000, 30_000)] short value)
     {
@@ -56,7 +56,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an Ice double then decodes an IceRpc double.</summary>
+    /// <summary>Encodes a double using Ice then decodes it using IceRpc.</summary>
     [TestCase(-3.141592653589793238462643383279502884197)]
     [TestCase(0.0)]
     [TestCase(2.71828182845904523536028747135266249775724709369995957)]
@@ -69,7 +69,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an IceRpc double then decodes an Ice double.</summary>
+    /// <summary>Encodes a double using IceRpc then decodes it using Ice.</summary>
     [TestCase(-3.141592653589793238462643383279502884197)]
     [TestCase(0.0)]
     [TestCase(2.71828182845904523536028747135266249775724709369995957)]
@@ -84,7 +84,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an Ice size then decodes an IceRpc size.</summary>
+    /// <summary>Encodes a size using Ice then decodes it using IceRpc.</summary>
     [Test]
     public void Ice_size_to_icerpc_size([Values(0, 7, 254, 350)] int value)
     {
@@ -95,7 +95,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an IceRpc size then decodes an Ice size.</summary>
+    /// <summary>Encodes a size using IceRpc then decodes it using Ice.</summary>
     [Test]
     public void IceRpc_size_to_ice_size([Values(0, 7, 254, 350)] int value)
     {
@@ -108,7 +108,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an Ice string then decodes an IceRpc string.</summary>
+    /// <summary>Encodes a string using Ice then decodes it using IceRpc.</summary>
     [TestCase("abcd")]
     [TestCase("")]
     [TestCase("국민경제의 발전을 위한 중요정책의 수립에 관하여 대통령의 자문에 응하기 위하여 국민경제자문회의를 둘 수 있다")]
@@ -123,7 +123,7 @@ internal class PrimitiveTypeTests
         Assert.That(decodedValue, Is.EqualTo(value));
     }
 
-    /// <summary>Encodes an IceRpc string then decodes an Ice string.</summary>
+    /// <summary>Encodes a string using IceRpc then decodes it using Ice.</summary>
     [TestCase("abcd")]
     [TestCase("")]
     [TestCase("국민경제의 발전을 위한 중요정책의 수립에 관하여 대통령의 자문에 응하기 위하여 국민경제자문회의를 둘 수 있다")]

@@ -26,7 +26,7 @@ internal partial class ExceptionTests
         Assert.That(exception!.Cylinder, Is.EqualTo(cylinderException.cylinder));
     }
 
-    /// <summary>Throws an exception encoded with the IceRpc generated code and decodes this exception with the .ice
+    /// <summary>Throws an exception encoded with the IceRpc generated code and decodes this exception with the Ice
     /// generated code.</summary>
     [Test]
     public void IceRpc_exception_to_ice_exception()

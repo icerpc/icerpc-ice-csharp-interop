@@ -1,6 +1,6 @@
 // Copyright (c) ZeroC, Inc.
 
-// A sequence is encoded as a size for the number of elements followed by the encoded elements.
+// A dictionary is encoded as a size for the number of entries followed by the encoded entries.
 
 module Interop::Tests::Generator
 {
