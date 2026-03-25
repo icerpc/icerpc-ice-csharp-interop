@@ -125,7 +125,7 @@ internal partial class TagTests
         TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opProxyAsync(iceProxy));
 
         Assert.That(
-            service.ServiceAddress?.Path[1..],
+            service.Proxy?.ServiceAddress.Path[1..],
             Is.EqualTo(iceProxy is null ? null : Util.identityToString(iceProxy.ice_getIdentity())));
     }
 
@@ -306,7 +306,7 @@ internal partial class TagTests
 
         internal PointTwin[]? PointSeq { get; private set; }
 
-        internal ServiceAddress? ServiceAddress { get; private set; }
+        internal IceObjectProxy? Proxy { get; private set; }
 
         internal string? Str { get; private set; }
 
@@ -353,7 +353,7 @@ internal partial class TagTests
             IFeatureCollection features,
             CancellationToken cancellationToken)
         {
-            ServiceAddress = proxy?.ServiceAddress;
+            Proxy = proxy;
             return default;
         }
 

@@ -142,11 +142,11 @@ internal partial class ExceptionTests
     [Service]
     private partial class TestEngineTwin : IEngineService
     {
-        private readonly IceException _sliceException;
+        private readonly IceException _iceException;
 
         public ValueTask StartAsync(IFeatureCollection features, CancellationToken cancellationToken) =>
-            throw _sliceException;
+            throw _iceException;
 
-        internal TestEngineTwin(IceException iceException) => _sliceException = iceException;
+        internal TestEngineTwin(IceException iceException) => _iceException = iceException;
     }
 }
