@@ -5,7 +5,7 @@ using IceRpc;
 using IceRpc.Features;
 using IceRpc.Ice;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 /// <summary>A basic, reusable implementation of <see cref="GreeterDisp_" /> and <see cref="IGreeterService" />.
 /// </summary>

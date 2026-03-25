@@ -6,7 +6,7 @@ using IceRpc.Features;
 using IceRpc.Ice;
 using NUnit.Framework;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal partial class TagTests
@@ -31,7 +31,7 @@ internal partial class TagTests
         }
     }
 
-    private static IEnumerable<TestCaseData> SliceSequenceSource
+    private static IEnumerable<TestCaseData> IceRpcSequenceSource
     {
         get
         {
@@ -61,7 +61,7 @@ internal partial class TagTests
         }
     }
 
-    private static IEnumerable<TestCaseData> SliceStructSource
+    private static IEnumerable<TestCaseData> IceRpcStructSource
     {
         get
         {
@@ -74,9 +74,9 @@ internal partial class TagTests
     [TestCase(null, null, null, null)]               // all null
     [TestCase(null, null, null, 123.456)]            // mix of null and non-null
     [TestCase(true, 30_000, -5, -121_212.3434)]      // all non-null
-    public async Task Ice_optional_numeric_to_slice_tagged_numeric(bool? f1, short? f2, int? f4, double? f8)
+    public async Task Ice_optional_numeric_to_icerpc_tagged_numeric(bool? f1, short? f2, int? f4, double? f8)
     {
-        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opFixedAsync(f1, f2, f4, f8));
+        TagTestServiceTwin service = await IceToIceRpcAsync(proxy => proxy.opFixedAsync(f1, f2, f4, f8));
 
         Assert.That(service.F1, Is.EqualTo(f1));
         Assert.That(service.F2, Is.EqualTo(f2));
@@ -87,9 +87,9 @@ internal partial class TagTests
     [TestCase(null, null, null, null)]           // all null
     [TestCase(null, null, null, 123.456)]        // mix of null and non-null
     [TestCase(true, 30_000, -5, -121_212.3434)]  // all non-null
-    public async Task Slice_tagged_numeric_to_ice_optional_numeric(bool? f1, short? f2, int? f4, double? f8)
+    public async Task IceRpc_tagged_numeric_to_ice_optional_numeric(bool? f1, short? f2, int? f4, double? f8)
     {
-        TagTestService service = await SliceToIceAsync(proxy => proxy.OpFixedAsync(f1, f2, f4, f8));
+        TagTestService service = await IceRpcToIceAsync(proxy => proxy.OpFixedAsync(f1, f2, f4, f8));
 
         Assert.That(service.F1, Is.EqualTo(f1));
         Assert.That(service.F2, Is.EqualTo(f2));
@@ -99,30 +99,30 @@ internal partial class TagTests
 
     [TestCase(Fruit.Orange)]
     [TestCase(null)]
-    public async Task Ice_optional_enum_to_slice_tagged_enum(Fruit? fruit)
+    public async Task Ice_optional_enum_to_icerpc_tagged_enum(Fruit? fruit)
     {
-        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opEnumAsync(fruit));
+        TagTestServiceTwin service = await IceToIceRpcAsync(proxy => proxy.opEnumAsync(fruit));
 
         Assert.That((Fruit?)service.Fruit, Is.EqualTo(fruit));
     }
 
     [TestCase(FruitTwin.Orange)]
     [TestCase(null)]
-    public async Task Slice_tagged_enum_to_ice_optional_enum(FruitTwin? fruit)
+    public async Task IceRpc_tagged_enum_to_ice_optional_enum(FruitTwin? fruit)
     {
-        TagTestService service = await SliceToIceAsync(proxy => proxy.OpEnumAsync(fruit));
+        TagTestService service = await IceRpcToIceAsync(proxy => proxy.OpEnumAsync(fruit));
 
         Assert.That((FruitTwin?)service.Fruit, Is.EqualTo(fruit));
     }
 
     [TestCase(null)]
     [TestCase("foo/bar:tcp -h localhost -p 10000")]
-    public async Task Ice_optional_proxy_to_slice_tagged_proxy(string? iceProxyString)
+    public async Task Ice_optional_proxy_to_icerpc_tagged_proxy(string? iceProxyString)
     {
         using var communicator = new Communicator();
         ObjectPrx? iceProxy = iceProxyString is null ? null : ObjectPrxHelper.createProxy(communicator, iceProxyString);
 
-        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opProxyAsync(iceProxy));
+        TagTestServiceTwin service = await IceToIceRpcAsync(proxy => proxy.opProxyAsync(iceProxy));
 
         Assert.That(
             service.Proxy?.ServiceAddress.Path[1..],
@@ -131,12 +131,12 @@ internal partial class TagTests
 
     [TestCase(null)]
     [TestCase("ice://localhost:10000/foo/bar")]
-    public async Task Slice_tagged_proxy_to_ice_optional_proxy(string? proxyString)
+    public async Task IceRpc_tagged_proxy_to_ice_optional_proxy(string? proxyString)
     {
         IceObjectProxy? objectProxy =
             proxyString is null ? null : new IceObjectProxy(InvalidInvoker.Instance, new Uri(proxyString));
 
-        TagTestService service = await SliceToIceAsync(proxy => proxy.OpProxyAsync(objectProxy));
+        TagTestService service = await IceRpcToIceAsync(proxy => proxy.OpProxyAsync(objectProxy));
 
         Assert.That(
             service.Proxy is null ? null : Util.identityToString(service.Proxy.ice_getIdentity()),
@@ -144,9 +144,9 @@ internal partial class TagTests
     }
 
     [Test, TestCaseSource(nameof(IceStructSource))]
-    public async Task Ice_optional_struct_to_slice_tagged_struct(Point? point, Person? person)
+    public async Task Ice_optional_struct_to_icerpc_tagged_struct(Point? point, Person? person)
     {
-        TagTestServiceTwin service = await IceToSliceAsync(proxy => proxy.opStructAsync(point, person));
+        TagTestServiceTwin service = await IceToIceRpcAsync(proxy => proxy.opStructAsync(point, person));
 
         Assert.That(service.Point?.X, Is.EqualTo(point?.x));
         Assert.That(service.Point?.Y, Is.EqualTo(point?.y));
@@ -154,10 +154,10 @@ internal partial class TagTests
         Assert.That((Fruit?)service.Person?.FavoriteFruit, Is.EqualTo(person?.favoriteFruit));
     }
 
-    [Test, TestCaseSource(nameof(SliceStructSource))]
-    public async Task Slice_tagged_struct_to_ice_optional_struct(PointTwin? point, PersonTwin? person)
+    [Test, TestCaseSource(nameof(IceRpcStructSource))]
+    public async Task IceRpc_tagged_struct_to_ice_optional_struct(PointTwin? point, PersonTwin? person)
     {
-        TagTestService service = await SliceToIceAsync(proxy => proxy.OpStructAsync(point, person));
+        TagTestService service = await IceRpcToIceAsync(proxy => proxy.OpStructAsync(point, person));
 
         Assert.That(service.Point?.x, Is.EqualTo(point?.X));
         Assert.That(service.Point?.y, Is.EqualTo(point?.Y));
@@ -166,13 +166,13 @@ internal partial class TagTests
     }
 
     [Test, TestCaseSource(nameof(IceSequenceSource))]
-    public async Task Ice_optional_sequence_to_slice_tagged_sequence(
+    public async Task Ice_optional_sequence_to_icerpc_tagged_sequence(
         string? str,
         OneByte[]? oneByteSeq,
         Point[]? pointSeq,
         string[]? stringSeq)
     {
-        TagTestServiceTwin service = await IceToSliceAsync(
+        TagTestServiceTwin service = await IceToIceRpcAsync(
             proxy => proxy.opSequenceAsync(str, oneByteSeq, pointSeq, stringSeq));
 
         Assert.That(service.Str, Is.EqualTo(str));
@@ -181,14 +181,14 @@ internal partial class TagTests
         Assert.That(service.StringSeq, Is.EqualTo(stringSeq));
     }
 
-    [Test, TestCaseSource(nameof(SliceSequenceSource))]
-    public async Task Slice_tagged_struct_to_ice_optional_struct(
+    [Test, TestCaseSource(nameof(IceRpcSequenceSource))]
+    public async Task IceRpc_tagged_struct_to_ice_optional_struct(
         string? str,
         OneByteTwin[]? oneByteSeq,
         PointTwin[]? pointSeq,
         string[]? stringSeq)
     {
-        TagTestService service = await SliceToIceAsync(
+        TagTestService service = await IceRpcToIceAsync(
             proxy => proxy.OpSequenceAsync(str, oneByteSeq, pointSeq, stringSeq));
 
         Assert.That(service.Str, Is.EqualTo(str));
@@ -197,7 +197,7 @@ internal partial class TagTests
         Assert.That(service.StringSeq, Is.EqualTo(stringSeq));
     }
 
-    private static async Task<TagTestServiceTwin> IceToSliceAsync(Func<TagTestPrx, Task> func)
+    private static async Task<TagTestServiceTwin> IceToIceRpcAsync(Func<TagTestPrx, Task> func)
     {
         var service = new TagTestServiceTwin();
         await using var server = new Server(service, new Uri("ice://127.0.0.1:0"));
@@ -209,7 +209,7 @@ internal partial class TagTests
         return service;
     }
 
-    private static async Task<TagTestService> SliceToIceAsync(Func<ITagTest, Task> func)
+    private static async Task<TagTestService> IceRpcToIceAsync(Func<ITagTest, Task> func)
     {
         using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");

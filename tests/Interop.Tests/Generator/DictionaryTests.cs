@@ -3,7 +3,7 @@
 using IceRpc.Ice.Codec;
 using NUnit.Framework;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal class DictionaryTests
@@ -22,9 +22,9 @@ internal class DictionaryTests
     }
 
     [TestCaseSource(nameof(DictionarySource))]
-    public void Ice_dictionary_to_Slice_dictionary(Dictionary<short, short> value)
+    public void Ice_dictionary_to_IceRpc_dictionary(Dictionary<short, short> value)
     {
-        Dictionary<short, short> decodedValue = value.IceToSlice(
+        Dictionary<short, short> decodedValue = value.IceToIceRpc(
             ShortShortDictHelper.write,
             (ref decoder) => decoder.DecodeDictionary(
                 count => new Dictionary<short, short>(count),
@@ -35,10 +35,10 @@ internal class DictionaryTests
     }
 
     [TestCaseSource(nameof(DictionarySource))]
-    public void Slice_dictionary_to_ice_dictionary(Dictionary<short, short> value)
+    public void IceRpc_dictionary_to_ice_dictionary(Dictionary<short, short> value)
     {
         using var communicator = new Ice.Communicator();
-        Dictionary<short, short> decodedValue = value.SliceToIce(
+        Dictionary<short, short> decodedValue = value.IceRpcToIce(
             communicator,
             (ref encoder, value) => encoder.EncodeDictionary(
                 value,

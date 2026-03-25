@@ -6,19 +6,19 @@ using NUnit.Framework;
 using System.Buffers;
 using System.IO.Pipelines;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal class ClassTests
 {
-    /// <summary>Encodes a class with the .ice-generated code and decodes this class with the .slice-generated code.
+    /// <summary>Encodes a class with the Ice generated code and decodes this class with the IceRpc generated code.
     /// </summary>
     [Test]
-    public void Ice_class_to_slice_class([Values] bool slicedFormat)
+    public void Ice_class_to_icerpc_class([Values] bool slicedFormat)
     {
         var value = new Bicycle("xyz", hasBasket: true);
 
-        BicycleTwin? decodedValue = IceToSlice(
+        BicycleTwin? decodedValue = IceToIceRpc(
             slicedFormat,
             outputStream => outputStream.writeValue(value),
             (ref decoder) => decoder.DecodeClass<BicycleTwin>())!;
@@ -27,14 +27,14 @@ internal class ClassTests
         Assert.That(decodedValue.HasBasket, Is.EqualTo(value.hasBasket));
     }
 
-    /// <summary>Encodes a class with the .slice-generated code and decodes this class with the .ice-generated code.
+    /// <summary>Encodes a class with the IceRpc generated code and decodes this class with the Ice generated code.
     /// </summary>
     [Test]
-    public void Slice_class_to_ice_class([Values] bool slicedFormat)
+    public void IceRpc_class_to_ice_class([Values] bool slicedFormat)
     {
         var value = new BicycleTwin("xyz", hasBasket: true);
 
-        Bicycle decodedValue = SliceToIce(
+        Bicycle decodedValue = IceRpcToIce(
             slicedFormat,
             (ref encoder) => encoder.EncodeClass(value),
             inputStream =>
@@ -48,10 +48,10 @@ internal class ClassTests
         Assert.That(decodedValue.hasBasket, Is.EqualTo(value.HasBasket));
     }
 
-    /// <summary>Encodes a fairly complex class graph with the .ice-generated code and decodes this graph with the
-    /// .slice-generated code. This verifies the "reference semantics" of class instances.</summary>
+    /// <summary>Encodes a fairly complex class graph with the Ice generated code and decodes this graph with the
+    /// IceRpc generated code. This verifies the "reference semantics" of class instances.</summary>
     [Test]
-    public void Ice_class_graph_to_slice_class_graph([Values] bool slicedFormat)
+    public void Ice_class_graph_to_icerpc_class_graph([Values] bool slicedFormat)
     {
         var truck = new Truck();
 
@@ -62,7 +62,7 @@ internal class ClassTests
         // Here the truck's cargo includes itself.
         truck.cargo = [bicycle1, bicycle2, bicycle3, bicycle1, truck];
 
-        TruckTwin truckTwin = IceToSlice(
+        TruckTwin truckTwin = IceToIceRpc(
             slicedFormat,
             outputStream => outputStream.writeValue(truck),
             (ref decoder) => decoder.DecodeClass<TruckTwin>())!;
@@ -75,10 +75,10 @@ internal class ClassTests
         Assert.That(truckTwin.Cargo[4], Is.SameAs(truckTwin));
     }
 
-    /// <summary>Encodes a fairly complex class graph with the .slice-generated code and decodes this graph with the
-    /// .ice-generated code. This verifies the "reference semantics" of class instances.</summary>
+    /// <summary>Encodes a fairly complex class graph with the IceRpc generated code and decodes this graph with the
+    /// Ice generated code. This verifies the "reference semantics" of class instances.</summary>
     [Test]
-    public void Slice_class_graph_to_ice_class_Gra([Values] bool slicedFormat)
+    public void IceRpc_class_graph_to_ice_class_Gra([Values] bool slicedFormat)
     {
         var truckTwin = new TruckTwin("carrier", []);
 
@@ -90,7 +90,7 @@ internal class ClassTests
         // The truck's cargo includes itself:
         truckTwin.Cargo.Add(truckTwin);
 
-        Truck truck = SliceToIce(
+        Truck truck = IceRpcToIce(
             slicedFormat,
             (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
@@ -108,10 +108,10 @@ internal class ClassTests
         Assert.That(truck.cargo[4], Is.SameAs(truck));
     }
 
-    /// <summary>Verifies that a class encoded with the .ice generated code in sliced format can be successfully sliced
-    /// when decoded with the .slice generated code.</summary>
+    /// <summary>Verifies that a class encoded with the Ice generated code in sliced format can be successfully sliced
+    /// when decoded with the IceRpc generated code.</summary>
     [Test]
-    public void Ice_class_to_slice_class_with_slicing()
+    public void Ice_class_to_icerpc_class_with_slicing()
     {
         var truck = new Truck();
 
@@ -120,7 +120,7 @@ internal class ClassTests
 
         truck.cargo = [bicycle1, bicycle2, bicycle1];
 
-        TruckTwin truckTwin = IceToSlice(
+        TruckTwin truckTwin = IceToIceRpc(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
             (ref decoder) => decoder.DecodeClass<TruckTwin>())!;
@@ -131,10 +131,10 @@ internal class ClassTests
         Assert.That(truckTwin.Cargo[2], Is.SameAs(truckTwin.Cargo[0]));
     }
 
-    /// <summary>Verifies that a class encoded with the .slice generated code in sliced format can be successfully
-    /// sliced when decoded with the .ice generated code.</summary>
+    /// <summary>Verifies that a class encoded with the IceRpc generated code in sliced format can be successfully
+    /// sliced when decoded with the Ice generated code.</summary>
     [Test]
-    public void Slice_class_to_ice_class_with_slicing()
+    public void IceRpc_class_to_ice_class_with_slicing()
     {
         var truckTwin = new TruckTwin("carrier", []);
 
@@ -143,7 +143,7 @@ internal class ClassTests
         truckTwin.Cargo.Add(new BicycleTwin("b2", hasBasket: false));
         truckTwin.Cargo.Add(bicycleTwin1);
 
-        Truck truck = SliceToIce(
+        Truck truck = IceRpcToIce(
             slicedFormat: true,
             (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
@@ -159,10 +159,10 @@ internal class ClassTests
         Assert.That(truck.cargo[2], Is.SameAs(truck.cargo[0]));
     }
 
-    /// <summary>Verifies that a class encoded with the .ice generated code in sliced format is preserved when encoded
-    /// and then re-encoded with the .slice generated code.</summary>
+    /// <summary>Verifies that a class encoded with the Ice generated code in sliced format is preserved when encoded
+    /// and then re-encoded with the IceRpc generated code.</summary>
     [Test]
-    public void Ice_class_preserved_by_slice()
+    public void Ice_class_preserved_by_icerpc()
     {
         var truck = new Truck();
 
@@ -171,12 +171,12 @@ internal class ClassTests
 
         truck.cargo = [bicycle1, bicycle2, bicycle1];
 
-        TruckTwin truckTwin = IceToSlice(
+        TruckTwin truckTwin = IceToIceRpc(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
             (ref decoder) => decoder.DecodeClass<TruckTwin>())!;
 
-        Truck newTruck = SliceToIce(
+        Truck newTruck = IceRpcToIce(
             slicedFormat: true,
             (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
@@ -193,10 +193,10 @@ internal class ClassTests
         Assert.That(((MountainBike)newTruck.cargo[0]).suspensionType, Is.EqualTo(bicycle1.suspensionType));
     }
 
-    /// <summary>Verifies that a class encoded with the .ice generated code in sliced format is preserved when encoded
-    /// and then re-encoded with the .ice generated code.</summary>
+    /// <summary>Verifies that a class encoded with the Ice generated code in sliced format is preserved when encoded
+    /// and then re-encoded with the Ice generated code.</summary>
     [Test]
-    public void Slice_class_preserved_by_ice()
+    public void IceRpc_class_preserved_by_ice()
     {
         var truckTwin = new TruckTwin("carrier", []);
 
@@ -205,7 +205,7 @@ internal class ClassTests
         truckTwin.Cargo.Add(new BicycleTwin("b2", hasBasket: false));
         truckTwin.Cargo.Add(bicycleTwin1);
 
-        Truck truck = SliceToIce(
+        Truck truck = IceRpcToIce(
             slicedFormat: true,
             (ref encoder) => encoder.EncodeClass(truckTwin),
             inputStream =>
@@ -215,7 +215,7 @@ internal class ClassTests
                 return truck;
             });
 
-        TruckTwin newTruckTwin = IceToSlice(
+        TruckTwin newTruckTwin = IceToIceRpc(
             slicedFormat: true,
             outputStream => outputStream.writeValue(truck),
             (ref decoder) => decoder.DecodeClass<TruckTwin>())!;
@@ -227,7 +227,7 @@ internal class ClassTests
         Assert.That(((RacingBicycle)newTruckTwin.Cargo[0]).MaxSpeed, Is.EqualTo(bicycleTwin1.MaxSpeed));
     }
 
-    private static T IceToSlice<T>(bool slicedFormat, Action<OutputStream> encodeAction, DecodeFunc<T> decodeFunc)
+    private static T IceToIceRpc<T>(bool slicedFormat, Action<OutputStream> encodeAction, DecodeFunc<T> decodeFunc)
     {
         using var communicator = new Communicator();
         var outputStream = new OutputStream(communicator);
@@ -249,7 +249,7 @@ internal class ClassTests
         return result;
     }
 
-    private static T SliceToIce<T>(bool slicedFormat, EncodeAction encodeAction, Func<InputStream, T> decodeFunc)
+    private static T IceRpcToIce<T>(bool slicedFormat, EncodeAction encodeAction, Func<InputStream, T> decodeFunc)
     {
         var pipe = new Pipe();
         var encoder = new IceEncoder(

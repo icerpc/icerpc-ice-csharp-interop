@@ -34,7 +34,7 @@
 
   <!-- Compile all .ice files with icerpc -->
   <ItemGroup>
-    <SliceCompile Include="Slice/*.ice">
+    <SliceCompile Include="Generator/*.ice">
       <IceRpc>true</IceRpc>
       <OutputDir>$(MSBuildProjectDirectory)/generated/icerpc</OutputDir>
     </SliceCompile>
@@ -42,7 +42,7 @@
 
   <!-- Compile all .ice files again without icerpc -->
   <ItemGroup>
-    <SliceCompile Include="Slice/*.ice">
+    <SliceCompile Include="Generator/*.ice">
       <IceRpc>false</IceRpc>
     </SliceCompile>
   </ItemGroup>

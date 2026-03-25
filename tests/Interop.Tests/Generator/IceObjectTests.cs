@@ -5,12 +5,12 @@ using IceRpc.Ice;
 using IceRpc.Ice.Codec;
 using NUnit.Framework;
 
-namespace Interop.Tests.Slice;
+namespace Interop.Tests.Generator;
 
 [Parallelizable(scope: ParallelScope.All)]
 internal partial class IceObjectTests
 {
-    /// <summary>An Ice client sends ice_ping to an IceRPC service that implements Ice::Object.</summary>
+    /// <summary>an Ice client sends ice_ping to an IceRpc service that implements Ice::Object.</summary>
     [Test]
     public async Task Ice_ping_on_IceRPC_service()
     {
@@ -23,7 +23,7 @@ internal partial class IceObjectTests
         Assert.That(async () => await proxy.ice_pingAsync(), Throws.Nothing);
     }
 
-    /// <summary>An IceRPC client sends ice_ping to an Ice object.</summary>
+    /// <summary>an IceRpc client sends ice_ping to an Ice object.</summary>
     [Test]
     public async Task Ice_ping_on_Ice_object()
     {
@@ -38,7 +38,7 @@ internal partial class IceObjectTests
         Assert.That(async () => await proxy.IcePingAsync(), Throws.Nothing);
     }
 
-    /// <summary>An Ice client sends ice_isA to an IceRPC service.</summary>
+    /// <summary>an Ice client sends ice_isA to an IceRpc service.</summary>
     [Test]
     public async Task Ice_isA_on_IceRPC_service()
     {
@@ -51,7 +51,7 @@ internal partial class IceObjectTests
         Assert.That(await proxy.ice_isAAsync(typeof(GreeterProxy).GetIceTypeId()!), Is.True);
     }
 
-    /// <summary>An IceRPC client sends ice_isA to an Ice object.</summary>
+    /// <summary>an IceRpc client sends ice_isA to an Ice object.</summary>
     [Test]
     public async Task Ice_isA_on_Ice_object()
     {
