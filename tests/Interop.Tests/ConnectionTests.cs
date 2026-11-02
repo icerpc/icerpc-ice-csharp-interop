@@ -62,7 +62,7 @@ internal class ConnectionTests
     {
         // Arrange
         byte[] expectedPayload = [.. Enumerable.Range(0, 4096).Select(p => (byte)p)];
-        var tcs = new TaskCompletionSource<byte[]>();
+        var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
         var dispatcher = new InlineDispatcher(async (request, cancellationToken) =>
         {
             ReadResult readResult = await request.Payload.ReadAtLeastAsync(
@@ -149,7 +149,7 @@ internal class ConnectionTests
     {
         // Arrange
         byte[] expectedPayload = [.. Enumerable.Range(0, 4096).Select(p => (byte)p)];
-        var tcs = new TaskCompletionSource<byte[]>();
+        var tcs = new TaskCompletionSource<byte[]>(TaskCreationOptions.RunContinuationsAsynchronously);
 
         using var communicator = new Communicator();
         ObjectAdapter adapter = communicator.createObjectAdapterWithEndpoints("test", "tcp -h 127.0.0.1 -p 0");
