@@ -9,8 +9,8 @@
         <WarningLevel>4</WarningLevel>
         <DefineConstants>TRACE</DefineConstants>
         <Nullable>enable</Nullable>
-        <TargetFramework>net10.0</TargetFramework>
-        <LangVersion>14.0</LangVersion>
+        <TargetFramework>net11.0</TargetFramework>
+        <LangVersion>15.0</LangVersion>
         <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
         <AnalysisMode>All</AnalysisMode>
         <ImplicitUsings>true</ImplicitUsings>

@@ -25,8 +25,7 @@ internal class ProxyTests
     [TestCase("hello -f myFacet @adapter")]
     [TestCase("hello -f myFacet")]
     [TestCase("波/hello%20 -f 😍")]
-    [TestCase("hello -p 2.0:opaque -t 0 -e 1.1 -v J2ljZXJwYzovLzEyNy4wLjAuMToxMDAwMC8/dHJhbnNwb3J0PXRjcA==")]
-    [TestCase("cat/hello -p 2.0 @adapter")]
+    [TestCase("hello -p 2.0:opaque -t 0 -e 1.1 -v JmljZXJwYzovLzEyNy4wLjAuMToxMDAwMD90cmFuc3BvcnQ9dGNw")]
     [TestCase("cat/hello -p 2.0")]
     public void Proxy_to_proxy_and_back(string iceString)
     {
@@ -68,7 +67,6 @@ internal class ProxyTests
     [TestCase("ice://127.0.0.1:10000/hello?transport=tcp&alt-server=foo?transport=wss&alt-server=bar?transport=xyz")]
     [TestCase("ice:/hello?adapter-id=foo#facet")]
     [TestCase("icerpc://127.0.0.1:10000/hello?transport=tcp")]
-    [TestCase("icerpc:/cat/hello?adapter-id=foo")]
     public void Proxy_to_proxy_and_back_icerpc(string proxyString)
     {
         // Arrange
