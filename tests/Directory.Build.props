@@ -3,6 +3,10 @@
     <Import Project="$(MSBuildThisFileDirectory)../build/Common.props" />
     <ItemGroup>
         <AdditionalFiles Include="$(MSBuildThisFileDirectory)../build/stylecop.json" Link="stylecop.json" />
+        <PackageReference Include="StyleCop.Analyzers" Version="$(StyleCopAnalyzersVersion)">
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../build/CodeAnalysis.base.globalconfig" />
         <GlobalAnalyzerConfigFiles Include="$(MSBuildThisFileDirectory)../build/CodeAnalysis.tests.globalconfig" />
     </ItemGroup>
