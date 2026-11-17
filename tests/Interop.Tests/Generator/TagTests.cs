@@ -71,9 +71,9 @@ internal partial class TagTests
         }
     }
 
-    [TestCase(null, null, null, null)]               // all null
-    [TestCase(null, null, null, 123.456)]            // mix of null and non-null
-    [TestCase(true, 30_000, -5, -121_212.3434)]      // all non-null
+    [TestCase(null, null, null, null)] // all null
+    [TestCase(null, null, null, 123.456)] // mix of null and non-null
+    [TestCase(true, 30_000, -5, -121_212.3434)] // all non-null
     public async Task Ice_optional_numeric_to_icerpc_tagged_numeric(bool? f1, short? f2, int? f4, double? f8)
     {
         TagTestServiceTwin service = await IceToIceRpcAsync(proxy => proxy.opFixedAsync(f1, f2, f4, f8));
@@ -84,9 +84,9 @@ internal partial class TagTests
         Assert.That(service.F8, Is.EqualTo(f8));
     }
 
-    [TestCase(null, null, null, null)]           // all null
-    [TestCase(null, null, null, 123.456)]        // mix of null and non-null
-    [TestCase(true, 30_000, -5, -121_212.3434)]  // all non-null
+    [TestCase(null, null, null, null)] // all null
+    [TestCase(null, null, null, 123.456)] // mix of null and non-null
+    [TestCase(true, 30_000, -5, -121_212.3434)] // all non-null
     public async Task IceRpc_tagged_numeric_to_ice_optional_numeric(bool? f1, short? f2, int? f4, double? f8)
     {
         TagTestService service = await IceRpcToIceAsync(proxy => proxy.OpFixedAsync(f1, f2, f4, f8));
@@ -143,7 +143,8 @@ internal partial class TagTests
             Is.EqualTo(objectProxy?.ServiceAddress.Path[1..]));
     }
 
-    [Test, TestCaseSource(nameof(IceStructSource))]
+    [Test]
+    [TestCaseSource(nameof(IceStructSource))]
     public async Task Ice_optional_struct_to_icerpc_tagged_struct(Point? point, Person? person)
     {
         TagTestServiceTwin service = await IceToIceRpcAsync(proxy => proxy.opStructAsync(point, person));
@@ -154,7 +155,8 @@ internal partial class TagTests
         Assert.That((Fruit?)service.Person?.FavoriteFruit, Is.EqualTo(person?.favoriteFruit));
     }
 
-    [Test, TestCaseSource(nameof(IceRpcStructSource))]
+    [Test]
+    [TestCaseSource(nameof(IceRpcStructSource))]
     public async Task IceRpc_tagged_struct_to_ice_optional_struct(PointTwin? point, PersonTwin? person)
     {
         TagTestService service = await IceRpcToIceAsync(proxy => proxy.OpStructAsync(point, person));
@@ -165,7 +167,8 @@ internal partial class TagTests
         Assert.That((FruitTwin?)service.Person?.favoriteFruit, Is.EqualTo(person?.FavoriteFruit));
     }
 
-    [Test, TestCaseSource(nameof(IceSequenceSource))]
+    [Test]
+    [TestCaseSource(nameof(IceSequenceSource))]
     public async Task Ice_optional_sequence_to_icerpc_tagged_sequence(
         string? str,
         OneByte[]? oneByteSeq,
@@ -181,7 +184,8 @@ internal partial class TagTests
         Assert.That(service.StringSeq, Is.EqualTo(stringSeq));
     }
 
-    [Test, TestCaseSource(nameof(IceRpcSequenceSource))]
+    [Test]
+    [TestCaseSource(nameof(IceRpcSequenceSource))]
     public async Task IceRpc_tagged_struct_to_ice_optional_struct(
         string? str,
         OneByteTwin[]? oneByteSeq,

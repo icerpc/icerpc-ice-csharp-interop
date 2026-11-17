@@ -208,7 +208,8 @@ internal class ConnectionTests
     }
 
     /// <summary>Sends a failure from Ice to IceRPC.</summary>
-    [Test, TestCaseSource(nameof(SystemExceptionToStatusCode))]
+    [Test]
+    [TestCaseSource(nameof(SystemExceptionToStatusCode))]
     public async Task Send_failure_from_Ice_to_IceRPC(
         Ice.Exception systemException,
         StatusCode statusCode,
