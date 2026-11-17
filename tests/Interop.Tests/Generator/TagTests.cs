@@ -186,7 +186,7 @@ internal partial class TagTests
 
     [Test]
     [TestCaseSource(nameof(IceRpcSequenceSource))]
-    public async Task IceRpc_tagged_struct_to_ice_optional_struct(
+    public async Task IceRpc_tagged_sequence_to_ice_optional_sequence(
         string? str,
         OneByteTwin[]? oneByteSeq,
         PointTwin[]? pointSeq,
